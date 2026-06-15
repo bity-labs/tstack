@@ -1,6 +1,6 @@
 # TStack
 
-TStack is organized as a pnpm/Turborepo monorepo. This repository currently contains only the empty workspace shell; apps and packages are placeholders for future tickets.
+TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`; the remaining apps and packages are placeholders for future tickets.
 
 ## Layout
 
@@ -10,8 +10,8 @@ apps/
   documentation/    Placeholder for the future documentation app.
 packages/
   cli/              Placeholder for the future CLI package.
-  harness/          Placeholder for the future harness package.
-    templates/default/  Placeholder for future default harness templates.
+  harness/          Generic engineering harness package.
+    templates/default/  Installable default harness payload.
 docs/
   adr/              Placeholder for architecture decision records.
 ```
@@ -27,4 +27,4 @@ pnpm test
 pnpm typecheck
 ```
 
-These commands are routed through Turbo and currently no-op cleanly until real apps and packages are added.
+These commands are routed through Turbo and currently no-op cleanly for packages that do not define matching scripts.
