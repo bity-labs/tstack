@@ -1,0 +1,10 @@
+{
+  "name": "@tstack/harness",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Generic TStack engineering harness templates for agentic software delivery.",
+  "license": "UNLICENSED",
+  "files": [
+    "templates"
+  ]
+}
