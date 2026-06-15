@@ -1,0 +1,34 @@
+---
+title: "Troubleshooting"
+description: "Fix common setup and usage problems with the standalone harness."
+---
+
+## My agent did not read the harness
+
+Ask it explicitly:
+
+```text
+Read AGENTS.md first, then follow the relevant docs and skills for this task.
+```
+
+If the agent does not support automatic instruction discovery, paste the relevant instructions into the session or point it at the files directly.
+
+## The copied docs still look generic
+
+The default template includes placeholders. Update `docs/context.md` and `docs/coding-standards.md` with real product language, validation commands, and project rules before starting important work.
+
+## A skill asks for docs that are missing
+
+Some projects may customize or remove files. If a skill references a missing doc, tell the agent the file is unavailable and ask it to continue using the context that does exist.
+
+## Copying the template would overwrite existing files
+
+Do not overwrite real project context blindly. Compare the existing file with the template, then merge the useful harness sections into the project's current file.
+
+## The agent follows a stale decision
+
+Check `docs/adr/` and `docs/context.md`. If the project changed direction, update the relevant docs before asking the agent to continue.
+
+## I expected an installer command
+
+Installation is manual today. Copy from `packages/harness/templates/default` and commit the files to your project.

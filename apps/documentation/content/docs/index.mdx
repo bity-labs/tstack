@@ -1,0 +1,29 @@
+---
+title: "Introduction"
+description: "Learn what the TStack Engineering Harness is and where to start."
+---
+
+## What is TStack?
+
+TStack provides a generic **engineering harness** for agentic software delivery. The harness is a set of plain files that you add to an existing repository so coding agents have consistent instructions, project context, engineering doctrine, ADR guidance, and reusable workflows.
+
+The first supported product surface is the standalone harness stored at `packages/harness/templates/default`.
+
+## What the harness gives you
+
+- `AGENTS.md` for repository-level agent instructions.
+- `docs/context.md` for durable product and domain language.
+- `docs/coding-standards.md` for project-specific implementation expectations.
+- `docs/adr/` for architectural decisions.
+- `docs/engineering/` for reusable engineering guidance.
+- `.agents/skills/` for repeatable agent workflows such as ideation, PRD writing, TDD implementation, debugging, refactoring, architecture inspection, issue breakdown, and code review.
+
+## Where to start
+
+1. Read [Getting Started](/getting-started) for the shortest path to installing the harness in an existing project.
+2. Read the [Harness Overview](/harness/overview) to understand the mental model.
+3. Use [Installation](/harness/installation) when copying the template into a real repository.
+
+## Not included yet
+
+TStack does not currently ship a CLI installer, scaffold command, boilerplate application, deployment automation, payment integration, or release automation. The boilerplate section is a placeholder for future documentation only.

@@ -1,0 +1,12 @@
+{
+  "title": "Harness",
+  "pages": [
+    "overview",
+    "installation",
+    "template-structure",
+    "skills",
+    "workflows",
+    "supported-agents",
+    "known-limitations"
+  ]
+}

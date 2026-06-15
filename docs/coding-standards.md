@@ -12,9 +12,9 @@
 
 - Use pnpm workspaces and Turbo for root orchestration.
 - Keep workspace boundaries clear: applications live in `apps/*`; packages live in `packages/*`.
-- Do not implement CLI, boilerplate app, documentation app, installer, scaffold, release, payment, deployment, or repository automation behavior without a dedicated issue.
+- Do not implement CLI, boilerplate app, installer, scaffold, release, payment, deployment, or repository automation behavior without a dedicated issue.
 - Preserve `.gitkeep` files only for directories that must remain tracked while empty.
-- Keep root documentation about maintaining this repository. Buyer-facing documentation belongs to the future documentation app when that app has a dedicated issue.
+- Keep root documentation about maintaining this repository. Buyer-facing documentation belongs in `apps/documentation`.
 
 ## Harness Dogfooding
 

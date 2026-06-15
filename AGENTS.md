@@ -1,6 +1,6 @@
 # Agent Guidance
 
-This repository is currently an empty Turborepo shell. Keep changes focused on repository maintenance unless a future issue explicitly asks for product implementation.
+This repository is a small Turborepo product workspace. Keep changes focused on repository maintenance unless a dedicated issue explicitly asks for product implementation.
 
 - Use pnpm workspaces and Turbo for root orchestration.
 - Keep `apps/*` and `packages/*` as workspace boundaries.

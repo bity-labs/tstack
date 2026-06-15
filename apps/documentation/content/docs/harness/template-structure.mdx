@@ -1,0 +1,58 @@
+---
+title: "Template Structure"
+description: "See what lives in the default harness template and what each file is for."
+---
+
+The standalone harness template lives at `packages/harness/templates/default`.
+
+```txt
+packages/harness/templates/default/
+├── AGENTS.md
+├── docs/
+│   ├── context.md
+│   ├── coding-standards.md
+│   ├── adr/
+│   │   └── 0000-template.md
+│   └── engineering/
+│       ├── index.md
+│       ├── architecture-boundaries.md
+│       ├── code-review.md
+│       ├── data-modeling.md
+│       ├── debugging.md
+│       ├── deep-modules.md
+│       ├── domain-modeling.md
+│       ├── interface-design.md
+│       ├── legacy-code.md
+│       ├── mocking.md
+│       ├── refactoring.md
+│       ├── security-review.md
+│       ├── tdd.md
+│       └── testing.md
+└── .agents/
+    ├── prompts/
+    └── skills/
+```
+
+## Root instructions
+
+`AGENTS.md` is the entrypoint for coding agents. It tells agents which docs to read, how to find source of truth, and what working rules apply before editing.
+
+## Project context
+
+`docs/context.md` captures durable product and domain language. Customize it before relying on the harness for product work.
+
+## Coding standards
+
+`docs/coding-standards.md` captures repository-specific implementation expectations, validation commands, and dependency policy.
+
+## ADRs
+
+`docs/adr/0000-template.md` provides a starting format for architecture decision records. Create new ADRs when a decision affects architecture, ownership, or long-term constraints.
+
+## Engineering doctrine
+
+`docs/engineering/` contains reusable guidance for design, testing, debugging, review, refactoring, security, and domain modeling. Agents should load the files relevant to the current task instead of reading everything by default.
+
+## Skills
+
+`.agents/skills/` contains workflow instructions for repeatable agent tasks. Each skill has its own `SKILL.md` and may include supporting templates.

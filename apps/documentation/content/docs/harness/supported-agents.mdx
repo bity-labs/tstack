@@ -1,0 +1,32 @@
+---
+title: "Supported Agents"
+description: "Understand the agent integration model for the standalone harness."
+---
+
+## Agent-neutral by design
+
+The TStack Engineering Harness is made of plain repository files. It is intended to work with coding agents that can:
+
+- read files in the repository,
+- follow Markdown instructions,
+- run validation commands when allowed, and
+- edit code or documentation through normal repository workflows.
+
+## Best-supported usage
+
+The smoothest experience is with agents that automatically read repository instruction files such as `AGENTS.md` and can discover or be directed to `.agents/skills/`.
+
+For agents with skill or command systems, map each `.agents/skills/<name>/SKILL.md` to that agent's equivalent workflow mechanism.
+
+## Manual usage
+
+If your agent does not discover `AGENTS.md` or `.agents/skills/`, you can still use the harness manually:
+
+1. Ask the agent to read `AGENTS.md`.
+2. Ask it to read `docs/coding-standards.md` and `docs/context.md` when relevant.
+3. Point it at the specific `SKILL.md` for the task.
+4. Ask it to validate using the commands in your project docs.
+
+## Not included today
+
+The default harness does not currently include vendor-specific adapters, generated slash commands, hosted synchronization, or a CLI that installs agent integrations automatically.

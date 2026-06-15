@@ -1,13 +1,13 @@
 # TStack
 
-TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`; the remaining apps and packages are placeholders for future tickets.
+TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, and the buyer-facing documentation app lives in `apps/documentation`.
 
 ## Layout
 
 ```txt
 apps/
   boilerplate/       Placeholder for the future boilerplate app.
-  documentation/    Placeholder for the future documentation app.
+  documentation/    Fumadocs documentation app for TStack users.
 packages/
   cli/              Placeholder for the future CLI package.
   harness/          Generic engineering harness package.
@@ -22,6 +22,7 @@ Use pnpm from the repository root:
 
 ```sh
 pnpm build
+pnpm dev:documentation
 pnpm lint
 pnpm test
 pnpm typecheck
