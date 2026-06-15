@@ -4,6 +4,8 @@
   "packageManager": "pnpm@10.28.1",
   "scripts": {
     "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:documentation": "turbo run dev --filter=@tstack/documentation",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"

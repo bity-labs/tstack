@@ -1,0 +1,66 @@
+---
+title: "Commands"
+description: "Reference commands for installing and using the standalone harness today."
+---
+
+## Copy the harness template
+
+```sh
+SOURCE=/path/to/tstack/packages/harness/templates/default
+TARGET=/path/to/your/project
+cp -R "$SOURCE"/. "$TARGET"/
+```
+
+## Review copied files
+
+```sh
+find "$TARGET" -maxdepth 3 \
+  \( -path "$TARGET/.git" -o -path "$TARGET/node_modules" \) -prune -o \
+  -type f -print
+```
+
+Pay special attention to:
+
+- `AGENTS.md`
+- `docs/context.md`
+- `docs/coding-standards.md`
+- `docs/adr/`
+- `.agents/skills/`
+
+## Commit the harness
+
+```sh
+cd "$TARGET"
+git add AGENTS.md docs .agents
+git commit -m "Add TStack engineering harness"
+```
+
+## Ask an agent to use a skill
+
+```text
+Use the implement-with-tdd skill to implement this issue.
+```
+
+```text
+Use the debug skill to investigate this failing command.
+```
+
+```text
+Use the refactor-safely skill to improve this module without changing behavior.
+```
+
+## Validate project work
+
+Use the validation commands defined by the target project. Add them to `docs/coding-standards.md` so agents can find them.
+
+Common examples are:
+
+```sh
+pnpm lint
+pnpm test
+pnpm typecheck
+```
+
+## TStack CLI status
+
+There is no `tstack` CLI command yet. Any command examples on this page use normal shell and Git commands.

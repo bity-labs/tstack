@@ -1,0 +1,30 @@
+---
+title: "Harness Overview"
+description: "Understand the standalone TStack Engineering Harness and how it guides agent work."
+---
+
+## Purpose
+
+The TStack Engineering Harness gives coding agents a stable operating model inside an existing repository. Instead of repeating expectations in every prompt, you keep durable instructions in versioned files that agents can read before they edit code or documentation.
+
+## How it works
+
+1. You copy `packages/harness/templates/default` into your project.
+2. You customize the context, standards, and ADRs for your project.
+3. Agents start from `AGENTS.md`, then load the docs and skills relevant to the current task.
+4. Work is validated with the commands and expectations defined by the target project.
+
+The harness is intentionally plain: Markdown documents, ADR templates, and skill files. It does not require a specific application framework.
+
+## What problems it solves
+
+- **Repeated instructions:** project rules live in files, not only in chat history.
+- **Weak domain context:** agents have a place to learn product language before naming concepts or changing behavior.
+- **Inconsistent workflows:** common work such as ideation, PRD writing, implementation, debugging, refactoring, issue breakdown, and review can follow reusable skill instructions.
+- **Lost architecture decisions:** ADRs make long-term tradeoffs discoverable to future agents and maintainers.
+
+## Intended users
+
+Use the harness when you already have a codebase and want coding agents to operate with clearer project context, stronger engineering discipline, and repeatable workflows.
+
+If you need an application starter, scaffolded product code, or an installer, those are separate future TStack surfaces and are not included in the standalone harness today.

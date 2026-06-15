@@ -2,12 +2,13 @@
 
 ## Purpose
 
-TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack product surface. The repository currently contains an engineering harness package and placeholders for future CLI, boilerplate app, and documentation app work.
+TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack product surface. The repository currently contains an engineering harness package, a buyer-facing documentation app, and placeholders for future CLI and boilerplate app work.
 
 ## Current Scope
 
-- `packages/harness` is the only implemented product package. It stores reusable harness templates for agentic software delivery.
-- `apps/boilerplate`, `apps/documentation`, and `packages/cli` are tracked placeholders until dedicated implementation issues exist.
+- `packages/harness` stores reusable harness templates for agentic software delivery.
+- `apps/documentation` is the Fumadocs documentation app for TStack users.
+- `apps/boilerplate` and `packages/cli` are tracked placeholders until dedicated implementation issues exist.
 - Root repository work should focus on monorepo maintenance, workspace orchestration, and durable engineering guidance.
 
 ## Repository Boundaries
@@ -21,6 +22,7 @@ TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack prod
 
 | Term | Meaning |
 | --- | --- |
+| Documentation app | Fumadocs app under `apps/documentation` that publishes buyer-facing TStack docs. |
 | Harness | Reusable agent-facing template assets stored in `packages/harness/templates/default`. |
 | Monorepo root | The orchestration layer for workspace configuration, root docs, and repository maintenance. |
 | Template assets | Files intended to be reused by projects that install or dogfood the harness. |

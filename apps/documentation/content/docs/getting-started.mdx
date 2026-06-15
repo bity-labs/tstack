@@ -1,0 +1,50 @@
+---
+title: "Getting Started"
+description: "Install the standalone harness in an existing project and make it useful for your agents."
+---
+
+## 1. Copy the template
+
+The installable harness template lives at `packages/harness/templates/default`.
+
+From a checkout that contains TStack, copy the template into the root of your target project:
+
+```sh
+SOURCE=/path/to/tstack/packages/harness/templates/default
+TARGET=/path/to/your/project
+cp -R "$SOURCE"/. "$TARGET"/
+```
+
+If your project already has files with the same names, merge them intentionally instead of overwriting them blindly.
+
+## 2. Customize project context
+
+Open the copied files and replace placeholders with real project information:
+
+- `docs/context.md` — describe your product, domain language, business rules, external systems, and important references.
+- `docs/coding-standards.md` — add the commands and conventions agents should follow in your project.
+- `docs/adr/` — keep decisions that affect architecture, ownership, or long-term constraints.
+- `AGENTS.md` — adjust repository navigation and working rules if your project needs extra guidance.
+
+## 3. Commit the harness
+
+Commit the copied and customized files so every agent run sees the same instructions.
+
+```sh
+git add AGENTS.md docs .agents
+git commit -m "Add TStack engineering harness"
+```
+
+## 4. Use it with a coding agent
+
+Start agent tasks by pointing the agent at `AGENTS.md`. For workflow-driven tasks, ask the agent to use a skill from `.agents/skills/` by name, for example:
+
+```text
+Use the implement-with-tdd skill to implement this issue.
+```
+
+Agents should read only the docs and skills relevant to the task, then validate with the commands listed in your project's coding standards.
+
+## Current installation model
+
+Installation is manual today. TStack does not currently provide a CLI installer, scaffold command, package post-install hook, or migration tool.

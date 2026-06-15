@@ -1,0 +1,28 @@
+---
+title: "Known Limitations"
+description: "Current boundaries of the standalone harness."
+---
+
+## Manual installation
+
+The harness is copied manually from `packages/harness/templates/default`. There is no TStack CLI installer, scaffold command, package hook, or migration helper yet.
+
+## Placeholder project context
+
+The default `docs/context.md` and `docs/coding-standards.md` include placeholders. Replace them with real project information before relying on the harness for product or engineering decisions.
+
+## No boilerplate application yet
+
+The standalone harness does not include an application starter. The boilerplate docs path is present only as a lightweight placeholder.
+
+## No vendor-specific adapters
+
+Skills are plain Markdown workflows. The harness does not currently ship generated slash commands, tool-specific extension packages, or automatic agent configuration.
+
+## No automation for deployment or releases
+
+The harness does not set up payment providers, deployment infrastructure, release automation, repository access, or branch protection.
+
+## Docs may lag project reality unless maintained
+
+The harness works best when `docs/context.md`, `docs/coding-standards.md`, ADRs, and skills are updated as the project changes. Outdated documentation can mislead agents.

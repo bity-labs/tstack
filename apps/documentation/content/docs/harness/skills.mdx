@@ -1,0 +1,42 @@
+---
+title: "Skills"
+description: "Use bundled skill workflows to make common agent tasks repeatable."
+---
+
+## What is a skill?
+
+A skill is a task-specific instruction file for a coding agent. Skills live in `.agents/skills/<skill-name>/SKILL.md` and describe when to use the workflow, which context to read, and how to complete the task.
+
+Skills do not replace project judgment. They give agents a repeatable path through common engineering work.
+
+## Included skills
+
+The default harness includes skills for:
+
+- `ideate` — sharpen an early idea until it is clear enough to specify, design, reject, or park.
+- `clarify-with-context` — clarify a plan against existing project docs, ADRs, and code.
+- `write-prd` — turn clarified context into a PRD issue.
+- `break-into-issues` — break a PRD or plan into independently grabbable implementation issues.
+- `implement-with-tdd` — implement clear behavior with a red-green-refactor loop.
+- `debug` — diagnose bugs and regressions with reproduction, minimization, hypotheses, instrumentation, fixes, and regression checks.
+- `refactor-safely` — improve structure while preserving behavior.
+- `inspect-architecture` — find architectural friction and create refactoring opportunities.
+- `break-architecture-into-issues` — turn architecture opportunities into concrete implementation tasks.
+- `understand-codebase` — map an unfamiliar codebase area.
+- `issues-triage` — classify and prepare GitHub issues for implementation.
+- `code-review` — review a pull request against the project's engineering doctrine.
+- `fix-code-review` — address pull request feedback with minimal verified changes.
+
+## How to invoke a skill
+
+Ask your coding agent to use the skill by name:
+
+```text
+Use the debug skill to investigate this failing test.
+```
+
+If your agent does not automatically discover skills, paste or point it to the relevant `SKILL.md` file.
+
+## Keep skills connected to project context
+
+Skills usually reference `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, `docs/engineering/`, and ADRs. Keep those docs accurate so skill-driven work follows the current project reality.

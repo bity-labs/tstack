@@ -1,0 +1,9 @@
+# generated
+.source
+next-env.d.ts
+*.tsbuildinfo
+
+# app build output
+.next/
+out/
+build/
