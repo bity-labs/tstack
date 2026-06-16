@@ -1,0 +1,58 @@
+---
+title: "Config"
+description: "Use centralized environment and route configuration in the boilerplate."
+---
+
+Configuration lives in `src/config`.
+
+```txt
+src/config/
+├── env.ts     # Typed environment object
+├── routes.ts  # Route constants
+├── wagmi.ts   # Wallet connection configuration
+└── index.ts   # Re-exports config modules
+```
+
+## Environment access
+
+Read environment values through `env` instead of reaching into `process.env` throughout application code.
+
+```ts
+import { env } from "@/config";
+
+env.projectUrl;
+env.appName;
+env.database.url;
+env.payment.polarServer;
+env.upload.provider;
+env.analytics.provider;
+```
+
+The source of truth for available variables is `apps/boilerplate/.env.example`. See [Environment Variables](/getting-started/environment-variables) for the buyer-facing reference.
+
+## Route constants
+
+Use `routes` for navigation, redirects, middleware, and links.
+
+```ts
+import { routes } from "@/config";
+
+routes.home; // "/"
+routes.auth.login; // "/login"
+routes.dashboard; // "/dashboard"
+routes.account.billing; // "/account/billing"
+routes.legal.privacy; // "/privacy"
+```
+
+When you add or rename a route:
+
+1. Update `src/config/routes.ts`.
+2. Update middleware route lists if the access level changes.
+3. Update locales metadata for new pages.
+4. Update docs or tests when the route becomes part of the product surface.
+
+## Wallet config
+
+`src/config/wagmi.ts` configures RainbowKit and Wagmi for SIWE. WalletConnect uses `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`.
+
+If your product does not support web3 sign-in, remove SIWE deliberately rather than leaving broken UI in place.

@@ -1,0 +1,79 @@
+---
+title: "Locales"
+description: "Customize user-facing copy, metadata, and validation messages from one file."
+---
+
+The boilerplate centralizes user-facing text in `src/locales/index.ts`.
+
+## Why use locales?
+
+- Builders can rebrand copy from one place.
+- TypeScript catches missing or misspelled keys.
+- Pages share consistent metadata and error messages.
+- Future localization work has a clear seam.
+
+## Common structure
+
+```ts
+export const locales = {
+  metadata: {
+    title: "MyApp",
+    description: "A production-ready SaaS app",
+  },
+  errors: {
+    invalidEmail: "Please enter a valid email address",
+  },
+  success: {
+    profileUpdated: "Profile updated",
+  },
+  common: {
+    save: "Save",
+    cancel: "Cancel",
+  },
+  HomePage: {
+    metadata: {
+      title: "MyApp",
+      description: "Launch your product faster",
+    },
+  },
+  LoginForm: {
+    emailLabel: "Email",
+  },
+} as const;
+```
+
+## Page metadata
+
+Pages should compose metadata through the boilerplate helpers:
+
+```ts
+import { createMetadata, getDefaultMetadata } from "@/lib/metadata";
+import { locales } from "@/locales";
+
+export const metadata = createMetadata({
+  ...getDefaultMetadata(),
+  title: locales.HomePage.metadata.title,
+  description: locales.HomePage.metadata.description,
+});
+```
+
+## Validation messages
+
+Schemas should use localized error messages:
+
+```ts
+import { z } from "zod";
+import { locales } from "@/locales";
+
+export const newsletterSchema = z.object({
+  email: z.string().email(locales.errors.invalidEmail),
+});
+```
+
+## Customization checklist
+
+- [ ] Replace global `metadata` for your product.
+- [ ] Replace page titles and descriptions before launch.
+- [ ] Replace legal, billing, auth, and email copy with your product voice.
+- [ ] Keep validation and expected error messages in `locales.errors`.
+- [ ] Keep success toasts and confirmations in `locales.success`.

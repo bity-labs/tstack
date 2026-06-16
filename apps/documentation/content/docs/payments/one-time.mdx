@@ -1,0 +1,57 @@
+---
+title: "One-Time Purchases and Benefits"
+description: "Sell one-time products with downloadables or GitHub repository access."
+---
+
+The boilerplate supports one-time Polar products and benefit display through `src/features/benefits`.
+
+## Checkout flow
+
+```txt
+BuyButton -> Polar checkout -> payment -> /success -> benefits visible in app/customer portal
+```
+
+Products with `type: "one_time"` live alongside subscription products in `polar/products.*.json`.
+
+## BuyButton
+
+```tsx
+import { BuyButton } from "@/components/buy-button";
+
+<BuyButton slug="lifetime" label="Buy Now" />;
+```
+
+The slug must match a configured generated product for the active Polar environment.
+
+## Benefits feature
+
+```txt
+src/features/benefits/
+├── components/downloadables-list.tsx
+├── components/github-benefits-list.tsx
+├── models/downloadable.model.ts
+├── models/github-benefit.model.ts
+├── queries/downloadables.query.ts
+├── queries/github-benefits.query.ts
+└── services/
+```
+
+The benefits feature reads Polar customer portal data through the Polar gateway rather than storing every benefit locally.
+
+## Downloadables
+
+Downloadables represent files granted by Polar benefits. The app can list file names, sizes, expiration dates, and download URLs for an authenticated customer.
+
+## GitHub repository benefits
+
+GitHub benefits represent repository access granted by Polar after purchase. A customer may need to connect GitHub in the Polar customer portal before the grant becomes active.
+
+## Access model choices
+
+You can gate app access with:
+
+- active subscription only,
+- one-time order/benefit only,
+- subscription or one-time order.
+
+Update `src/middleware.ts`, pricing copy, and support docs together when changing the access model.
