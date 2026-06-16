@@ -711,7 +711,7 @@ export const locales = {
   },
 
   PoweredByBadge: {
-    text: "Powered by eniem.dev",
+    text: "Powered by TStack",
   },
 
   Pagination: {

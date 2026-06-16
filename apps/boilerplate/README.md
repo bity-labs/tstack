@@ -1,32 +1,27 @@
 <p align="center">
-  <img src="public/android-chrome-512x512.png" alt="Eniem" width="120" height="120">
+  <img src="public/android-chrome-512x512.png" alt="TStack Agent-Ready Boilerplate" width="120" height="120">
 </p>
 
-<h1 align="center">Eniem Boilerplate</h1>
+<h1 align="center">TStack Agent-Ready Boilerplate</h1>
 
 <p align="center">
-  A production-ready Next.js 15 boilerplate with authentication, payments, and everything you need to ship fast.
+  A production-ready Next.js 15 starter with authentication, payments, email, and agent-facing engineering conventions.
 </p>
 
 ---
 
 ## Get Started
 
-Scaffold a new project with the Eniem CLI:
+This app is the boilerplate layer of TStack. Until a scaffold command exists, start from the monorepo source:
 
 ```bash
-npx eniem-cli my-app
-```
-
-Or clone manually:
-
-```bash
-git clone https://github.com/eniem-dev/eniem-boilerplate my-app
+git clone https://github.com/bity-labs/tstack my-app
 cd my-app
-git remote remove origin && rm -rf .git && git init
 pnpm install
-pnpm dev
+pnpm --filter @tstack/boilerplate dev
 ```
+
+If you copy this app into a standalone repository, keep the TStack Engineering Harness docs with it and update the placeholders below for your product.
 
 ## Rebranding
 
@@ -44,4 +39,4 @@ grep -rl "myapp" . --exclude-dir={node_modules,.git} | xargs sed -i 's/myapp/you
 
 ## Documentation
 
-Full documentation available at [doc.eniem.dev](https://doc.eniem.dev).
+TStack documentation lives in the repository documentation app: <https://github.com/bity-labs/tstack/tree/main/apps/documentation>.

@@ -5,7 +5,7 @@ import { locales } from "@/locales";
 export function PoweredByBadge({ className }: { className?: string }) {
   return (
     <Link
-      href="https://eniem.dev"
+      href="https://github.com/bity-labs/tstack"
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
