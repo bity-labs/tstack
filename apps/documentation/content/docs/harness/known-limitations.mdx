@@ -5,15 +5,19 @@ description: "Current boundaries of the standalone harness."
 
 ## Manual installation
 
-The harness is copied manually from `packages/harness/templates/default`. There is no TStack CLI installer, scaffold command, package hook, or migration helper yet.
+The standalone harness is copied manually from `packages/harness/templates/default`. There is no TStack CLI installer, package hook, or migration helper yet.
 
 ## Placeholder project context
 
 The default `docs/context.md` and `docs/coding-standards.md` include placeholders. Replace them with real project information before relying on the harness for product or engineering decisions.
 
-## No boilerplate application yet
+## Symlinks are development-only
 
-The standalone harness does not include an application starter. The boilerplate docs path is present only as a lightweight placeholder.
+The TStack monorepo dogfoods harness-owned assets through symlinks so local edits update the product template. Installed projects should receive real copies of every harness file, not symlinks back to the TStack source tree.
+
+## No automated boilerplate scaffold yet
+
+The Agent-Ready Boilerplate exists in `apps/boilerplate`, but there is no CLI command that creates a standalone app from it yet. Until that exists, start from the monorepo source or copy the app manually and materialize linked harness assets as real files.
 
 ## No vendor-specific adapters
 

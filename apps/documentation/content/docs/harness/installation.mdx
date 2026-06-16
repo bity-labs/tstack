@@ -29,6 +29,12 @@ cp -R "$SOURCE"/. "$TARGET"/
 
 This adds the harness files directly to the target project root.
 
+## Copy, do not symlink, for installed projects
+
+A normal harness install should copy every file into the target repository. Do not symlink a customer or standalone project back to your TStack checkout; the project should work in isolation.
+
+Symlinks are only used inside the TStack monorepo while dogfooding harness-owned assets such as `.agents` and `docs/engineering`.
+
 ## Merge existing project files carefully
 
 If your project already has any of these paths, review them before copying:
@@ -48,6 +54,7 @@ At minimum, update:
 1. `docs/context.md` with real product and domain language.
 2. `docs/coding-standards.md` with real validation commands and conventions.
 3. `AGENTS.md` with any repository-specific navigation rules.
+4. `docs/adr/` with decisions that should survive future agent sessions.
 
 The copied template includes placeholder text. Do not treat placeholders as authoritative project context.
 

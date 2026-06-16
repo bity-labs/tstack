@@ -25,6 +25,10 @@ Some projects may customize or remove files. If a skill references a missing doc
 
 Do not overwrite real project context blindly. Compare the existing file with the template, then merge the useful harness sections into the project's current file.
 
+## The generated project still points to TStack symlinks
+
+Standalone projects should not depend on symlinks back to a TStack checkout. Replace linked harness paths with real copied files before giving the project to an agent or customer.
+
 ## The agent follows a stale decision
 
 Check `docs/adr/` and `docs/context.md`. If the project changed direction, update the relevant docs before asking the agent to continue.

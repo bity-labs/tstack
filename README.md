@@ -1,20 +1,35 @@
 # TStack
 
-TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, and the buyer-facing documentation app lives in `apps/documentation`.
+TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, the buyer-facing documentation app lives in `apps/documentation`, and the Agent-Ready Boilerplate lives in `apps/boilerplate`.
 
 ## Layout
 
 ```txt
 apps/
-  boilerplate/       Placeholder for the future boilerplate app.
+  boilerplate/       Next.js SaaS starter that dogfoods the shared harness.
   documentation/    Fumadocs documentation app for TStack users.
 packages/
   cli/              Placeholder for the future CLI package.
   harness/          Generic engineering harness package.
     templates/default/  Installable default harness payload.
 docs/
-  adr/              Placeholder for architecture decision records.
+  context.md        Durable monorepo context.
+  coding-standards.md
+  adr/              Monorepo architecture decision records.
 ```
+
+## Harness dogfooding
+
+In this monorepo, harness-owned assets are symlinked into the repo root and boilerplate app so local edits improve the product source of truth:
+
+- `.agents` -> `packages/harness/templates/default/.agents`
+- `docs/engineering` -> `packages/harness/templates/default/docs/engineering`
+- `apps/boilerplate/.agents` -> `packages/harness/templates/default/.agents`
+- `apps/boilerplate/docs/engineering` -> `packages/harness/templates/default/docs/engineering`
+
+Project-owned working documents stay as real files and may diverge from the generic template: `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` at each project root.
+
+Any future installer or boilerplate scaffold must materialize all harness resources as real copied files so generated projects work in isolation without monorepo symlinks.
 
 ## Workspace commands
 
@@ -23,6 +38,7 @@ Use pnpm from the repository root:
 ```sh
 pnpm build
 pnpm dev:documentation
+pnpm --filter @tstack/boilerplate dev
 pnpm lint
 pnpm test
 pnpm typecheck

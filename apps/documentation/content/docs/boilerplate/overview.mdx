@@ -1,10 +1,45 @@
 ---
 title: "Boilerplate Overview"
-description: "A placeholder for future TStack boilerplate documentation."
+description: "Understand the current TStack Agent-Ready Boilerplate."
 ---
 
-The TStack boilerplate application is not part of the current standalone harness release.
+The TStack Agent-Ready Boilerplate is the application layer of TStack. It lives in `apps/boilerplate` and provides a production-ready Next.js SaaS starter with agent-facing engineering conventions.
 
-Future documentation may cover an application starter, framework choices, project conventions, and product setup steps. For now, use the harness docs when you want agent-facing instructions and workflows for an existing project.
+## What is included
 
-Do not assume any boilerplate code, CLI command, deployment target, payment integration, or release process exists until those surfaces are added by future work.
+The boilerplate currently includes:
+
+- Next.js App Router application structure.
+- Better Auth authentication with email/password, Email OTP, OAuth, and SIWE support.
+- Polar billing, subscriptions, benefits, and credit metering.
+- Prisma/PostgreSQL persistence.
+- Resend/React Email transactional email patterns.
+- File upload support using database storage or DigitalOcean Spaces.
+- Marketing, landing, blog, legal, dashboard, account, billing, usage, and settings routes.
+- TStack harness dogfooding through shared skills and engineering doctrine.
+
+## Run it from the monorepo
+
+```sh
+git clone https://github.com/bity-labs/tstack my-app
+cd my-app
+pnpm install
+pnpm --filter @tstack/boilerplate dev
+```
+
+For realistic local development, copy `apps/boilerplate/.env.example` to an ignored environment file, set a non-default `BETTER_AUTH_SECRET`, and start the configured PostgreSQL service when touching database-backed flows.
+
+## Harness integration model
+
+Inside the TStack monorepo, the boilerplate links only harness-owned resources:
+
+- `apps/boilerplate/.agents` -> `packages/harness/templates/default/.agents`
+- `apps/boilerplate/docs/engineering` -> `packages/harness/templates/default/docs/engineering`
+
+Boilerplate-owned working documents are real files: `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, `docs/adr/**`, and the stack-specific docs under `docs/`.
+
+A standalone app created from the boilerplate should contain real copies of both the linked harness resources and the boilerplate-specific docs. It should not depend on symlinks back to the TStack monorepo.
+
+## Current limitation
+
+There is no automated `tstack` scaffold/export command yet. Until that exists, the boilerplate is available from the monorepo source and any standalone extraction is manual.
