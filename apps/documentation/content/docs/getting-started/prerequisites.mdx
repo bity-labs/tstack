@@ -1,0 +1,40 @@
+---
+title: "Prerequisites"
+description: "Accounts and local tools needed for the TStack Agent-Ready Boilerplate."
+---
+
+## Local tools
+
+Install these before running the boilerplate locally:
+
+- Node.js 20 or newer.
+- pnpm 10, matching the repository package manager.
+- Docker, for the local PostgreSQL container started by `db:start`.
+- Git, for cloning and managing your own repository.
+
+## Required for local development
+
+The default local path uses PostgreSQL through Docker:
+
+```sh
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:push
+```
+
+The database URL in `apps/boilerplate/.env.example` points at the bundled local Docker database.
+
+## Third-party accounts
+
+You can run many screens without every provider, but production use needs provider setup:
+
+| Provider | Used for | Required when |
+| --- | --- | --- |
+| Polar | Subscriptions, one-time payments, benefits, credit usage, customer portal | Testing or selling paid products |
+| Resend | Transactional auth and account emails | Sending real emails in production |
+| GitHub OAuth | Social login and GitHub-benefit flows | Offering GitHub login or code access benefits |
+| Twitter/X OAuth | Optional social login | Offering Twitter/X login |
+| WalletConnect | Wallet connection for SIWE | Offering web3 wallet sign-in |
+| Umami or PostHog | Analytics | Tracking product events or page views |
+| DigitalOcean Spaces | Production file storage | Serving uploaded files outside the database provider |
+
+The database file-upload provider works without DigitalOcean and is the default for local setup.

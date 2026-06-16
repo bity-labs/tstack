@@ -1,0 +1,73 @@
+---
+title: "Set Up Subscriptions"
+description: "Configure recurring Polar checkout in the boilerplate."
+---
+
+## 1. Create a Polar token
+
+In Polar, create an access token for the environment you are testing. For subscription checkout, customer state, orders, portal, and webhooks, include only the scopes your product needs.
+
+Common scopes include:
+
+- `checkouts:write`
+- `customers:read`
+- `customers:write`
+- `customer_portal:read`
+- `customer_portal:write`
+- `orders:read`
+- `subscriptions:read`
+
+Add optional scopes for benefits, files, or usage meters only when you use those features.
+
+## 2. Set environment variables
+
+```sh
+POLAR_ACCESS_TOKEN=...
+POLAR_SERVER=sandbox
+POLAR_WEBHOOK_SECRET=...
+POLAR_ORGANIZATION_ID=...
+```
+
+Use `sandbox` for local testing.
+
+## 3. Create products in Polar
+
+Create subscription products in Polar's dashboard. Copy each environment's product ID into the matching JSON file:
+
+```txt
+polar/products.sandbox.json
+polar/products.production.json
+```
+
+## 4. Keep generated files aligned
+
+The boilerplate currently includes generated TypeScript under `src/features/billing/generated/`. TStack does not ship a buyer-facing product sync command today, so keep JSON, generated TypeScript, and Polar dashboard state aligned manually until a dedicated workflow exists.
+
+## 5. Confirm checkout configuration
+
+`src/lib/auth/plugins/polar.ts` should use:
+
+```ts
+getCheckoutProducts(env.payment.polarServer)
+```
+
+This filters out products without a Polar product ID.
+
+## 6. Add webhook
+
+Create a Polar webhook endpoint:
+
+```txt
+https://yourdomain.com/api/auth/polar/webhooks
+```
+
+For local webhook testing, expose your dev server with a tunnel and use the tunnel URL.
+
+## 7. Test sandbox checkout
+
+1. Start the app.
+2. Sign in.
+3. Click a subscription `BuyButton` or pricing card.
+4. Complete Polar sandbox checkout.
+5. Confirm `/success` syncs subscription state.
+6. Confirm `/dashboard` access matches your paid-access model.

@@ -1,0 +1,28 @@
+---
+title: "Known Limitations"
+description: "Current limitations buyers should understand before using TStack."
+---
+
+## No scaffold/export command yet
+
+TStack does not currently include a CLI scaffold/export command. The boilerplate can be run from the monorepo source, and standalone extraction is manual.
+
+## No buyer-facing product sync command yet
+
+The boilerplate includes Polar product/meter JSON and generated TypeScript files, but TStack does not currently provide a buyer-facing command to sync products or regenerate files. Keep Polar dashboard state, JSON config, and generated TypeScript aligned deliberately.
+
+## No deployment automation
+
+Deployment recipes are documentation-only. TStack does not provision servers, managed databases, environment variables, domains, webhooks, or secrets.
+
+## No repository-access automation outside Polar benefits
+
+The boilerplate can display Polar GitHub benefits, but TStack does not automate repository creation, GitHub organization management, or custom access reconciliation.
+
+## Manual provider configuration
+
+OAuth, Resend, Polar, analytics, WalletConnect, and DigitalOcean Spaces require manual accounts, keys, callbacks, and production testing.
+
+## Monorepo symlinks are development-only
+
+Inside the TStack monorepo, `.agents` and `docs/engineering` are symlinked to the shared Engineering Harness. Standalone apps must use real copied files.

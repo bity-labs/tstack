@@ -1,4 +1,18 @@
 {
   "title": "TStack",
-  "pages": ["index", "getting-started", "harness", "boilerplate", "reference"]
+  "pages": [
+    "index",
+    "getting-started",
+    "harness",
+    "boilerplate",
+    "project-configuration",
+    "features",
+    "authentication",
+    "payments",
+    "guides",
+    "deployments",
+    "reference",
+    "---",
+    "[LLM Documentation](/llms-full.txt)"
+  ]
 }

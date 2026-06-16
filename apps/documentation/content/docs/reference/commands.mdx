@@ -1,9 +1,58 @@
 ---
 title: "Commands"
-description: "Reference commands for installing and using the standalone harness today."
+description: "Common commands for the TStack docs, harness, and boilerplate."
 ---
 
-## Copy the harness template
+Run these from the TStack monorepo root unless noted.
+
+## Documentation app
+
+```sh
+pnpm --filter @tstack/documentation dev
+pnpm --filter @tstack/documentation typecheck
+pnpm --filter @tstack/documentation build
+```
+
+## Boilerplate local development
+
+```sh
+cp apps/boilerplate/.env.example apps/boilerplate/.env
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:push
+pnpm --filter @tstack/boilerplate dev
+```
+
+## Boilerplate validation
+
+```sh
+pnpm --filter @tstack/boilerplate lint
+pnpm --filter @tstack/boilerplate typecheck
+pnpm --filter @tstack/boilerplate test
+pnpm --filter @tstack/boilerplate build
+```
+
+## Boilerplate database
+
+```sh
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:stop
+pnpm --filter @tstack/boilerplate db:push
+pnpm --filter @tstack/boilerplate db:migrate
+pnpm --filter @tstack/boilerplate db:studio
+pnpm --filter @tstack/boilerplate db:reset
+```
+
+Use `db:push` for local iteration and `db:migrate` for applying migrations in deployed environments.
+
+## Emails
+
+```sh
+pnpm --filter @tstack/boilerplate email:dev
+```
+
+This starts the React Email preview server for templates under `src/components/emails`.
+
+## Harness template copy
 
 ```sh
 SOURCE=/path/to/tstack/packages/harness/templates/default
@@ -11,66 +60,14 @@ TARGET=/path/to/your/project
 cp -R "$SOURCE"/. "$TARGET"/
 ```
 
-## Review copied files
+Commit copied harness files after customizing project context.
 
-```sh
-find "$TARGET" -maxdepth 3 \
-  \( -path "$TARGET/.git" -o -path "$TARGET/node_modules" \) -prune -o \
-  -type f -print
-```
-
-Pay special attention to:
-
-- `AGENTS.md`
-- `docs/context.md`
-- `docs/coding-standards.md`
-- `docs/adr/`
-- `.agents/skills/`
-
-## Commit the harness
-
-```sh
-cd "$TARGET"
-git add AGENTS.md docs .agents
-git commit -m "Add TStack engineering harness"
-```
-
-## Ask an agent to use a skill
-
-```text
-Use the implement-with-tdd skill to implement this issue.
-```
-
-```text
-Use the debug skill to investigate this failing command.
-```
-
-```text
-Use the refactor-safely skill to improve this module without changing behavior.
-```
-
-## Run the boilerplate app from the monorepo
-
-```sh
-pnpm --filter @tstack/boilerplate dev
-```
-
-For realistic local work, copy `apps/boilerplate/.env.example` to an ignored environment file, set a non-default `BETTER_AUTH_SECRET`, and start any required local services.
-
-## Validate project work
-
-Use the validation commands defined by the target project. Add them to `docs/coding-standards.md` so agents can find them.
-
-Common examples are:
+## Whole workspace validation
 
 ```sh
 pnpm lint
-pnpm test
 pnpm typecheck
+pnpm test
+pnpm build
+git diff --check
 ```
-
-## TStack CLI status
-
-There is no `tstack` CLI command yet. Any command examples on this page use normal shell and Git commands.
-
-Future scaffold/export commands should copy all harness resources into generated projects. Symlinks are only a TStack monorepo dogfooding convenience.

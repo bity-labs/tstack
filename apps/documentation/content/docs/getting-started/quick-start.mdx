@@ -1,0 +1,37 @@
+---
+title: "Quick Start"
+description: "Run the TStack Agent-Ready Boilerplate from the current monorepo source."
+---
+
+## Run from the monorepo
+
+```sh
+git clone https://github.com/bity-labs/tstack my-app
+cd my-app
+pnpm install
+cp apps/boilerplate/.env.example apps/boilerplate/.env
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:push
+pnpm --filter @tstack/boilerplate dev
+```
+
+Open `http://localhost:3000`.
+
+## What these commands do
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm install` | Installs all workspace dependencies. |
+| `cp apps/boilerplate/.env.example apps/boilerplate/.env` | Creates the ignored local environment file. |
+| `pnpm --filter @tstack/boilerplate db:start` | Starts the local PostgreSQL Docker service. |
+| `pnpm --filter @tstack/boilerplate db:push` | Pushes the Prisma schema to the local database for development. |
+| `pnpm --filter @tstack/boilerplate dev` | Starts Velite and the Next.js development server for the boilerplate app. |
+
+Set a non-empty `BETTER_AUTH_SECRET` before testing realistic auth flows.
+
+## Common next steps
+
+- Configure real values in [Environment Variables](/getting-started/environment-variables).
+- Replace `MyApp`, `myapp`, and `myapp.example.com` placeholders.
+- Read [File Structure](/project-configuration/file-structure) before changing the app.
+- Read [Product Configuration](/payments/product-configuration) before changing pricing or checkout behavior.

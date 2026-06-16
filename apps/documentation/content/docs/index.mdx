@@ -1,30 +1,24 @@
 ---
 title: "Introduction"
-description: "Learn what the TStack Engineering Harness is and where to start."
+description: "Learn what TStack includes and where to start."
 ---
 
 ## What is TStack?
 
-TStack provides practical tooling for agentic software delivery. The first layer is a generic **engineering harness**: plain files that you add to a repository so coding agents have consistent instructions, project context, engineering doctrine, ADR guidance, and reusable workflows.
+TStack is a practical stack for agent-ready software delivery. It has two usable layers today:
 
-The monorepo also contains the **Agent-Ready Boilerplate** in `apps/boilerplate`: a Next.js SaaS starter that dogfoods the harness and includes authentication, billing, email, content, file upload, analytics, web3 wallet sign-in, and stack-specific agent docs.
+- **Engineering Harness** — reusable agent instructions, engineering doctrine, skills, ADR guidance, and project context files.
+- **TStack Agent-Ready Boilerplate** — a Next.js SaaS starter in `apps/boilerplate` with authentication, payments, content, email, analytics, file upload, testing, web3 wallet sign-in, and boilerplate-specific agent docs.
 
-## What the harness gives you
+The repository also contains this buyer-facing documentation app.
 
-- `AGENTS.md` for repository-level agent instructions.
-- `docs/context.md` for durable product and domain language.
-- `docs/coding-standards.md` for project-specific implementation expectations.
-- `docs/adr/` for architectural decisions.
-- `docs/engineering/` for reusable engineering guidance.
-- `.agents/skills/` for repeatable agent workflows such as ideation, PRD writing, TDD implementation, debugging, refactoring, architecture inspection, issue breakdown, and code review.
+## Start here
 
-## Where to start
+- Use [Getting Started](/getting-started) to run the boilerplate from the monorepo or install the Engineering Harness in an existing project.
+- Use [Boilerplate Overview](/boilerplate/overview) to understand the SaaS starter.
+- Use [Environment Variables](/getting-started/environment-variables) before running auth, billing, email, analytics, or upload flows.
+- Use [Known Limitations](/reference/known-limitations) to understand what is manual today.
 
-1. Read [Getting Started](/getting-started) for the shortest path to installing the harness in an existing project.
-2. Read the [Harness Overview](/harness/overview) to understand the mental model.
-3. Use [Installation](/harness/installation) when copying the template into a real repository.
-4. Read [Boilerplate Overview](/boilerplate/overview) when starting from the TStack SaaS starter.
+## What is not included yet
 
-## Not included yet
-
-TStack does not currently ship a CLI installer, automated scaffold/export command, deployment automation, repository access automation, or release automation. The boilerplate app exists in the monorepo source, but standalone app generation is still manual until an installer/scaffold is added.
+TStack does not currently ship a CLI installer, scaffold command, export command, payment automation, deployment automation, or repository-access automation. The boilerplate is usable from the current monorepo source, and standalone extraction is manual until a dedicated scaffold/export command exists.

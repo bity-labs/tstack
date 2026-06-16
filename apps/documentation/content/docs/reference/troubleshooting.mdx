@@ -1,38 +1,58 @@
 ---
 title: "Troubleshooting"
-description: "Fix common setup and usage problems with the standalone harness."
+description: "Fix common setup, configuration, and deployment issues."
 ---
 
-## My agent did not read the harness
+## I expected a TStack CLI command
 
-Ask it explicitly:
+There is no TStack CLI scaffold/export command yet. Use the monorepo source or perform manual standalone extraction.
 
-```text
-Read AGENTS.md first, then follow the relevant docs and skills for this task.
-```
+## The boilerplate cannot connect to the database
 
-If the agent does not support automatic instruction discovery, paste the relevant instructions into the session or point it at the files directly.
+- Confirm Docker is running for local development.
+- Run `pnpm --filter @tstack/boilerplate db:start`.
+- Confirm `DATABASE_URL` matches `apps/boilerplate/.env.example` locally or your managed database in production.
+- Run `db:push` locally or `db:migrate` in production.
 
-## The copied docs still look generic
+## Auth callbacks fail
 
-The default template includes placeholders. Update `docs/context.md` and `docs/coding-standards.md` with real product language, validation commands, and project rules before starting important work.
+- Confirm `BETTER_AUTH_SECRET` is set.
+- Confirm `BETTER_AUTH_URL`, `PROJECT_URL`, and provider callback URLs use the same host.
+- Confirm `/api/auth/*` remains public in middleware.
 
-## A skill asks for docs that are missing
+## OAuth buttons do not appear
 
-Some projects may customize or remove files. If a skill references a missing doc, tell the agent the file is unavailable and ask it to continue using the context that does exist.
+OAuth buttons are shown only when provider credentials are configured. Set both client ID and client secret for the provider.
 
-## Copying the template would overwrite existing files
+## Wallet sign-in does not open or connect
 
-Do not overwrite real project context blindly. Compare the existing file with the template, then merge the useful harness sections into the project's current file.
+- Confirm WalletConnect project ID is configured.
+- Keep the variable name aligned between `.env.example`, `src/config/env.ts`, and `src/config/wagmi.ts` in your current source.
+- Confirm the app runs on the same domain used in SIWE messages.
 
-## The generated project still points to TStack symlinks
+## Checkout does not start
 
-Standalone projects should not depend on symlinks back to a TStack checkout. Replace linked harness paths with real copied files before giving the project to an agent or customer.
+- Confirm `POLAR_SERVER` matches the product IDs you configured.
+- Confirm the product has a non-null Polar product ID in generated checkout products.
+- Confirm the user is authenticated if checkout requires authenticated users.
 
-## The agent follows a stale decision
+## Subscription status does not update
 
-Check `docs/adr/` and `docs/context.md`. If the project changed direction, update the relevant docs before asking the agent to continue.
+- Confirm the success page ran after checkout.
+- Confirm Polar webhook URL and `POLAR_WEBHOOK_SECRET` are correct.
+- Confirm your app can reach the Polar API with `POLAR_ACCESS_TOKEN`.
 
-## I expected an installer command
+## File upload works locally but not in production
 
-Installation is manual today. Copy from `packages/harness/templates/default` and commit the files to your project.
+- Database provider is intended for local/prototyping.
+- For DigitalOcean, confirm endpoint, region, bucket, keys, CDN URL, and CORS settings.
+- Do not include the bucket name in `DIGITALOCEAN_SPACES_ENDPOINT`.
+
+## A standalone app still points to monorepo symlinks
+
+Replace linked harness resources with real directories:
+
+- `.agents/`
+- `docs/engineering/`
+
+Standalone apps should not depend on a TStack checkout at runtime or during agent work.
