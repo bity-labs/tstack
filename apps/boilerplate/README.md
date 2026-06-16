@@ -31,7 +31,7 @@ Inside the TStack monorepo, this app dogfoods the shared harness instead of dupl
 - `.agents` links to `../../packages/harness/templates/default/.agents`
 - `docs/engineering` links to `../../../packages/harness/templates/default/docs/engineering`
 
-Boilerplate-specific context and standards remain real files in `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/`.
+Boilerplate-specific context and standards remain real files in `docs/context.md`, `docs/coding-standards.md`, `docs/adr/`, `docs/feature-architecture.md`, `docs/server-patterns.md`, `docs/quick-reference.md`, and `docs/stack/`.
 
 ## Rebranding
 

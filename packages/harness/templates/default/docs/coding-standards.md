@@ -39,13 +39,7 @@ Project-specific commands belong below after the harness is installed in a real 
 # npm run typecheck
 ```
 
-Use `scripts/run_silent` for noisy validation commands when available:
-
-```bash
-./scripts/run_silent "typecheck" pnpm typecheck
-./scripts/run_silent "lint" pnpm lint
-./scripts/run_silent "tests" pnpm test
-```
+Run the project’s configured validation commands directly unless the project documents a local wrapper.
 
 If validation cannot be run, explain why and state the manual checks performed.
 
