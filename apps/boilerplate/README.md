@@ -23,6 +23,16 @@ pnpm --filter @tstack/boilerplate dev
 
 If you copy this app into a standalone repository, keep the TStack Engineering Harness docs with it and update the placeholders below for your product.
 
+## Shared TStack Harness
+
+Inside the TStack monorepo, this app dogfoods the shared harness instead of duplicating it:
+
+- `AGENTS.md` links to `../../packages/harness/templates/default/AGENTS.md`
+- `.agents` links to `../../packages/harness/templates/default/.agents`
+- `docs/engineering` links to `../../../packages/harness/templates/default/docs/engineering`
+
+Boilerplate-specific context and standards remain real files in `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/`.
+
 ## Rebranding
 
 This boilerplate uses `myapp` (slug) and `MyApp` (display name) as placeholders. Replace them with your own project name:
