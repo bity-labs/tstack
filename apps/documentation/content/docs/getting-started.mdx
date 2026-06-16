@@ -3,6 +3,12 @@ title: "Getting Started"
 description: "Install the standalone harness in an existing project and make it useful for your agents."
 ---
 
+## Choose your starting point
+
+Use the standalone harness when you already have a project and want agent-facing instructions, skills, and engineering doctrine.
+
+Use the Agent-Ready Boilerplate when you want to start from the TStack SaaS starter in `apps/boilerplate`. Boilerplate extraction is manual until a scaffold command exists.
+
 ## 1. Copy the template
 
 The installable harness template lives at `packages/harness/templates/default`.
@@ -47,4 +53,4 @@ Agents should read only the docs and skills relevant to the task, then validate 
 
 ## Current installation model
 
-Installation is manual today. TStack does not currently provide a CLI installer, scaffold command, package post-install hook, or migration tool.
+Installation is manual today. TStack does not currently provide a CLI installer, automated scaffold/export command, package post-install hook, or migration tool. A generated standalone project should receive real copies of every harness file rather than symlinks back to the TStack monorepo.

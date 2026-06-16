@@ -56,3 +56,21 @@ packages/harness/templates/default/
 ## Skills
 
 `.agents/skills/` contains workflow instructions for repeatable agent tasks. Each skill has its own `SKILL.md` and may include supporting templates.
+
+## Copy vs symlink policy
+
+For normal installs, copy the entire template into the target project so the project works in isolation.
+
+Inside the TStack monorepo only, harness-owned resources may be symlinked while dogfooding:
+
+- `.agents`
+- `docs/engineering`
+
+Project-owned working documents should stay as real files and be customized per project:
+
+- `AGENTS.md`
+- `docs/context.md`
+- `docs/coding-standards.md`
+- `docs/adr/**`
+
+This same rule applies to `apps/boilerplate`: linked harness assets in the monorepo, full copies in a generated standalone app.

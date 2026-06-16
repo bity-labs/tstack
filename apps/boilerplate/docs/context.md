@@ -12,7 +12,7 @@ Agents should read it before changing boilerplate behavior, naming product conce
 
 The TStack Agent-Ready Boilerplate is the application layer of TStack: a production-ready Next.js starter for SaaS products that includes authentication, payments, email, content, file upload, analytics, web3 wallet sign-in, and agent-facing engineering conventions.
 
-Inside this monorepo, the boilerplate consumes the shared TStack Engineering Harness from `packages/harness/templates/default` through symlinks. Boilerplate-specific context stays in this directory; generic engineering doctrine stays in the harness.
+Inside this monorepo, the boilerplate consumes harness-owned assets from `packages/harness/templates/default` through symlinks for `.agents` and `docs/engineering`. Boilerplate-specific working documents stay as real files in this app; generic engineering doctrine stays in the harness.
 
 ## Domain Language
 
@@ -31,14 +31,15 @@ Inside this monorepo, the boilerplate consumes the shared TStack Engineering Har
 
 - **Harness vs boilerplate**: harness files define reusable agent workflow and engineering standards; boilerplate files define the concrete SaaS starter app.
 - **Generic doctrine vs stack rules**: generic TDD/testing/review doctrine lives in `docs/engineering/`; stack-specific Next.js, Better Auth, Polar, Prisma, email, file-upload, and feature rules live in this docs directory.
-- **Monorepo source vs standalone app**: symlinks are valid in this monorepo. A future scaffold/export flow should materialize harness files as real files for standalone projects.
+- **Monorepo source vs standalone app**: symlinks are valid only for harness dogfooding in this monorepo. A future scaffold/export flow should materialize all harness files as real files for standalone projects.
 - **Generic starter behavior vs buyer domain behavior**: do not add product-specific business rules unless a task explicitly defines them.
 
 ## Business Rules
 
 - Keep the boilerplate generic and reusable until a builder customizes it.
 - Do not reintroduce source-project branding or legacy import names.
-- Do not duplicate `.agents`, `AGENTS.md`, or generic `docs/engineering` content under the boilerplate app.
+- Do not duplicate `.agents` or generic `docs/engineering` content under the boilerplate app while developing inside this monorepo; those are linked harness assets.
+- Keep `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, `docs/adr/**`, and stack-specific boilerplate docs as real files because they are project-owned working documents.
 - Preserve boilerplate-specific docs as real files under `apps/boilerplate/docs/`.
 - Ask before adding, removing, or replacing major providers such as auth, payments, database, email, analytics, storage, or web3 integrations.
 - Treat auth/session, billing/customer state, file downloads, and account deletion as security-sensitive flows.
@@ -72,7 +73,7 @@ Inside this monorepo, the boilerplate consumes the shared TStack Engineering Har
 
 - GitHub issue #9 imported the boilerplate application into `apps/boilerplate`.
 - GitHub issue #10 rebranded the imported app for TStack.
-- GitHub issue #11 wires the boilerplate to the shared harness via symlinks.
+- GitHub issue #11 wires the boilerplate to the shared harness via symlinks for harness-owned assets.
 - GitHub issue #12 reconciles boilerplate-specific docs with the shared TStack harness.
 - ADR 0001: Prisma is the ORM.
 - ADR 0002: Better Auth is the auth provider.
@@ -85,4 +86,5 @@ Inside this monorepo, the boilerplate consumes the shared TStack Engineering Har
 - Update this file when durable boilerplate terminology, providers, or boundaries change.
 - Keep temporary plans in GitHub Issues, not here.
 - Keep generic engineering doctrine in the shared harness, not in this file.
+- Keep standalone export/scaffold behavior copy-based, not symlink-based, so generated apps work in isolation.
 - Add or update ADRs when provider, persistence, release, or security decisions change.

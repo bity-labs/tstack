@@ -49,6 +49,14 @@ Use the debug skill to investigate this failing command.
 Use the refactor-safely skill to improve this module without changing behavior.
 ```
 
+## Run the boilerplate app from the monorepo
+
+```sh
+pnpm --filter @tstack/boilerplate dev
+```
+
+For realistic local work, copy `apps/boilerplate/.env.example` to an ignored environment file, set a non-default `BETTER_AUTH_SECRET`, and start any required local services.
+
 ## Validate project work
 
 Use the validation commands defined by the target project. Add them to `docs/coding-standards.md` so agents can find them.
@@ -64,3 +72,5 @@ pnpm typecheck
 ## TStack CLI status
 
 There is no `tstack` CLI command yet. Any command examples on this page use normal shell and Git commands.
+
+Future scaffold/export commands should copy all harness resources into generated projects. Symlinks are only a TStack monorepo dogfooding convenience.

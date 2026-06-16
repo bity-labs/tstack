@@ -22,8 +22,9 @@ This file adds boilerplate-specific rules on top of the generic harness doctrine
 
 - `apps/boilerplate` owns the concrete Next.js SaaS starter application.
 - `packages/harness/templates/default` owns reusable agent instructions, skills, and generic engineering doctrine.
-- `apps/boilerplate/docs/context.md`, `apps/boilerplate/docs/coding-standards.md`, `apps/boilerplate/docs/adr/`, `apps/boilerplate/docs/feature-architecture.md`, `apps/boilerplate/docs/server-patterns.md`, `apps/boilerplate/docs/quick-reference.md`, and `apps/boilerplate/docs/stack/` are real boilerplate-specific files.
-- `apps/boilerplate/AGENTS.md`, `apps/boilerplate/.agents`, and `apps/boilerplate/docs/engineering` are symlinks to the shared harness and should not be replaced with duplicate copies.
+- `apps/boilerplate/AGENTS.md`, `apps/boilerplate/docs/context.md`, `apps/boilerplate/docs/coding-standards.md`, `apps/boilerplate/docs/adr/`, `apps/boilerplate/docs/feature-architecture.md`, `apps/boilerplate/docs/server-patterns.md`, `apps/boilerplate/docs/quick-reference.md`, and `apps/boilerplate/docs/stack/` are real boilerplate-specific files.
+- `apps/boilerplate/.agents` and `apps/boilerplate/docs/engineering` are symlinks to shared harness-owned assets and should not be replaced with duplicate copies while working inside this monorepo.
+- A standalone boilerplate export/scaffold must materialize linked harness assets as real files so the generated app works in isolation.
 
 ## Hard Rules
 
