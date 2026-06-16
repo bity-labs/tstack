@@ -28,5 +28,5 @@ This repository uses TStack: a small harness for disciplined agentic software de
 - Do not add dependencies or major abstractions without asking.
 - Prefer behavior verified through public interfaces.
 - Validate before finishing, or explain why validation could not be run.
-- Use `scripts/run_silent` for noisy validation commands when available, so successful checks stay compact and failures show full output.
+- Run the project’s configured validation commands directly unless the project documents a local wrapper.
 - Report what changed, what was validated, and what risk remains.
