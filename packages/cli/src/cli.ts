@@ -73,6 +73,19 @@ Options:
 `;
   }
 
+  if (command === "ready") {
+    return `TStack ready
+
+Usage: pnpm tstack ready [--project-dir <path>]
+
+Run an interactive production environment wizard for a TStack scaffolded app.
+
+Options:
+  --project-dir <path>   Path to the scaffolded app directory. Defaults to the current directory.
+  -h, --help             Show this help message.
+`;
+  }
+
   return `TStack ${command}
 
 Usage: pnpm tstack ${command} [options]
@@ -167,6 +180,25 @@ function routeCommand(
       exitCode: 0,
       stdout: `Created TStack app at ${targetPath}\n`,
       stderr: "",
+    };
+  }
+
+  if (command === "ready") {
+    const projectDirIndex = args.indexOf("--project-dir");
+    const remainingArgs =
+      projectDirIndex !== -1
+        ? args.filter((_, i) => i !== projectDirIndex && i !== projectDirIndex + 1)
+        : args;
+    const unknownOpt = remainingArgs.find((arg) => arg.startsWith("-"));
+
+    if (unknownOpt) {
+      return unknownCommandOption(command, unknownOpt);
+    }
+
+    return {
+      exitCode: 0,
+      stdout: "",
+      stderr: `Interactive mode required. Use the wizard to configure the production environment.\n`,
     };
   }
 
@@ -266,6 +298,33 @@ export async function runCliAsync(
           React.createElement(Wizard, {
             projectDir: resolve(projectDir),
             sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+            onComplete: done,
+          }),
+        );
+      });
+
+      return {
+        exitCode: 0,
+        stdout: "",
+        stderr: "",
+      };
+    }
+
+    // Check if this is the interactive-ready signal
+    if (
+      args[0] === "ready" &&
+      syncResult.stderr.includes("Interactive mode required")
+    ) {
+      const projectDirIndex = args.indexOf("--project-dir");
+      const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : ".";
+
+      const { render } = await import("ink");
+      const { ReadyWizard } = await import("./ReadyWizard.js");
+
+      await new Promise<void>((done) => {
+        render(
+          React.createElement(ReadyWizard, {
+            projectDir: resolve(projectDir),
             onComplete: done,
           }),
         );

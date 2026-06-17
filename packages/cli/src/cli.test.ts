@@ -45,12 +45,20 @@ describe("runCli", () => {
     expect(cliPackage.publishConfig).toBeUndefined();
   });
 
-  it.each(["ready", "products"])("routes the %s command", (command) => {
-    const result = runCli([command]);
+  it("routes the ready command with interactive signal", () => {
+    const result = runCli(["ready"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("routes the products command", () => {
+    const result = runCli(["products"]);
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain(`tstack ${command}`);
+    expect(result.stdout).toContain("tstack products");
     expect(result.stdout).toContain("not implemented yet");
   });
 
@@ -203,6 +211,31 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain('Unknown option "--bogus" for tstack products');
+  });
+
+  it("ready shows command-specific help", () => {
+    const result = runCli(["ready", "--help"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("Usage: pnpm tstack ready [--project-dir <path>]");
+    expect(result.stdout).toContain("--project-dir <path>");
+  });
+
+  it("ready accepts --project-dir", () => {
+    const result = runCli(["ready", "--project-dir", "/some/path"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("ready rejects unknown options", () => {
+    const result = runCli(["ready", "--bogus"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain('Unknown option "--bogus" for tstack ready');
   });
 
   it("prints command-specific help", () => {
