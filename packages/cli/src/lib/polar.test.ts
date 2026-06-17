@@ -85,6 +85,17 @@ describe("loadPolarCredentials", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("ignores commented-out env lines", () => {
+    const dir = makeTempDir("tstack-polar-commented-");
+    try {
+      writeFileSync(join(dir, ".env"), "# POLAR_ACCESS_TOKEN=commented-token\nPOLAR_ACCESS_TOKEN=real-token\n");
+      const result = loadPolarCredentials(dir);
+      expect(result).toEqual({ token: "real-token" });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("createPolarClient", () => {

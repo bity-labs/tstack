@@ -1,5 +1,5 @@
 import { Box, Text } from "ink";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import { Header } from "./components/Header.js";
 import { TextInput } from "./components/TextInput.js";
@@ -113,7 +113,7 @@ export function ReadyWizard({ projectDir, onComplete }: ReadyWizardProps) {
     }
   }, [projectDir]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (step === "loading") {
       loadEnv();
     }

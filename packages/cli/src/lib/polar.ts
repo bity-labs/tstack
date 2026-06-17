@@ -8,8 +8,15 @@ import { join } from "node:path";
 function readEnvValue(projectDir: string, fileName: string, key: string): string | undefined {
   try {
     const content = readFileSync(join(projectDir, fileName), "utf8");
-    const match = content.match(new RegExp(`^${key}=(.+)$`, "m"));
-    return match?.[1]?.trim();
+    const lines = content.split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("#")) continue;
+      if (trimmed.startsWith(`${key}=`)) {
+        return trimmed.slice(key.length + 1).trim();
+      }
+    }
+    return undefined;
   } catch {
     return undefined;
   }

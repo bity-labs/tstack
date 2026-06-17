@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { writeProducts, generateYearlyProduct } from "../lib/products.js";
 import type { Product } from "../lib/products.js";
+import { slugify } from "../lib/validate.js";
 
 export interface UseAddProductOptions {
   products: Product[];
@@ -9,13 +10,6 @@ export interface UseAddProductOptions {
   regenerateFiles: (currentProducts: Product[]) => void;
   setStep: (step: string) => void;
   setError: (error: string) => void;
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 export function useAddProduct(options: UseAddProductOptions) {
@@ -31,6 +25,7 @@ export function useAddProduct(options: UseAddProductOptions) {
   const [newCta, setNewCta] = useState("Get Started");
   const [newHighlighted, setNewHighlighted] = useState(false);
   const [yearlyDraft, setYearlyDraft] = useState<Product | null>(null);
+  const [priceError, setPriceError] = useState("");
 
   const resetForm = useCallback(() => {
     setNewType("");
@@ -122,6 +117,12 @@ export function useAddProduct(options: UseAddProductOptions) {
   }, [setStep, newType]);
 
   const handleAddPrice = useCallback((price: string) => {
+    const parsed = parseFloat(price || "0");
+    if (Number.isNaN(parsed) || parsed < 0) {
+      setPriceError("Price must be a valid non-negative number.");
+      return;
+    }
+    setPriceError("");
     setNewPrice(price);
     setStep(newType === "subscription" ? "add_interval" : "add_display_title");
   }, [setStep, newType]);
@@ -227,6 +228,7 @@ export function useAddProduct(options: UseAddProductOptions) {
     setNewCta,
     setNewHighlighted,
     setYearlyDraft,
+    priceError,
     handleAddType,
     handleAddName,
     handleAddSlug,

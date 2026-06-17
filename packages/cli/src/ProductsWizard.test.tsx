@@ -279,6 +279,55 @@ describe("ProductsWizard", () => {
     }
   });
 
+  it("rejects invalid price input and stays on the price step", async () => {
+    const dir = makeTempDir("tstack-products-invalid-price-");
+    const polarDir = join(dir, "polar");
+
+    try {
+      mkdirSync(polarDir, { recursive: true });
+
+      const { stdin, lastFrame } = render(
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+      );
+
+      await delay(50);
+
+      // Select "Add new product"
+      stdin.write("\r");
+      await delay(50);
+
+      // Select "Subscription" (first option)
+      stdin.write("\r");
+      await delay(50);
+
+      // Enter name
+      stdin.write("Pro Monthly");
+      await delay(20);
+      stdin.write("\r");
+      await delay(50);
+
+      // Enter slug
+      stdin.write("\r");
+      await delay(50);
+
+      // Enter invalid price
+      stdin.write("abc");
+      await delay(20);
+      stdin.write("\r");
+      await delay(50);
+
+      const frame = lastFrame() ?? "";
+      expect(frame).toContain("Price in dollars");
+      expect(frame).toContain("Price must be a valid non-negative number");
+
+      // No products should have been written
+      const productsFile = join(polarDir, "products.sandbox.json");
+      expect(existsSync(productsFile)).toBe(false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("regenerates products.generated.ts from local JSON", async () => {
     const dir = makeTempDir("tstack-products-regen-");
     const polarDir = join(dir, "polar");

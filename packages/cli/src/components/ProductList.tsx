@@ -2,6 +2,8 @@ import { Box, Text } from "ink";
 import InkSpinner from "ink-spinner";
 import React from "react";
 
+import { formatPrice as formatLibPrice } from "../lib/products.js";
+
 export type SyncStatus = "synced" | "not-synced" | "error" | "checking" | "archived";
 
 export type ProductPrice =
@@ -24,27 +26,12 @@ export interface ProductListProps {
 
 function formatPrice(product: ProductListProduct): string {
   const price = product.prices[0];
-
-  if (!price || price.amountType === "free") {
-    return "Free";
-  }
-
-  if (price.amountType === "custom") {
-    return "Pay what you want";
-  }
-
-  if (price.amount === undefined) {
-    return "Free";
-  }
-
-  const dollars = price.amount / 100;
-  const formattedPrice = `$${dollars.toFixed(dollars % 1 === 0 ? 0 : 2)}`;
-
+  if (!price) return "Free";
+  const base = formatLibPrice(price as import("../lib/products.js").ProductPrice);
   if (product.type === "subscription" && product.recurringInterval) {
-    return `${formattedPrice}/${product.recurringInterval}`;
+    return `${base}/${product.recurringInterval}`;
   }
-
-  return formattedPrice;
+  return base;
 }
 
 function getSyncIcon(status: SyncStatus): { icon: string; color?: string; label?: string } {

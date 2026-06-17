@@ -13,6 +13,7 @@ import {
   convertToPolarProduct,
   toBuyerMessage,
 } from "./polar.js";
+import { slugify } from "./validate.js";
 
 export interface OperationResult {
   slug: string;
@@ -111,13 +112,6 @@ export async function archiveOrphanProducts(options: ArchiveOrphanProductsOption
   }
 
   return results;
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 export interface ImportOrphanProductsOptions {

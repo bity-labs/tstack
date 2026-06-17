@@ -299,6 +299,7 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
           onChange={addProduct.setNewPrice}
           onSubmit={addProduct.handleAddPrice}
           placeholder="19"
+          error={addProduct.priceError}
         />
       )}
       {step === "add_interval" && (
