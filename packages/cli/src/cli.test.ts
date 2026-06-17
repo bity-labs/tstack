@@ -59,7 +59,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("sandbox");
+    expect(result.interactiveData?.env).toBe("sandbox");
   });
 
   it("routes the init command and scaffolds a project", () => {
@@ -193,7 +193,8 @@ describe("runCli", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain(`Environment: ${environment}`);
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.interactiveData?.env).toBe(environment);
   });
 
   it("rejects unsupported products environments with a useful message", () => {
@@ -277,7 +278,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("production");
+    expect(result.interactiveData?.env).toBe("production");
   });
 
   it("products --project-dir <path> signals interactive mode", () => {
@@ -286,7 +287,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("/some/path");
+    expect(result.interactiveData?.projectDir).toBe("/some/path");
   });
 
   it("products combines --env and --project-dir", () => {
@@ -295,8 +296,8 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("production");
-    expect(result.stderr).toContain("/some/path");
+    expect(result.interactiveData?.env).toBe("production");
+    expect(result.interactiveData?.projectDir).toBe("/some/path");
   });
 
   it("products combines --prod and --project-dir", () => {
@@ -305,8 +306,8 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("production");
-    expect(result.stderr).toContain("/some/path");
+    expect(result.interactiveData?.env).toBe("production");
+    expect(result.interactiveData?.projectDir).toBe("/some/path");
   });
 
   it("products rejects --prod combined with --env", () => {
@@ -324,7 +325,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("polar_test_123");
+    expect(result.interactiveData?.token).toBe("polar_test_123");
   });
 
   it("products combines --token, --env, and --project-dir", () => {
@@ -333,9 +334,9 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
-    expect(result.stderr).toContain("production");
-    expect(result.stderr).toContain("/some/path");
-    expect(result.stderr).toContain("polar_test_123");
+    expect(result.interactiveData?.env).toBe("production");
+    expect(result.interactiveData?.projectDir).toBe("/some/path");
+    expect(result.interactiveData?.token).toBe("polar_test_123");
   });
 
   it("products help mentions --token", () => {

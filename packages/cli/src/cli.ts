@@ -12,6 +12,12 @@ export type CliResult = {
   stderr: string;
   /** Explicit signal that the command requires interactive (TUI) mode. */
   interactive?: boolean;
+  /** Structured data for interactive mode routing. Avoids parsing human-readable stderr. */
+  interactiveData?: {
+    env: "sandbox" | "production";
+    projectDir: string;
+    token?: string;
+  };
 };
 
 const rootHelp = `TStack CLI
@@ -257,8 +263,13 @@ function routeCommand(
     return {
       exitCode: 0,
       stdout: "",
-      stderr: `Interactive mode required. Environment: ${env}. Project: ${resolve(projectDir)}${token ? `. Token: ${token}` : ""}\n`,
+      stderr: "Interactive mode required.\n",
       interactive: true,
+      interactiveData: {
+        env,
+        projectDir: resolve(projectDir),
+        token,
+      },
     };
   }
 
@@ -380,14 +391,10 @@ export async function runCliAsync(
       args[0] === "products" &&
       syncResult.interactive
     ) {
-      const envMatch = syncResult.stderr.match(/Environment: (sandbox|production)/);
-      const env = (envMatch?.[1] ?? "sandbox") as "sandbox" | "production";
-
-      const projectDirMatch = syncResult.stderr.match(/Project: (.+)/);
-      const projectDir = projectDirMatch?.[1] ?? ".";
-
-      const tokenMatch = syncResult.stderr.match(/Token: (\S+)/);
-      const token = tokenMatch?.[1];
+      const data = syncResult.interactiveData;
+      const env = data?.env ?? "sandbox";
+      const projectDir = data?.projectDir ?? ".";
+      const token = data?.token;
 
       const { render } = await import("ink");
       const { ProductsWizard } = await import("./ProductsWizard.js");
