@@ -108,7 +108,7 @@ Options:
 
 function resolveBoilerplateSourcePath(): string {
   const __dirname = dirname(fileURLToPath(import.meta.url));
-  return resolve(__dirname, "../../apps/boilerplate");
+  return resolve(__dirname, "../../../apps/boilerplate");
 }
 
 function routeCommand(
