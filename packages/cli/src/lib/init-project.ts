@@ -6,6 +6,8 @@ import { generateEnv } from "./env.js";
 import { buildReplacements, replacePlaceholders } from "./replace.js";
 import { resetTemplateIds } from "./reset-template-ids.js";
 import { generateSecret } from "./generate-secret.js";
+import { setupGit } from "./git.js";
+import { installDependencies } from "./install.js";
 
 export interface ProviderConfig {
   github: boolean;
@@ -22,6 +24,8 @@ export interface InitProjectOptions {
   slug: string;
   displayName: string;
   providers: ProviderConfig;
+  initGit?: boolean;
+  installDeps?: boolean;
 }
 
 function isTextFile(filePath: string): boolean {
@@ -81,7 +85,7 @@ function updateGeneratedHeader(dir: string): void {
 }
 
 export function initProject(options: InitProjectOptions): void {
-  const { sourceDir, targetDir, slug, displayName, providers } = options;
+  const { sourceDir, targetDir, slug, displayName, providers, initGit, installDeps } = options;
 
   exportBoilerplate({ sourceDir, targetDir });
 
@@ -163,4 +167,12 @@ export function initProject(options: InitProjectOptions): void {
   }
 
   updateGeneratedHeader(targetDir);
+
+  if (initGit) {
+    setupGit(targetDir);
+  }
+
+  if (installDeps) {
+    installDependencies(targetDir);
+  }
 }

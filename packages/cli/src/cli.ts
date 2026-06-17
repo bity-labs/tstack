@@ -151,6 +151,8 @@ function routeCommand(
           digitalOcean: false,
           analytics: "none",
         },
+        initGit: true,
+        installDeps: true,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

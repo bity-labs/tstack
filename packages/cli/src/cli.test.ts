@@ -2,8 +2,11 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from "node:
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { readFileSync } from "node:fs";
+import { describe, expect, it, vi } from "vitest";
 
-import { describe, expect, it } from "vitest";
+vi.mock("node:child_process", () => ({
+  execSync: vi.fn(),
+}));
 
 import { runCli } from "./cli.js";
 

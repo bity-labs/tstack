@@ -13,6 +13,8 @@ export interface CompletedStepsConfig {
   payment?: { enabled?: boolean };
   storage?: { enabled?: boolean };
   analytics?: { enabled?: boolean; provider?: string };
+  git?: { initialized?: boolean };
+  install?: { completed?: boolean };
 }
 
 export interface CompletedStepsProps {
@@ -80,6 +82,22 @@ export function CompletedSteps({ config, currentStep }: CompletedStepsProps) {
       {currentIndex > 5 ? (
         <StatusMessage status={config.analytics?.enabled ? "success" : "skip"}>
           Analytics: {config.analytics?.enabled ? config.analytics.provider : "Skipped"}
+        </StatusMessage>
+      ) : null}
+
+      {currentIndex > 6 ? (
+        <StatusMessage status="success">Environment configured</StatusMessage>
+      ) : null}
+
+      {currentIndex > 7 ? (
+        <StatusMessage status={config.git?.initialized ? "success" : "skip"}>
+          Git repository: {config.git?.initialized ? "Initialized" : "Skipped"}
+        </StatusMessage>
+      ) : null}
+
+      {currentIndex > 8 ? (
+        <StatusMessage status={config.install?.completed ? "success" : "skip"}>
+          Dependencies: {config.install?.completed ? "Installed" : "Skipped"}
         </StatusMessage>
       ) : null}
     </Box>

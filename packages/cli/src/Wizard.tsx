@@ -14,6 +14,8 @@ type WizardStep =
   | "displayName"
   | "providers"
   | "analytics"
+  | "gitConfirm"
+  | "installConfirm"
   | "running"
   | "done"
   | "error";
@@ -36,6 +38,8 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
     digitalOcean: false,
     analytics: "none",
   });
+  const [initGit, setInitGit] = useState(false);
+  const [installDeps, setInstallDeps] = useState(false);
   const [error, setError] = useState("");
 
   const handleSlugSubmit = (value: string) => {
@@ -66,6 +70,16 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
 
   const handleAnalyticsSelect = (value: string) => {
     setProviders((p) => ({ ...p, analytics: value as ProviderConfig["analytics"] }));
+    setStep("gitConfirm");
+  };
+
+  const handleGitConfirm = (confirmed: boolean) => {
+    setInitGit(confirmed);
+    setStep("installConfirm");
+  };
+
+  const handleInstallConfirm = (confirmed: boolean) => {
+    setInstallDeps(confirmed);
     setStep("running");
 
     try {
@@ -76,8 +90,10 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
         displayName: displayName || slug,
         providers: {
           ...providers,
-          analytics: value as ProviderConfig["analytics"],
+          analytics: providers.analytics,
         },
+        initGit,
+        installDeps: confirmed,
       });
       setStep("done");
       onComplete?.();
@@ -128,6 +144,18 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
           ]}
           onSelect={handleAnalyticsSelect}
         />
+      )}
+      {step === "gitConfirm" && (
+        <Box flexDirection="column">
+          <Text>Initialize a git repository in the project?</Text>
+          <Confirm label="Initialize git" onConfirm={handleGitConfirm} defaultValue={true} />
+        </Box>
+      )}
+      {step === "installConfirm" && (
+        <Box flexDirection="column">
+          <Text>Install dependencies with pnpm?</Text>
+          <Confirm label="Install dependencies" onConfirm={handleInstallConfirm} defaultValue={true} />
+        </Box>
       )}
       {step === "running" && <StatusMessage status="info">Setting up your TStack app...</StatusMessage>}
       {step === "done" && (

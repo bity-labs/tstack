@@ -8,8 +8,13 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+vi.mock("node:child_process", () => ({
+  execSync: vi.fn(),
+}));
+
+import { execSync } from "node:child_process";
 import { initProject } from "./init-project.js";
 
 function makeTempDir(prefix: string): string {
@@ -111,6 +116,88 @@ describe("initProject", () => {
     } finally {
       rmSync(sourceDir, { recursive: true, force: true });
       rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("initializes a git repository when initGit is true", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = join(sourceDir, "../tstack-init-target-git-" + Date.now());
+
+    try {
+      writeFileSync(join(sourceDir, "README.md"), "# App");
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "app"}');
+
+      initProject({
+        sourceDir,
+        targetDir,
+        slug: "app",
+        displayName: "App",
+        providers: { github: false, twitter: false, walletConnect: false, polar: false, digitalOcean: false, analytics: "none" },
+        initGit: true,
+      });
+
+      expect(execSync).toHaveBeenCalledWith("git init", { cwd: targetDir, stdio: "ignore" });
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("installs dependencies when installDeps is true", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = join(sourceDir, "../tstack-init-target-install-" + Date.now());
+
+    try {
+      writeFileSync(join(sourceDir, "README.md"), "# App");
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "app"}');
+
+      initProject({
+        sourceDir,
+        targetDir,
+        slug: "app",
+        displayName: "App",
+        providers: { github: false, twitter: false, walletConnect: false, polar: false, digitalOcean: false, analytics: "none" },
+        installDeps: true,
+      });
+
+      expect(execSync).toHaveBeenCalledWith("pnpm install", { cwd: targetDir, stdio: "inherit" });
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports dependency installation errors without removing the generated app", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = join(sourceDir, "../tstack-init-target-err-" + Date.now());
+
+    try {
+      writeFileSync(join(sourceDir, "README.md"), "# App");
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "app"}');
+
+      vi.mocked(execSync).mockImplementation((command: string) => {
+        if (command === "pnpm install") {
+          throw new Error("pnpm failed");
+        }
+        return "";
+      });
+
+      expect(() =>
+        initProject({
+          sourceDir,
+          targetDir,
+          slug: "app",
+          displayName: "App",
+          providers: { github: false, twitter: false, walletConnect: false, polar: false, digitalOcean: false, analytics: "none" },
+          installDeps: true,
+        }),
+      ).toThrow("Failed to install dependencies");
+
+      // App files should still exist
+      expect(existsSync(join(targetDir, "README.md"))).toBe(true);
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
     }
   });
 });
