@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import React from "react";
 
 import { exportBoilerplate } from "./lib/export-boilerplate.js";
+import { initProject } from "./lib/init-project.js";
 
 export type CliResult = {
   exitCode: number;
@@ -61,12 +63,13 @@ Options:
   if (command === "init") {
     return `TStack init
 
-Usage: pnpm tstack init <project-dir>
+Usage: pnpm tstack init <project-dir> [--app-name <name>]
 
 Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
 
 Options:
-  -h, --help   Show this help message.
+  --app-name <name>   Set the display app name (skips interactive prompt).
+  -h, --help          Show this help message.
 `;
   }
 
@@ -102,24 +105,52 @@ function routeCommand(
   const unknownOption = args.find((arg) => arg.startsWith("-"));
 
   if (command === "init") {
-    if (unknownOption) {
-      return unknownCommandOption(command, unknownOption);
+    const appNameIndex = args.indexOf("--app-name");
+    const appName = appNameIndex !== -1 ? args[appNameIndex + 1] : undefined;
+    const remainingArgs =
+      appNameIndex !== -1
+        ? args.filter((_, i) => i !== appNameIndex && i !== appNameIndex + 1)
+        : args;
+    const unknownOpt = remainingArgs.find((arg) => arg.startsWith("-"));
+
+    if (unknownOpt) {
+      return unknownCommandOption(command, unknownOpt);
     }
 
-    if (args.length === 0) {
+    if (remainingArgs.length === 0) {
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Usage: pnpm tstack init <project-dir>\n`,
+        stderr: `Usage: pnpm tstack init <project-dir> [--app-name <name>]\n`,
       };
     }
 
-    const projectDir = args[0];
+    const projectDir = remainingArgs[0];
+    const targetPath = resolve(projectDir);
+    const slug = targetPath.split("/").pop() ?? projectDir;
+
+    if (!appName) {
+      return {
+        exitCode: 0,
+        stdout: "",
+        stderr: `Interactive mode required. Use --app-name to run non-interactively, or use the wizard.\n`,
+      };
+    }
 
     try {
-      exportBoilerplate({
+      initProject({
         sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
-        targetDir: resolve(projectDir),
+        targetDir: targetPath,
+        slug,
+        displayName: appName,
+        providers: {
+          github: false,
+          twitter: false,
+          walletConnect: false,
+          polar: false,
+          digitalOcean: false,
+          analytics: "none",
+        },
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -132,7 +163,7 @@ function routeCommand(
 
     return {
       exitCode: 0,
-      stdout: `Created TStack app at ${resolve(projectDir)}\n`,
+      stdout: `Created TStack app at ${targetPath}\n`,
       stderr: "",
     };
   }
@@ -203,6 +234,54 @@ export function runCli(
   };
 }
 
+export async function runCliAsync(
+  args: string[],
+  options?: { boilerplateSourcePath?: string },
+): Promise<CliResult> {
+  const syncResult = runCli(args, options);
+
+  // If the sync result already resolved the command, return it.
+  if (syncResult.stdout !== "" || syncResult.stderr !== "" || syncResult.exitCode !== 0) {
+    // Check if this is the interactive-init signal
+    if (
+      args[0] === "init" &&
+      syncResult.stderr.includes("Interactive mode required")
+    ) {
+      const projectDir = args[1];
+      if (!projectDir) {
+        return {
+          exitCode: 1,
+          stdout: "",
+          stderr: `Usage: pnpm tstack init <project-dir> [--app-name <name>]\n`,
+        };
+      }
+
+      const { render } = await import("ink");
+      const { Wizard } = await import("./Wizard.js");
+
+      await new Promise<void>((done) => {
+        render(
+          React.createElement(Wizard, {
+            projectDir: resolve(projectDir),
+            sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+            onComplete: done,
+          }),
+        );
+      });
+
+      return {
+        exitCode: 0,
+        stdout: "",
+        stderr: "",
+      };
+    }
+
+    return syncResult;
+  }
+
+  return syncResult;
+}
+
 function writeResult(result: CliResult): void {
   if (result.stdout.length > 0) {
     process.stdout.write(result.stdout);
@@ -216,5 +295,8 @@ function writeResult(result: CliResult): void {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  writeResult(runCli(process.argv.slice(2)));
+  runCliAsync(process.argv.slice(2)).then(writeResult).catch((error) => {
+    process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
 }
