@@ -73,13 +73,14 @@ Options:
   if (command === "init") {
     return `TStack init
 
-Usage: pnpm tstack init [project-dir] [--app-name <name>]
+Usage: pnpm tstack init [--project-dir <path>] [--app-name <name>]
 
 Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
 
 Options:
-  --app-name <name>   Set the display app name (skips interactive prompt).
-  -h, --help          Show this help message.
+  --project-dir <path>   Target directory for the new app. Defaults to interactive prompt.
+  --app-name <name>      Set the display app name (skips interactive prompt).
+  -h, --help             Show this help message.
 `;
   }
 
@@ -129,18 +130,28 @@ function routeCommand(
 
   if (command === "init") {
     const appNameIndex = args.indexOf("--app-name");
+    const projectDirIndex = args.indexOf("--project-dir");
     const appName = appNameIndex !== -1 ? args[appNameIndex + 1] : undefined;
-    const remainingArgs =
-      appNameIndex !== -1
-        ? args.filter((_, i) => i !== appNameIndex && i !== appNameIndex + 1)
-        : args;
-    const unknownOpt = remainingArgs.find((arg) => arg.startsWith("-"));
+    const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
 
+    const remainingArgs = args.filter((_, i) => {
+      if (appNameIndex !== -1 && (i === appNameIndex || i === appNameIndex + 1)) return false;
+      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1)) return false;
+      return true;
+    });
+
+    const unknownOpt = remainingArgs.find((arg) => arg.startsWith("-"));
     if (unknownOpt) {
       return unknownCommandOption(command, unknownOpt);
     }
 
-    const projectDir = remainingArgs[0];
+    if (remainingArgs.length > 0) {
+      return {
+        exitCode: 1,
+        stdout: "",
+        stderr: `Unexpected argument "${remainingArgs[0]}". Use --project-dir to specify the target directory.\n`,
+      };
+    }
 
     // Interactive mode if project dir or app name is missing
     if (!projectDir || !appName) {
@@ -325,7 +336,8 @@ export async function runCliAsync(
       args[0] === "init" &&
       syncResult.interactive
     ) {
-      const projectDir = args[1];
+      const projectDirIndex = args.indexOf("--project-dir");
+      const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
 
       const { render } = await import("ink");
       const { Wizard } = await import("./Wizard.js");

@@ -73,7 +73,7 @@ describe("runCli", () => {
         "NEXT_PUBLIC_APP_NAME=MyApp\nBETTER_AUTH_SECRET=\n",
       );
 
-      const result = runCli(["init", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
+      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
 
       expect(result.exitCode).toBe(0);
       expect(result.stderr).toBe("");
@@ -87,12 +87,12 @@ describe("runCli", () => {
     }
   });
 
-  it("init requires a project directory argument", () => {
+  it("init without args signals interactive mode", () => {
     const result = runCli(["init"]);
 
-    expect(result.exitCode).toBe(1);
+    expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain("Usage: pnpm tstack init <project-dir>");
+    expect(result.stderr).toContain("Interactive mode required");
   });
 
   it("init shows command-specific help", () => {
@@ -100,7 +100,7 @@ describe("runCli", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Usage: pnpm tstack init <project-dir>");
+    expect(result.stdout).toContain("Usage: pnpm tstack init [--project-dir <path>]");
     expect(result.stdout).toContain("Scaffold a new TStack app");
   });
 
@@ -113,7 +113,7 @@ describe("runCli", () => {
   });
 
   it("init requires --app-name for non-interactive mode", () => {
-    const result = runCli(["init", "my-app"]);
+    const result = runCli(["init", "--project-dir", "my-app"]);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
@@ -129,7 +129,7 @@ describe("runCli", () => {
       writeFileSync(join(sourceDir, "package.json"), '{"name": "@tstack/boilerplate"}');
       writeFileSync(join(sourceDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=MyApp\n");
 
-      const result = runCli(["init", targetDir, "--app-name", "Branded App"], {
+      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Branded App"], {
         boilerplateSourcePath: sourceDir,
       });
 
@@ -149,7 +149,7 @@ describe("runCli", () => {
     const targetDir = makeTempDir("tstack-init-target-");
 
     try {
-      const result = runCli(["init", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
+      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
