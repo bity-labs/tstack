@@ -18,10 +18,18 @@ import {
   generateYearlyProduct,
   type Product,
 } from "./lib/products.js";
+import {
+  loadPolarCredentials,
+  createPolarClient,
+  syncProductToPolar,
+  checkSyncStatus,
+  toBuyerMessage,
+} from "./lib/polar.js";
 
 export interface ProductsWizardProps {
   projectDir: string;
   env: "sandbox" | "production";
+  token?: string;
   onComplete?: () => void;
 }
 
@@ -32,7 +40,7 @@ function slugify(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export function ProductsWizard({ projectDir, env, onComplete }: ProductsWizardProps) {
+export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsWizardProps) {
   const [step, setStep] = useState<string>("loading");
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState("");
@@ -48,6 +56,10 @@ export function ProductsWizard({ projectDir, env, onComplete }: ProductsWizardPr
   const [newCta, setNewCta] = useState("Get Started");
   const [newHighlighted, setNewHighlighted] = useState(false);
   const [yearlyDraft, setYearlyDraft] = useState<Product | null>(null);
+
+  // Sync state
+  const [polarToken, setPolarToken] = useState<string>("");
+  const [syncResults, setSyncResults] = useState<Array<{ slug: string; status: string }>>([]);
 
   const productsFilePath = useMemo(() => {
     const fileName = env === "sandbox" ? "products.sandbox.json" : "products.production.json";
@@ -115,8 +127,73 @@ export function ProductsWizard({ projectDir, env, onComplete }: ProductsWizardPr
       setStep("add_type");
     } else if (operation === "regenerate") {
       setStep("regenerate");
+    } else if (operation === "sync") {
+      const credentials = loadPolarCredentials(projectDir, token);
+      if (credentials) {
+        setStep("sync_checking");
+      } else {
+        setPolarToken("");
+        setStep("sync_credentials");
+      }
     }
   };
+
+  const handleSyncCredentials = (inputToken: string) => {
+    if (!inputToken.trim()) {
+      setError("Polar access token is required.");
+      setStep("error");
+      return;
+    }
+    setPolarToken(inputToken.trim());
+    setStep("sync_checking");
+  };
+
+  const runSync = useCallback(async () => {
+    const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+    const client = createPolarClient(credentials, env);
+
+    const updatedProducts: Product[] = [];
+    const results: Array<{ slug: string; status: string }> = [];
+
+    for (const product of products) {
+      try {
+        const status = await checkSyncStatus(client, product);
+        if (status === "synced" || status === "archived") {
+          results.push({ slug: product.slug, status });
+          updatedProducts.push(product);
+          continue;
+        }
+
+        const result = await syncProductToPolar(client, product);
+        updatedProducts.push({ ...product, polarProductId: result.polarProductId });
+        results.push({ slug: product.slug, status: "synced" });
+      } catch (err) {
+        results.push({ slug: product.slug, status: toBuyerMessage(err) });
+        updatedProducts.push(product);
+      }
+    }
+
+    setSyncResults(results);
+
+    if (updatedProducts.some((p, i) => p.polarProductId !== products[i]?.polarProductId)) {
+      writeProducts(productsFilePath, updatedProducts);
+      setProducts(updatedProducts);
+      regenerateFiles(updatedProducts);
+    }
+
+    setStep("done");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, projectDir, env, token, polarToken, productsFilePath]);
+
+  useEffect(() => {
+    if (step === "sync_checking") {
+      runSync().catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("error");
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const handleAddType = (type: string) => {
     setNewType(type);
@@ -430,13 +507,38 @@ export function ProductsWizard({ projectDir, env, onComplete }: ProductsWizardPr
           <Confirm label="Add yearly product" onConfirm={handleYearlyConfirm} defaultValue={true} />
         </Box>
       )}
+      {step === "sync_credentials" && (
+        <TextInput
+          label="Polar access token"
+          value={polarToken}
+          onChange={setPolarToken}
+          onSubmit={handleSyncCredentials}
+          placeholder="polar_..."
+        />
+      )}
+      {step === "sync_checking" && (
+        <Box flexDirection="column">
+          <Spinner label="Syncing products with Polar..." />
+        </Box>
+      )}
       {step === "regenerate" && (
         <Box flexDirection="column">
           <Spinner label="Regenerating TypeScript exports..." />
         </Box>
       )}
       {step === "done" && (
-        <StatusMessage status="success">Operation completed successfully.</StatusMessage>
+        <Box flexDirection="column">
+          <StatusMessage status="success">Operation completed successfully.</StatusMessage>
+          {syncResults.length > 0 && (
+            <Box flexDirection="column" marginTop={1}>
+              {syncResults.map((r) => (
+                <Text key={r.slug}>
+                  {r.slug}: {r.status}
+                </Text>
+              ))}
+            </Box>
+          )}
+        </Box>
       )}
       {step === "error" && <StatusMessage status="error">{error}</StatusMessage>}
     </Box>

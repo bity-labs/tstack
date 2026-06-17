@@ -56,6 +56,7 @@ Manage TStack product definitions from the TStack repository.
 
 Options:
   --env <sandbox|production>   Select the Polar environment. Defaults to sandbox.
+  --token <token>              Polar access token (overrides .env files).
   -h, --help                   Show this help message.
 `;
   }
@@ -206,6 +207,7 @@ function routeCommand(
     const envIndex = args.indexOf("--env");
     const prodFlag = args.includes("--prod");
     const projectDirIndex = args.indexOf("--project-dir");
+    const tokenIndex = args.indexOf("--token");
 
     if (prodFlag && envIndex !== -1) {
       return {
@@ -229,6 +231,7 @@ function routeCommand(
     const remainingArgs = args.filter((_, i) => {
       if (envIndex !== -1 && (i === envIndex || i === envIndex + 1)) return false;
       if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1)) return false;
+      if (tokenIndex !== -1 && (i === tokenIndex || i === tokenIndex + 1)) return false;
       if (args[i] === "--prod") return false;
       return true;
     });
@@ -245,11 +248,12 @@ function routeCommand(
         : "sandbox";
 
     const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : ".";
+    const token = tokenIndex !== -1 ? args[tokenIndex + 1] : undefined;
 
     return {
       exitCode: 0,
       stdout: "",
-      stderr: `Interactive mode required. Environment: ${env}. Project: ${resolve(projectDir)}\n`,
+      stderr: `Interactive mode required. Environment: ${env}. Project: ${resolve(projectDir)}${token ? `. Token: ${token}` : ""}\n`,
     };
   }
 
@@ -377,6 +381,9 @@ export async function runCliAsync(
       const projectDirMatch = syncResult.stderr.match(/Project: (.+)/);
       const projectDir = projectDirMatch?.[1] ?? ".";
 
+      const tokenMatch = syncResult.stderr.match(/Token: (\S+)/);
+      const token = tokenMatch?.[1];
+
       const { render } = await import("ink");
       const { ProductsWizard } = await import("./ProductsWizard.js");
 
@@ -385,6 +392,7 @@ export async function runCliAsync(
           React.createElement(ProductsWizard, {
             projectDir: resolve(projectDir),
             env,
+            token,
             onComplete: done,
           }),
         );

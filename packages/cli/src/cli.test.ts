@@ -317,4 +317,31 @@ describe("runCli", () => {
     expect(result.stderr).toContain("--prod");
     expect(result.stderr).toContain("--env");
   });
+
+  it("products --token signals interactive mode with token", () => {
+    const result = runCli(["products", "--token", "polar_test_123"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("polar_test_123");
+  });
+
+  it("products combines --token, --env, and --project-dir", () => {
+    const result = runCli(["products", "--env", "production", "--project-dir", "/some/path", "--token", "polar_test_123"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("production");
+    expect(result.stderr).toContain("/some/path");
+    expect(result.stderr).toContain("polar_test_123");
+  });
+
+  it("products help mentions --token", () => {
+    const result = runCli(["products", "--help"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("--token");
+  });
 });
