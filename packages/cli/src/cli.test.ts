@@ -1,8 +1,15 @@
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
 import { runCli } from "./cli.js";
+
+function makeTempDir(prefix: string): string {
+  return mkdtempSync(join(tmpdir(), prefix));
+}
 
 describe("runCli", () => {
   it("prints repo-run help with the supported TStack commands", () => {
@@ -35,13 +42,74 @@ describe("runCli", () => {
     expect(cliPackage.publishConfig).toBeUndefined();
   });
 
-  it.each(["init", "ready", "products"])("routes the %s command", (command) => {
+  it.each(["ready", "products"])("routes the %s command", (command) => {
     const result = runCli([command]);
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
     expect(result.stdout).toContain(`tstack ${command}`);
     expect(result.stdout).toContain("not implemented yet");
+  });
+
+  it("routes the init command and scaffolds a project", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = join(sourceDir, "../tstack-init-target-" + Date.now());
+
+    try {
+      writeFileSync(join(sourceDir, "README.md"), "# Boilerplate");
+
+      const result = runCli(["init", targetDir], { boilerplateSourcePath: sourceDir });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(result.stdout).toContain("Created TStack app");
+      expect(existsSync(join(targetDir, "README.md"))).toBe(true);
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("init requires a project directory argument", () => {
+    const result = runCli(["init"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Usage: pnpm tstack init <project-dir>");
+  });
+
+  it("init shows command-specific help", () => {
+    const result = runCli(["init", "--help"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("Usage: pnpm tstack init <project-dir>");
+    expect(result.stdout).toContain("Scaffold a new TStack app");
+  });
+
+  it("init rejects unknown options", () => {
+    const result = runCli(["init", "--bogus"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain('Unknown option "--bogus" for tstack init');
+  });
+
+  it("init reports a clear error when the target already exists", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = makeTempDir("tstack-init-target-");
+
+    try {
+      const result = runCli(["init", targetDir], { boilerplateSourcePath: sourceDir });
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toContain("Target directory already exists");
+      expect(result.stderr).toContain(resolve(targetDir));
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      rmSync(targetDir, { recursive: true, force: true });
+    }
   });
 
   it("rejects unsupported root flags with a useful message", () => {

@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-import { pathToFileURL } from "node:url";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { exportBoilerplate } from "./lib/export-boilerplate.js";
 
 export type CliResult = {
   exitCode: number;
@@ -55,6 +58,18 @@ Options:
 `;
   }
 
+  if (command === "init") {
+    return `TStack init
+
+Usage: pnpm tstack init <project-dir>
+
+Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
+
+Options:
+  -h, --help   Show this help message.
+`;
+  }
+
   return `TStack ${command}
 
 Usage: pnpm tstack ${command} [options]
@@ -66,7 +81,16 @@ Options:
 `;
 }
 
-function routeCommand(command: SupportedCommand, args: string[]): CliResult {
+function resolveBoilerplateSourcePath(): string {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  return resolve(__dirname, "../../apps/boilerplate");
+}
+
+function routeCommand(
+  command: SupportedCommand,
+  args: string[],
+  options?: { boilerplateSourcePath?: string },
+): CliResult {
   if (args[0] === "--help" || args[0] === "-h") {
     return {
       exitCode: 0,
@@ -76,6 +100,42 @@ function routeCommand(command: SupportedCommand, args: string[]): CliResult {
   }
 
   const unknownOption = args.find((arg) => arg.startsWith("-"));
+
+  if (command === "init") {
+    if (unknownOption) {
+      return unknownCommandOption(command, unknownOption);
+    }
+
+    if (args.length === 0) {
+      return {
+        exitCode: 1,
+        stdout: "",
+        stderr: `Usage: pnpm tstack init <project-dir>\n`,
+      };
+    }
+
+    const projectDir = args[0];
+
+    try {
+      exportBoilerplate({
+        sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+        targetDir: resolve(projectDir),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        exitCode: 1,
+        stdout: "",
+        stderr: `Error: ${message}\n`,
+      };
+    }
+
+    return {
+      exitCode: 0,
+      stdout: `Created TStack app at ${resolve(projectDir)}\n`,
+      stderr: "",
+    };
+  }
 
   if (command === "products" && args[0] === "--env") {
     if (!isProductEnvironment(args[1])) {
@@ -110,7 +170,10 @@ function routeCommand(command: SupportedCommand, args: string[]): CliResult {
   };
 }
 
-export function runCli(args: string[]): CliResult {
+export function runCli(
+  args: string[],
+  options?: { boilerplateSourcePath?: string },
+): CliResult {
   if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
     return {
       exitCode: 0,
@@ -130,7 +193,7 @@ export function runCli(args: string[]): CliResult {
   }
 
   if (isSupportedCommand(command)) {
-    return routeCommand(command, args.slice(1));
+    return routeCommand(command, args.slice(1), options);
   }
 
   return {
