@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { dirname, resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
 
@@ -106,6 +107,44 @@ Options:
 `;
 }
 
+function findTstackRepoRoot(): string | undefined {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  while (dir !== dirname(dir)) {
+    if (
+      existsSync(join(dir, "turbo.json")) &&
+      existsSync(join(dir, "pnpm-workspace.yaml"))
+    ) {
+      return dir;
+    }
+    dir = dirname(dir);
+  }
+  return undefined;
+}
+
+function resolveProjectDir(projectDir: string): string {
+  // Absolute path — use as-is
+  if (projectDir.startsWith("/")) {
+    return projectDir;
+  }
+
+  // Explicit relative path — resolve against cwd
+  if (projectDir.startsWith("./") || projectDir.startsWith("../")) {
+    return resolve(process.cwd(), projectDir);
+  }
+
+  // Bare name — if we're inside the tstack repo, place as sibling to the repo
+  const repoRoot = findTstackRepoRoot();
+  if (repoRoot) {
+    const cwd = process.cwd();
+    if (cwd === repoRoot || cwd.startsWith(repoRoot + "/")) {
+      return resolve(repoRoot, "..", projectDir);
+    }
+  }
+
+  // Default: resolve against cwd
+  return resolve(process.cwd(), projectDir);
+}
+
 function resolveBoilerplateSourcePath(): string {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   return resolve(__dirname, "../../../apps/boilerplate");
@@ -148,7 +187,7 @@ function routeCommand(
     }
 
     const projectDir = remainingArgs[0];
-    const targetPath = resolve(process.cwd(), projectDir);
+    const targetPath = resolveProjectDir(projectDir);
     const slug = targetPath.split("/").pop() ?? projectDir;
 
     if (!appName) {
@@ -345,7 +384,7 @@ export async function runCliAsync(
       await new Promise<void>((done) => {
         render(
           React.createElement(Wizard, {
-            projectDir: resolve(process.cwd(), projectDir),
+            projectDir: resolveProjectDir(projectDir),
             sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
             onComplete: done,
           }),
