@@ -202,25 +202,54 @@ function routeCommand(
     };
   }
 
-  if (command === "products" && args[0] === "--env") {
-    if (!isProductEnvironment(args[1])) {
+  if (command === "products") {
+    const envIndex = args.indexOf("--env");
+    const prodFlag = args.includes("--prod");
+    const projectDirIndex = args.indexOf("--project-dir");
+
+    if (prodFlag && envIndex !== -1) {
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Invalid value "${args[1] ?? ""}" for --env. Expected sandbox or production.\n`,
+        stderr: `Cannot use --prod and --env together. Use one or the other.\n`,
       };
     }
 
-    const extraOption = args.slice(2).find((arg) => arg.startsWith("-"));
-
-    if (extraOption) {
-      return unknownCommandOption(command, extraOption);
+    if (envIndex !== -1) {
+      const envValue = args[envIndex + 1];
+      if (!isProductEnvironment(envValue)) {
+        return {
+          exitCode: 1,
+          stdout: "",
+          stderr: `Invalid value "${envValue ?? ""}" for --env. Expected sandbox or production.\n`,
+        };
+      }
     }
+
+    const remainingArgs = args.filter((_, i) => {
+      if (envIndex !== -1 && (i === envIndex || i === envIndex + 1)) return false;
+      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1)) return false;
+      if (args[i] === "--prod") return false;
+      return true;
+    });
+
+    const unknownOpt = remainingArgs.find((arg) => arg.startsWith("-"));
+    if (unknownOpt) {
+      return unknownCommandOption(command, unknownOpt);
+    }
+
+    const env: ProductEnvironment = prodFlag
+      ? "production"
+      : envIndex !== -1
+        ? (args[envIndex + 1] as ProductEnvironment)
+        : "sandbox";
+
+    const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : ".";
 
     return {
       exitCode: 0,
-      stdout: `tstack products route is available, but the workflow is not implemented yet.\nEnvironment: ${args[1]}\n`,
-      stderr: "",
+      stdout: "",
+      stderr: `Interactive mode required. Environment: ${env}. Project: ${resolve(projectDir)}\n`,
     };
   }
 
@@ -325,6 +354,37 @@ export async function runCliAsync(
         render(
           React.createElement(ReadyWizard, {
             projectDir: resolve(projectDir),
+            onComplete: done,
+          }),
+        );
+      });
+
+      return {
+        exitCode: 0,
+        stdout: "",
+        stderr: "",
+      };
+    }
+
+    // Check if this is the interactive-products signal
+    if (
+      args[0] === "products" &&
+      syncResult.stderr.includes("Interactive mode required")
+    ) {
+      const envMatch = syncResult.stderr.match(/Environment: (sandbox|production)/);
+      const env = (envMatch?.[1] ?? "sandbox") as "sandbox" | "production";
+
+      const projectDirMatch = syncResult.stderr.match(/Project: (.+)/);
+      const projectDir = projectDirMatch?.[1] ?? ".";
+
+      const { render } = await import("ink");
+      const { ProductsWizard } = await import("./ProductsWizard.js");
+
+      await new Promise<void>((done) => {
+        render(
+          React.createElement(ProductsWizard, {
+            projectDir: resolve(projectDir),
+            env,
             onComplete: done,
           }),
         );

@@ -57,9 +57,9 @@ describe("runCli", () => {
     const result = runCli(["products"]);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("tstack products");
-    expect(result.stdout).toContain("not implemented yet");
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("sandbox");
   });
 
   it("routes the init command and scaffolds a project", () => {
@@ -192,8 +192,8 @@ describe("runCli", () => {
     const result = runCli(["products", "--env", environment]);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stderr).toBe("");
-    expect(result.stdout).toContain(`Environment: ${environment}`);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain(`Environment: ${environment}`);
   });
 
   it("rejects unsupported products environments with a useful message", () => {
@@ -245,5 +245,76 @@ describe("runCli", () => {
     expect(result.stderr).toBe("");
     expect(result.stdout).toContain("Usage: pnpm tstack products [options]");
     expect(result.stdout).toContain("--env <sandbox|production>");
+  });
+
+  it("products defaults to sandbox and signals interactive mode", () => {
+    const result = runCli(["products"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("products --env sandbox signals interactive mode", () => {
+    const result = runCli(["products", "--env", "sandbox"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("products --env production signals interactive mode", () => {
+    const result = runCli(["products", "--env", "production"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("products --prod is shorthand for production and signals interactive mode", () => {
+    const result = runCli(["products", "--prod"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("production");
+  });
+
+  it("products --project-dir <path> signals interactive mode", () => {
+    const result = runCli(["products", "--project-dir", "/some/path"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("/some/path");
+  });
+
+  it("products combines --env and --project-dir", () => {
+    const result = runCli(["products", "--env", "production", "--project-dir", "/some/path"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("production");
+    expect(result.stderr).toContain("/some/path");
+  });
+
+  it("products combines --prod and --project-dir", () => {
+    const result = runCli(["products", "--prod", "--project-dir", "/some/path"]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("production");
+    expect(result.stderr).toContain("/some/path");
+  });
+
+  it("products rejects --prod combined with --env", () => {
+    const result = runCli(["products", "--prod", "--env", "production"]);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("--prod");
+    expect(result.stderr).toContain("--env");
   });
 });
