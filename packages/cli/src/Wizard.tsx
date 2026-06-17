@@ -5,6 +5,7 @@ import { Header } from "./components/Header.js";
 import { TextInput } from "./components/TextInput.js";
 import { Confirm } from "./components/Confirm.js";
 import { Select } from "./components/Select.js";
+import { MultiSelect } from "./components/MultiSelect.js";
 import { StatusMessage } from "./components/StatusMessage.js";
 import { validateProjectSlug } from "./lib/validate.js";
 import { initProject, type ProviderConfig } from "./lib/init-project.js";
@@ -14,11 +15,19 @@ type WizardStep =
   | "displayName"
   | "providers"
   | "analytics"
+  | "envConfig"
   | "gitConfirm"
   | "installConfirm"
   | "running"
   | "done"
   | "error";
+
+interface EnvQuestion {
+  key: string;
+  label: string;
+  placeholder?: string;
+  mask?: string;
+}
 
 export interface WizardProps {
   projectDir: string;
@@ -38,6 +47,9 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
     digitalOcean: false,
     analytics: "none",
   });
+  const [envQuestions, setEnvQuestions] = useState<EnvQuestion[]>([]);
+  const [currentEnvIndex, setCurrentEnvIndex] = useState(0);
+  const [envValues, setEnvValues] = useState<Record<string, string>>({});
   const [initGit, setInitGit] = useState(false);
   const [installDeps, setInstallDeps] = useState(false);
   const [error, setError] = useState("");
@@ -59,18 +71,80 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
     setStep("providers");
   };
 
-  const handleProvidersConfirm = (confirmed: boolean) => {
-    if (!confirmed) {
-      setStep("analytics");
-      return;
-    }
-    setProviders((p) => ({ ...p, github: true, twitter: true, walletConnect: true, polar: true, digitalOcean: true }));
+  const handleProvidersSubmit = (selected: string[]) => {
+    setProviders((p) => ({
+      ...p,
+      github: selected.includes("github"),
+      twitter: selected.includes("twitter"),
+      walletConnect: selected.includes("walletConnect"),
+      polar: selected.includes("polar"),
+      digitalOcean: selected.includes("digitalOcean"),
+    }));
     setStep("analytics");
   };
 
   const handleAnalyticsSelect = (value: string) => {
-    setProviders((p) => ({ ...p, analytics: value as ProviderConfig["analytics"] }));
-    setStep("gitConfirm");
+    const nextProviders = { ...providers, analytics: value as ProviderConfig["analytics"] };
+    setProviders(nextProviders);
+
+    const questions: EnvQuestion[] = [];
+
+    if (nextProviders.github) {
+      questions.push({ key: "GITHUB_CLIENT_ID", label: "GitHub Client ID" });
+      questions.push({ key: "GITHUB_CLIENT_SECRET", label: "GitHub Client Secret", mask: "*" });
+    }
+    if (nextProviders.twitter) {
+      questions.push({ key: "TWITTER_CLIENT_ID", label: "Twitter Client ID" });
+      questions.push({ key: "TWITTER_CLIENT_SECRET", label: "Twitter Client Secret", mask: "*" });
+    }
+    if (nextProviders.walletConnect) {
+      questions.push({ key: "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID", label: "WalletConnect Project ID" });
+    }
+    if (nextProviders.polar) {
+      questions.push({ key: "POLAR_ACCESS_TOKEN", label: "Polar Access Token", mask: "*" });
+      questions.push({ key: "POLAR_ORGANIZATION_ID", label: "Polar Organization ID" });
+      questions.push({ key: "POLAR_WEBHOOK_SECRET", label: "Polar Webhook Secret", mask: "*" });
+    }
+    if (nextProviders.digitalOcean) {
+      questions.push({ key: "DIGITALOCEAN_SPACES_BUCKET", label: "DigitalOcean Spaces Bucket" });
+      questions.push({ key: "DIGITALOCEAN_SPACES_ACCESS_KEY_ID", label: "DigitalOcean Spaces Access Key ID" });
+      questions.push({ key: "DIGITALOCEAN_SPACES_SECRET_ACCESS_KEY", label: "DigitalOcean Spaces Secret Access Key", mask: "*" });
+      questions.push({ key: "DIGITALOCEAN_SPACES_CDN", label: "DigitalOcean Spaces CDN URL (optional)", placeholder: "https://cdn.example.com" });
+    }
+    if (nextProviders.analytics === "umami") {
+      questions.push({ key: "NEXT_PUBLIC_UMAMI_WEBSITE_ID", label: "Umami Website ID" });
+    }
+    if (nextProviders.analytics === "posthog") {
+      questions.push({ key: "NEXT_PUBLIC_POSTHOG_KEY", label: "PostHog API Key" });
+    }
+
+    // Core email configuration
+    questions.push({ key: "RESEND_API_KEY", label: "Resend API Key", mask: "*" });
+    questions.push({ key: "EMAIL_FROM_ADDRESS", label: "Email From Address", placeholder: `no-reply@${slug}.com` });
+    questions.push({ key: "SUPPORT_EMAIL", label: "Support Email", placeholder: `support@${slug}.com` });
+    questions.push({ key: "EMAIL_BRAND_LOGO_URL", label: "Email Brand Logo URL (optional)", placeholder: `https://${slug}.com/logo.png` });
+
+    setEnvQuestions(questions);
+    setCurrentEnvIndex(0);
+
+    if (questions.length > 0) {
+      setStep("envConfig");
+    } else {
+      setStep("gitConfirm");
+    }
+  };
+
+  const handleEnvValueSubmit = (value: string) => {
+    const question = envQuestions[currentEnvIndex];
+    if (!question) return;
+
+    setEnvValues((prev) => ({ ...prev, [question.key]: value }));
+
+    if (currentEnvIndex + 1 < envQuestions.length) {
+      setCurrentEnvIndex((i) => i + 1);
+    } else {
+      setStep("gitConfirm");
+    }
   };
 
   const handleGitConfirm = (confirmed: boolean) => {
@@ -92,6 +166,7 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
           ...providers,
           analytics: providers.analytics,
         },
+        envOverrides: envValues,
         initGit,
         installDeps: confirmed,
       });
@@ -129,10 +204,17 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
         />
       )}
       {step === "providers" && (
-        <Box flexDirection="column">
-          <Text>Enable all providers (GitHub, Twitter, WalletConnect, Polar, DigitalOcean Spaces)?</Text>
-          <Confirm label="Enable all" onConfirm={handleProvidersConfirm} defaultValue={false} />
-        </Box>
+        <MultiSelect
+          label="Select providers to configure"
+          items={[
+            { label: "GitHub OAuth", value: "github" },
+            { label: "Twitter OAuth", value: "twitter" },
+            { label: "WalletConnect", value: "walletConnect" },
+            { label: "Polar (billing)", value: "polar" },
+            { label: "DigitalOcean Spaces (file uploads)", value: "digitalOcean" },
+          ]}
+          onSubmit={handleProvidersSubmit}
+        />
       )}
       {step === "analytics" && (
         <Select
@@ -143,6 +225,16 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
             { label: "PostHog", value: "posthog" },
           ]}
           onSelect={handleAnalyticsSelect}
+        />
+      )}
+      {step === "envConfig" && envQuestions[currentEnvIndex] && (
+        <TextInput
+          label={`${envQuestions[currentEnvIndex].label} (${currentEnvIndex + 1}/${envQuestions.length})`}
+          value={envValues[envQuestions[currentEnvIndex].key] || ""}
+          onChange={(v) => setEnvValues((prev) => ({ ...prev, [envQuestions[currentEnvIndex].key]: v }))}
+          onSubmit={handleEnvValueSubmit}
+          placeholder={envQuestions[currentEnvIndex].placeholder || ""}
+          mask={envQuestions[currentEnvIndex].mask}
         />
       )}
       {step === "gitConfirm" && (

@@ -24,6 +24,7 @@ export interface InitProjectOptions {
   slug: string;
   displayName: string;
   providers: ProviderConfig;
+  envOverrides?: Record<string, string>;
   initGit?: boolean;
   installDeps?: boolean;
 }
@@ -85,7 +86,7 @@ function updateGeneratedHeader(dir: string): void {
 }
 
 export function initProject(options: InitProjectOptions): void {
-  const { sourceDir, targetDir, slug, displayName, providers, initGit, installDeps } = options;
+  const { sourceDir, targetDir, slug, displayName, providers, envOverrides, initGit, installDeps } = options;
 
   exportBoilerplate({ sourceDir, targetDir });
 
@@ -158,6 +159,15 @@ export function initProject(options: InitProjectOptions): void {
     if (providers.analytics === "posthog") {
       envValues.NEXT_PUBLIC_POSTHOG_KEY = "";
       envValues.NEXT_PUBLIC_POSTHOG_HOST = "https://eu.posthog.com";
+    }
+
+    // Apply user-provided overrides (only non-empty values)
+    if (envOverrides) {
+      for (const [key, value] of Object.entries(envOverrides)) {
+        if (value) {
+          envValues[key] = value;
+        }
+      }
     }
 
     const envContent = generateEnv({ exampleContent, values: envValues });
