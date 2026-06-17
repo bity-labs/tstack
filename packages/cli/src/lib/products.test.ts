@@ -188,12 +188,20 @@ describe("formatPrice", () => {
     expect(formatPrice({ amountType: "fixed", amount: 1900, currency: "usd" })).toBe("$19");
   });
 
+  it("formats fixed price with cents", () => {
+    expect(formatPrice({ amountType: "fixed", amount: 1999, currency: "usd" })).toBe("$19.99");
+  });
+
   it("formats free price", () => {
     expect(formatPrice({ amountType: "free" })).toBe("Free");
   });
 
   it("formats custom price using preset amount", () => {
     expect(formatPrice({ amountType: "custom", presetAmount: 1000, currency: "usd" })).toBe("$10");
+  });
+
+  it("formats custom price with preset cents", () => {
+    expect(formatPrice({ amountType: "custom", presetAmount: 599, currency: "usd" })).toBe("$5.99");
   });
 
   it("formats custom price without preset as custom", () => {

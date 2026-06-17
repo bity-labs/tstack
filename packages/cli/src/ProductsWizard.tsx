@@ -223,7 +223,15 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
   };
 
   const hasArchivedProducts = products.some((p) => p.polarProductId != null);
-  const showSyncFromSandbox = env === "production" && existsSync(otherProductsFilePath) && readProducts(otherProductsFilePath).length > 0;
+  const showSyncFromSandbox = useMemo(() => {
+    if (env !== "production") return false;
+    if (!existsSync(otherProductsFilePath)) return false;
+    try {
+      return readProducts(otherProductsFilePath).length > 0;
+    } catch {
+      return false;
+    }
+  }, [env, otherProductsFilePath]);
 
   return (
     <Box flexDirection="column">

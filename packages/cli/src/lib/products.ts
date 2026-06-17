@@ -217,16 +217,23 @@ export function generateYearlyProduct(monthlyProduct: Product): Product {
   };
 }
 
+function formatDollars(cents: number): string {
+  const dollars = Math.floor(cents / 100);
+  const remainder = cents % 100;
+  if (remainder === 0) return `$${dollars}`;
+  return `$${dollars}.${remainder.toString().padStart(2, "0")}`;
+}
+
 export function formatPrice(price: ProductPrice): string {
   if (price.amountType === "free") return "Free";
   if (price.amountType === "custom") {
     if (price.presetAmount != null) {
-      return `$${Math.round(price.presetAmount / 100)}`;
+      return formatDollars(price.presetAmount);
     }
     return "Custom";
   }
   if (price.amount != null) {
-    return `$${Math.round(price.amount / 100)}`;
+    return formatDollars(price.amount);
   }
   return "";
 }
