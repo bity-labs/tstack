@@ -3,13 +3,13 @@ title: "Known Limitations"
 description: "Current limitations buyers should understand before using TStack."
 ---
 
-## No scaffold/export command yet
+## Scaffold via CLI
 
-TStack does not currently include a CLI scaffold/export command. The boilerplate can be run from the monorepo source, and standalone extraction is manual.
+The TStack CLI includes `tstack init` to scaffold a standalone app from `apps/boilerplate`. It is the preferred path for new projects; manual extraction remains available for custom workflows.
 
-## No buyer-facing product sync command yet
+## Product sync via CLI
 
-The boilerplate includes Polar product/meter JSON and generated TypeScript files, but TStack does not currently provide a buyer-facing command to sync products or regenerate files. Keep Polar dashboard state, JSON config, and generated TypeScript aligned deliberately.
+The TStack CLI includes `tstack products` to manage Polar products, meters, and generated TypeScript files. See the [CLI reference](/reference/cli) for usage. Keep Polar dashboard state, JSON config, and generated TypeScript aligned deliberately.
 
 ## No deployment automation
 
