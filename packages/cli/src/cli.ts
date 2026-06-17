@@ -148,7 +148,7 @@ function routeCommand(
     }
 
     const projectDir = remainingArgs[0];
-    const targetPath = resolve(projectDir);
+    const targetPath = resolve(process.cwd(), projectDir);
     const slug = targetPath.split("/").pop() ?? projectDir;
 
     if (!appName) {
@@ -345,7 +345,7 @@ export async function runCliAsync(
       await new Promise<void>((done) => {
         render(
           React.createElement(Wizard, {
-            projectDir: resolve(projectDir),
+            projectDir: resolve(process.cwd(), projectDir),
             sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
             onComplete: done,
           }),
