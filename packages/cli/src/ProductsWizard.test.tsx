@@ -7,6 +7,20 @@ import { join } from "node:path";
 
 import { ProductsWizard } from "./ProductsWizard.js";
 import * as polar from "./lib/polar.js";
+import * as productsOps from "./lib/products-operations.js";
+
+vi.mock("./lib/products-operations.js", async () => {
+  const actual = await vi.importActual<typeof import("./lib/products-operations.js")>("./lib/products-operations.js");
+  return {
+    ...actual,
+    removeProducts: vi.fn(),
+    unarchiveProducts: vi.fn(),
+    findOrphanProducts: vi.fn(),
+    archiveOrphanProducts: vi.fn(),
+    importOrphanProducts: vi.fn(),
+    syncSandboxToProduction: vi.fn(),
+  };
+});
 
 vi.mock("./lib/polar.js", async () => {
   const actual = await vi.importActual<typeof import("./lib/polar.js")>("./lib/polar.js");
@@ -16,6 +30,10 @@ vi.mock("./lib/polar.js", async () => {
     createPolarClient: vi.fn(),
     syncProductToPolar: vi.fn(),
     checkSyncStatus: vi.fn(),
+    archivePolarProduct: vi.fn(),
+    unarchivePolarProduct: vi.fn(),
+    listActivePolarProducts: vi.fn(),
+    listArchivedPolarProducts: vi.fn(),
     toBuyerMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   };
 });
@@ -299,8 +317,10 @@ describe("ProductsWizard", () => {
       await delay(50);
 
       // Navigate to "Regenerate TypeScript exports" (down arrow to reach it)
-      // In OperationMenu with products: Add, Remove, Sync, Cleanup, Regenerate
-      // Regenerate is the 5th option, so 4 downs
+      // In OperationMenu with products: Add, Remove, Sync, Unarchive, Cleanup, Regenerate
+      // Regenerate is the 6th option, so 5 downs
+      stdin.write("\u001B[B");
+      await delay(20);
       stdin.write("\u001B[B");
       await delay(20);
       stdin.write("\u001B[B");
@@ -435,6 +455,129 @@ describe("ProductsWizard", () => {
 
       const frame = lastFrame() ?? "";
       expect(frame).toContain("Polar access token");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("removes a product and archives it on Polar when ID exists", async () => {
+    const dir = makeTempDir("tstack-products-remove-");
+    const polarDir = join(dir, "polar");
+    const productsFile = join(polarDir, "products.sandbox.json");
+
+    try {
+      mkdirSync(polarDir, { recursive: true });
+      writeFileSync(
+        productsFile,
+        JSON.stringify({
+          $schema: "./products.schema.json",
+          products: [
+            {
+              slug: "pro-monthly",
+              name: "Pro Monthly",
+              type: "subscription",
+              recurringInterval: "month",
+              prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
+              display: {
+                title: "Pro",
+                features: ["Unlimited projects"],
+                badge: null,
+                highlighted: false,
+                cta: "Get Started",
+              },
+              polarProductId: "p1",
+            },
+          ],
+        }),
+      );
+
+      vi.mocked(polar.loadPolarCredentials).mockReturnValue({ token: "test-token" });
+      vi.mocked(productsOps.removeProducts).mockResolvedValue([
+        { slug: "pro-monthly", status: "success", message: "Removed" },
+      ]);
+
+      const { stdin, lastFrame } = render(
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+      );
+
+      await delay(50);
+
+      // Select "Remove products" (2nd option: down, return)
+      stdin.write("\u001B[B");
+      await delay(20);
+      stdin.write("\r");
+      await delay(50);
+
+      // MultiSelect: toggle the first item with space, then confirm with return
+      stdin.write(" ");
+      await delay(20);
+      stdin.write("\r");
+      await delay(100);
+
+      const frame = lastFrame() ?? "";
+      expect(frame).toContain("Operation completed successfully");
+      expect(productsOps.removeProducts).toHaveBeenCalled();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("syncs sandbox products into production", async () => {
+    const dir = makeTempDir("tstack-products-sandbox-sync-");
+    const polarDir = join(dir, "polar");
+    const sandboxFile = join(polarDir, "products.sandbox.json");
+    const productionFile = join(polarDir, "products.production.json");
+
+    try {
+      mkdirSync(polarDir, { recursive: true });
+      writeFileSync(
+        sandboxFile,
+        JSON.stringify({
+          $schema: "./products.schema.json",
+          products: [
+            {
+              slug: "pro-monthly",
+              name: "Pro Monthly",
+              type: "subscription",
+              recurringInterval: "month",
+              prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
+              display: {
+                title: "Pro",
+                features: ["Unlimited projects"],
+                badge: null,
+                highlighted: false,
+                cta: "Get Started",
+              },
+              polarProductId: "sandbox-p1",
+            },
+          ],
+        }),
+      );
+
+      vi.mocked(polar.loadPolarCredentials).mockReturnValue({ token: "test-token" });
+      vi.mocked(productsOps.syncSandboxToProduction).mockResolvedValue([
+        { slug: "pro-monthly", status: "success", message: "Synced to production" },
+      ]);
+
+      const { stdin, lastFrame } = render(
+        <ProductsWizard projectDir={dir} env="production" onComplete={() => {}} />,
+      );
+
+      await delay(50);
+
+      // Select "Sync products from sandbox" (first option when showSyncFromSandbox is true)
+      stdin.write("\r");
+      await delay(50);
+
+      // MultiSelect: toggle the first item with space, then confirm with return
+      stdin.write(" ");
+      await delay(20);
+      stdin.write("\r");
+      await delay(100);
+
+      const frame = lastFrame() ?? "";
+      expect(frame).toContain("Operation completed successfully");
+      expect(productsOps.syncSandboxToProduction).toHaveBeenCalled();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

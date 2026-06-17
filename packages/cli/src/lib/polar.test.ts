@@ -9,6 +9,9 @@ import {
   convertToPolarProduct,
   syncProductToPolar,
   checkSyncStatus,
+  archivePolarProduct,
+  unarchivePolarProduct,
+  listActivePolarProducts,
   toBuyerMessage,
   type SyncResult,
   type TStackProduct,
@@ -347,6 +350,141 @@ describe("checkSyncStatus", () => {
 
     const status = await checkSyncStatus(client, product);
     expect(status).toBe("error");
+  });
+});
+
+describe("archivePolarProduct", () => {
+  it("archives a product on Polar", async () => {
+    const updateMock = vi.fn().mockResolvedValue({ id: "p1" });
+    const client = {
+      products: { update: updateMock },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    await archivePolarProduct(client, "p1");
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "p1", productUpdate: { isArchived: true } }),
+    );
+  });
+
+  it("throws when archive fails", async () => {
+    const updateMock = vi.fn().mockRejectedValue(new Error("network error"));
+    const client = {
+      products: { update: updateMock },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    await expect(archivePolarProduct(client, "p1")).rejects.toThrow("network error");
+  });
+});
+
+describe("unarchivePolarProduct", () => {
+  it("unarchives a product on Polar", async () => {
+    const updateMock = vi.fn().mockResolvedValue({ id: "p1" });
+    const client = {
+      products: { update: updateMock },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    await unarchivePolarProduct(client, "p1");
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "p1", productUpdate: { isArchived: false } }),
+    );
+  });
+
+  it("throws when unarchive fails", async () => {
+    const updateMock = vi.fn().mockRejectedValue(new Error("network error"));
+    const client = {
+      products: { update: updateMock },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    await expect(unarchivePolarProduct(client, "p1")).rejects.toThrow("network error");
+  });
+});
+
+describe("listActivePolarProducts", () => {
+  it("lists active Polar products with metadata", async () => {
+    const items = [
+      { id: "p1", name: "Pro", metadata: { source: "tstack-cli" } },
+      { id: "p2", name: "Basic", metadata: { source: "tstack-cli" } },
+    ];
+
+    const page = {
+      result: { items, pagination: { totalCount: 2, maxPage: 1 } },
+      next: vi.fn().mockResolvedValue(null),
+      [Symbol.asyncIterator]: async function* () {
+        yield { result: { items, pagination: { totalCount: 2, maxPage: 1 } } };
+      },
+    };
+
+    const client = {
+      products: {
+        list: vi.fn().mockResolvedValue(page),
+      },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    const result = await listActivePolarProducts(client);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ id: "p1", name: "Pro" });
+  });
+
+  it("filters out products without tstack-cli metadata", async () => {
+    const items = [
+      { id: "p1", name: "Pro", metadata: { source: "tstack-cli" } },
+      { id: "p2", name: "Other", metadata: {} },
+    ];
+
+    const page = {
+      result: { items, pagination: { totalCount: 2, maxPage: 1 } },
+      next: vi.fn().mockResolvedValue(null),
+      [Symbol.asyncIterator]: async function* () {
+        yield { result: { items, pagination: { totalCount: 2, maxPage: 1 } } };
+      },
+    };
+
+    const client = {
+      products: {
+        list: vi.fn().mockResolvedValue(page),
+      },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    const result = await listActivePolarProducts(client);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("p1");
+  });
+
+  it("iterates across multiple pages", async () => {
+    const page1Items = [{ id: "p1", name: "Pro", metadata: { source: "tstack-cli" } }];
+    const page2Items = [{ id: "p2", name: "Basic", metadata: { source: "tstack-cli" } }];
+
+    let callCount = 0;
+    const page = {
+      result: { items: page1Items, pagination: { totalCount: 2, maxPage: 2 } },
+      next: vi.fn().mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({
+            result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } },
+            next: vi.fn().mockResolvedValue(null),
+            [Symbol.asyncIterator]: async function* () {
+              yield { result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } } };
+            },
+          });
+        }
+        return Promise.resolve(null);
+      }),
+      [Symbol.asyncIterator]: async function* () {
+        yield { result: { items: page1Items, pagination: { totalCount: 2, maxPage: 2 } } };
+        yield { result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } } };
+      },
+    };
+
+    const client = {
+      products: {
+        list: vi.fn().mockResolvedValue(page),
+      },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    const result = await listActivePolarProducts(client);
+    expect(result).toHaveLength(2);
+    expect(result[1].id).toBe("p2");
   });
 });
 

@@ -156,6 +156,51 @@ export async function checkSyncStatus(
   }
 }
 
+export async function archivePolarProduct(client: Polar, productId: string): Promise<void> {
+  await client.products.update({ id: productId, productUpdate: { isArchived: true } });
+}
+
+export async function unarchivePolarProduct(client: Polar, productId: string): Promise<void> {
+  await client.products.update({ id: productId, productUpdate: { isArchived: false } });
+}
+
+export interface PolarProductSummary {
+  id: string;
+  name: string;
+}
+
+export async function listActivePolarProducts(client: Polar): Promise<PolarProductSummary[]> {
+  const page = await client.products.list({ isArchived: false, limit: 100 });
+  const products: PolarProductSummary[] = [];
+
+  for await (const response of page) {
+    for (const item of response.result.items) {
+      const metadata = item.metadata as Record<string, unknown> | undefined;
+      if (metadata?.source === "tstack-cli") {
+        products.push({ id: item.id, name: item.name });
+      }
+    }
+  }
+
+  return products;
+}
+
+export async function listArchivedPolarProducts(client: Polar): Promise<PolarProductSummary[]> {
+  const page = await client.products.list({ isArchived: true, limit: 100 });
+  const products: PolarProductSummary[] = [];
+
+  for await (const response of page) {
+    for (const item of response.result.items) {
+      const metadata = item.metadata as Record<string, unknown> | undefined;
+      if (metadata?.source === "tstack-cli") {
+        products.push({ id: item.id, name: item.name });
+      }
+    }
+  }
+
+  return products;
+}
+
 export function toBuyerMessage(error: unknown): string {
   if (error == null) {
     return "An unexpected error occurred.";

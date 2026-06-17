@@ -8,6 +8,7 @@ import { StatusMessage } from "./components/StatusMessage.js";
 import { ProductList, type SyncStatus } from "./components/ProductList.js";
 import { OperationMenu, type Operation } from "./components/OperationMenu.js";
 import { Select } from "./components/Select.js";
+import { MultiSelect } from "./components/MultiSelect.js";
 import { TextInput } from "./components/TextInput.js";
 import { Confirm } from "./components/Confirm.js";
 import { Spinner } from "./components/Spinner.js";
@@ -23,8 +24,18 @@ import {
   createPolarClient,
   syncProductToPolar,
   checkSyncStatus,
+  listArchivedPolarProducts,
   toBuyerMessage,
 } from "./lib/polar.js";
+import {
+  removeProducts,
+  unarchiveProducts,
+  findOrphanProducts,
+  archiveOrphanProducts,
+  importOrphanProducts,
+  syncSandboxToProduction,
+  type OperationResult,
+} from "./lib/products-operations.js";
 
 export interface ProductsWizardProps {
   projectDir: string;
@@ -60,6 +71,15 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
   // Sync state
   const [polarToken, setPolarToken] = useState<string>("");
   const [syncResults, setSyncResults] = useState<Array<{ slug: string; status: string }>>([]);
+
+  // Advanced operations state
+  const [credentialTargetStep, setCredentialTargetStep] = useState<string>("");
+  const [operationResults, setOperationResults] = useState<OperationResult[]>([]);
+  const [pendingSelection, setPendingSelection] = useState<string[]>([]);
+  const [archivedPolarProducts, setArchivedPolarProducts] = useState<Array<{ id: string; name: string }>>([]);
+  const [orphanProducts, setOrphanProducts] = useState<Array<{ id: string; name: string }>>([]);
+  const [cleanupAction, setCleanupAction] = useState<string>("");
+  const [sandboxProductsList, setSandboxProductsList] = useState<Product[]>([]);
 
   const productsFilePath = useMemo(() => {
     const fileName = env === "sandbox" ? "products.sandbox.json" : "products.production.json";
@@ -112,7 +132,28 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
     return map;
   }, [products]);
 
+  const ensurePolarCredentials = (targetStep: string): { token: string } | null => {
+    const creds = loadPolarCredentials(projectDir, token);
+    if (creds) return creds;
+    if (polarToken) return { token: polarToken };
+    setPolarToken("");
+    setCredentialTargetStep(targetStep);
+    setStep("credentials");
+    return null;
+  };
+
+  const handleCredentials = (inputToken: string) => {
+    if (!inputToken.trim()) {
+      setError("Polar access token is required.");
+      setStep("error");
+      return;
+    }
+    setPolarToken(inputToken.trim());
+    setStep(credentialTargetStep);
+  };
+
   const handleOperationSelect = (operation: Operation) => {
+    setOperationResults([]);
     if (operation === "add") {
       setNewType("");
       setNewName("");
@@ -128,24 +169,31 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
     } else if (operation === "regenerate") {
       setStep("regenerate");
     } else if (operation === "sync") {
-      const credentials = loadPolarCredentials(projectDir, token);
-      if (credentials) {
+      const creds = ensurePolarCredentials("sync_checking");
+      if (creds) {
         setStep("sync_checking");
-      } else {
-        setPolarToken("");
-        setStep("sync_credentials");
+      }
+    } else if (operation === "remove") {
+      setPendingSelection([]);
+      setStep("remove_select");
+    } else if (operation === "unarchive") {
+      const creds = ensurePolarCredentials("unarchive_loading");
+      if (creds) {
+        setStep("unarchive_loading");
+      }
+    } else if (operation === "cleanup") {
+      const creds = ensurePolarCredentials("cleanup_loading");
+      if (creds) {
+        setStep("cleanup_loading");
+      }
+    } else if (operation === "sync_from_sandbox") {
+      const sandboxProducts = existsSync(otherProductsFilePath) ? readProducts(otherProductsFilePath) : [];
+      setSandboxProductsList(sandboxProducts);
+      const creds = ensurePolarCredentials("sync_from_sandbox_select");
+      if (creds) {
+        setStep("sync_from_sandbox_select");
       }
     }
-  };
-
-  const handleSyncCredentials = (inputToken: string) => {
-    if (!inputToken.trim()) {
-      setError("Polar access token is required.");
-      setStep("error");
-      return;
-    }
-    setPolarToken(inputToken.trim());
-    setStep("sync_checking");
   };
 
   const runSync = useCallback(async () => {
@@ -185,9 +233,170 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products, projectDir, env, token, polarToken, productsFilePath]);
 
+  const runRemove = useCallback(async () => {
+    const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+    const client = createPolarClient(credentials, env);
+    const results = await removeProducts({
+      productsFilePath,
+      slugsToRemove: pendingSelection,
+      client,
+      regenerate: (updated) => {
+        setProducts(updated);
+        regenerateFiles(updated);
+      },
+    });
+    setOperationResults(results);
+    setStep("done");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSelection, productsFilePath, projectDir, env, token, polarToken]);
+
+  const runUnarchive = useCallback(async () => {
+    const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+    const client = createPolarClient(credentials, env);
+    const results = await unarchiveProducts({
+      idsToUnarchive: pendingSelection,
+      client,
+    });
+    setOperationResults(results);
+    setStep("done");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSelection, projectDir, env, token, polarToken]);
+
+  const runCleanup = useCallback(async () => {
+    const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+    const client = createPolarClient(credentials, env);
+
+    if (cleanupAction === "archive") {
+      const results = await archiveOrphanProducts({
+        orphanIds: pendingSelection,
+        client,
+      });
+      setOperationResults(results);
+    } else if (cleanupAction === "import") {
+      const results = importOrphanProducts({
+        productsFilePath,
+        orphans: orphanProducts.filter((o) => pendingSelection.includes(o.id)),
+        regenerate: (updated) => {
+          setProducts(updated);
+          regenerateFiles(updated);
+        },
+      });
+      setOperationResults(results);
+    }
+
+    setStep("done");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cleanupAction, pendingSelection, orphanProducts, productsFilePath, projectDir, env, token, polarToken]);
+
+  const runSyncFromSandbox = useCallback(async () => {
+    const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+    const client = createPolarClient(credentials, "production");
+    const results = await syncSandboxToProduction({
+      sandboxProducts: sandboxProductsList,
+      slugsToSync: pendingSelection,
+      productionClient: client,
+      productionProductsFilePath: productsFilePath,
+      regenerate: (updated) => {
+        setProducts(updated);
+        regenerateFiles(updated);
+      },
+    });
+    setOperationResults(results);
+    setStep("done");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sandboxProductsList, pendingSelection, productsFilePath, projectDir, token, polarToken]);
+
   useEffect(() => {
     if (step === "sync_checking") {
       runSync().catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("error");
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "remove_running") {
+      runRemove().catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("error");
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "unarchive_loading") {
+      (async () => {
+        try {
+          const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+          const client = createPolarClient(credentials, env);
+          const archived = await listArchivedPolarProducts(client);
+          setArchivedPolarProducts(archived);
+          if (archived.length === 0) {
+            setError("No archived Polar products found.");
+            setStep("error");
+          } else {
+            setPendingSelection([]);
+            setStep("unarchive_select");
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err));
+          setStep("error");
+        }
+      })();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "unarchive_running") {
+      runUnarchive().catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("error");
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "cleanup_loading") {
+      (async () => {
+        try {
+          const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
+          const client = createPolarClient(credentials, env);
+          const orphans = await findOrphanProducts({ client, localProducts: products });
+          setOrphanProducts(orphans);
+          if (orphans.length === 0) {
+            setError("No orphan Polar products found.");
+            setStep("error");
+          } else {
+            setPendingSelection([]);
+            setStep("cleanup_menu");
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err));
+          setStep("error");
+        }
+      })();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "cleanup_running") {
+      runCleanup().catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("error");
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(() => {
+    if (step === "sync_from_sandbox_running") {
+      runSyncFromSandbox().catch((err) => {
         setError(err instanceof Error ? err.message : String(err));
         setStep("error");
       });
@@ -386,6 +595,61 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
     }
   };
 
+  const handleRemoveSelect = (slugs: string[]) => {
+    if (slugs.length === 0) {
+      setStep("menu");
+      return;
+    }
+    setPendingSelection(slugs);
+    const selectedProducts = products.filter((p) => slugs.includes(p.slug));
+    const needsCredentials = selectedProducts.some((p) => p.polarProductId != null);
+    if (needsCredentials) {
+      const creds = ensurePolarCredentials("remove_running");
+      if (!creds) return;
+    }
+    setStep("remove_running");
+  };
+
+  const handleUnarchiveSelect = (ids: string[]) => {
+    if (ids.length === 0) {
+      setStep("menu");
+      return;
+    }
+    setPendingSelection(ids);
+    setStep("unarchive_running");
+  };
+
+  const handleCleanupMenuSelect = (action: string) => {
+    setCleanupAction(action);
+    setPendingSelection([]);
+    if (action === "archive") {
+      setStep("cleanup_archive_select");
+    } else if (action === "import") {
+      setStep("cleanup_import_select");
+    }
+  };
+
+  const handleCleanupSelect = (ids: string[]) => {
+    if (ids.length === 0) {
+      setStep("menu");
+      return;
+    }
+    setPendingSelection(ids);
+    setStep("cleanup_running");
+  };
+
+  const handleSyncFromSandboxSelect = (slugs: string[]) => {
+    if (slugs.length === 0) {
+      setStep("menu");
+      return;
+    }
+    setPendingSelection(slugs);
+    setStep("sync_from_sandbox_running");
+  };
+
+  const hasArchivedProducts = products.some((p) => p.polarProductId != null);
+  const showSyncFromSandbox = env === "production" && existsSync(otherProductsFilePath) && readProducts(otherProductsFilePath).length > 0;
+
   return (
     <Box flexDirection="column">
       <Header />
@@ -407,7 +671,12 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
             />
           </Box>
           <Box marginTop={1}>
-            <OperationMenu hasProducts={products.length > 0} onSelect={handleOperationSelect} />
+            <OperationMenu
+              hasProducts={products.length > 0}
+              hasArchivedProducts={hasArchivedProducts}
+              showSyncFromSandbox={showSyncFromSandbox}
+              onSelect={handleOperationSelect}
+            />
           </Box>
         </Box>
       )}
@@ -507,18 +776,93 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
           <Confirm label="Add yearly product" onConfirm={handleYearlyConfirm} defaultValue={true} />
         </Box>
       )}
-      {step === "sync_credentials" && (
+      {step === "credentials" && (
         <TextInput
           label="Polar access token"
           value={polarToken}
           onChange={setPolarToken}
-          onSubmit={handleSyncCredentials}
+          onSubmit={handleCredentials}
           placeholder="polar_..."
         />
       )}
       {step === "sync_checking" && (
         <Box flexDirection="column">
           <Spinner label="Syncing products with Polar..." />
+        </Box>
+      )}
+      {step === "remove_select" && (
+        <MultiSelect
+          label="Select products to remove"
+          items={products.map((p) => ({ label: `${p.name} (${p.slug})`, value: p.slug }))}
+          onSubmit={handleRemoveSelect}
+        />
+      )}
+      {step === "remove_running" && (
+        <Box flexDirection="column">
+          <Spinner label="Removing products..." />
+        </Box>
+      )}
+      {step === "unarchive_loading" && (
+        <Box flexDirection="column">
+          <Spinner label="Loading archived Polar products..." />
+        </Box>
+      )}
+      {step === "unarchive_select" && (
+        <MultiSelect
+          label="Select archived products to unarchive"
+          items={archivedPolarProducts.map((p) => ({ label: p.name, value: p.id }))}
+          onSubmit={handleUnarchiveSelect}
+        />
+      )}
+      {step === "unarchive_running" && (
+        <Box flexDirection="column">
+          <Spinner label="Unarchiving products on Polar..." />
+        </Box>
+      )}
+      {step === "cleanup_loading" && (
+        <Box flexDirection="column">
+          <Spinner label="Loading orphan Polar products..." />
+        </Box>
+      )}
+      {step === "cleanup_menu" && (
+        <Select
+          label={`Found ${orphanProducts.length} orphan Polar product(s). What would you like to do?`}
+          options={[
+            { label: "Archive orphan products on Polar", value: "archive" },
+            { label: "Import orphan products into local JSON", value: "import" },
+          ]}
+          onSelect={handleCleanupMenuSelect}
+        />
+      )}
+      {step === "cleanup_archive_select" && (
+        <MultiSelect
+          label="Select orphan products to archive"
+          items={orphanProducts.map((p) => ({ label: p.name, value: p.id }))}
+          onSubmit={handleCleanupSelect}
+        />
+      )}
+      {step === "cleanup_import_select" && (
+        <MultiSelect
+          label="Select orphan products to import"
+          items={orphanProducts.map((p) => ({ label: p.name, value: p.id }))}
+          onSubmit={handleCleanupSelect}
+        />
+      )}
+      {step === "cleanup_running" && (
+        <Box flexDirection="column">
+          <Spinner label="Processing orphan products..." />
+        </Box>
+      )}
+      {step === "sync_from_sandbox_select" && (
+        <MultiSelect
+          label="Select sandbox products to sync to production"
+          items={sandboxProductsList.map((p) => ({ label: `${p.name} (${p.slug})`, value: p.slug }))}
+          onSubmit={handleSyncFromSandboxSelect}
+        />
+      )}
+      {step === "sync_from_sandbox_running" && (
+        <Box flexDirection="column">
+          <Spinner label="Syncing sandbox products to production..." />
         </Box>
       )}
       {step === "regenerate" && (
@@ -534,6 +878,15 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
               {syncResults.map((r) => (
                 <Text key={r.slug}>
                   {r.slug}: {r.status}
+                </Text>
+              ))}
+            </Box>
+          )}
+          {operationResults.length > 0 && (
+            <Box flexDirection="column" marginTop={1}>
+              {operationResults.map((r) => (
+                <Text key={r.slug} color={r.status === "failure" ? "red" : "green"}>
+                  {r.slug}: {r.status === "success" ? "✓" : "✗"} {r.message}
                 </Text>
               ))}
             </Box>
