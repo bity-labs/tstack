@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
 
 import { exportBoilerplate } from "./lib/export-boilerplate.js";
 import { initProject } from "./lib/init-project.js";
+import { resolveProjectDir } from "./lib/resolve-project-dir.js";
 
 export type CliResult = {
   exitCode: number;
@@ -73,7 +73,7 @@ Options:
   if (command === "init") {
     return `TStack init
 
-Usage: pnpm tstack init <project-dir> [--app-name <name>]
+Usage: pnpm tstack init [project-dir] [--app-name <name>]
 
 Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
 
@@ -105,44 +105,6 @@ This command is routed by the TStack repository CLI.
 Options:
   -h, --help   Show this help message.
 `;
-}
-
-function findTstackRepoRoot(): string | undefined {
-  let dir = dirname(fileURLToPath(import.meta.url));
-  while (dir !== dirname(dir)) {
-    if (
-      existsSync(join(dir, "turbo.json")) &&
-      existsSync(join(dir, "pnpm-workspace.yaml"))
-    ) {
-      return dir;
-    }
-    dir = dirname(dir);
-  }
-  return undefined;
-}
-
-function resolveProjectDir(projectDir: string): string {
-  // Absolute path — use as-is
-  if (projectDir.startsWith("/")) {
-    return projectDir;
-  }
-
-  // Explicit relative path — resolve against cwd
-  if (projectDir.startsWith("./") || projectDir.startsWith("../")) {
-    return resolve(process.cwd(), projectDir);
-  }
-
-  // Bare name — if we're inside the tstack repo, place as sibling to the repo
-  const repoRoot = findTstackRepoRoot();
-  if (repoRoot) {
-    const cwd = process.cwd();
-    if (cwd === repoRoot || cwd.startsWith(repoRoot + "/")) {
-      return resolve(repoRoot, "..", projectDir);
-    }
-  }
-
-  // Default: resolve against cwd
-  return resolve(process.cwd(), projectDir);
 }
 
 function resolveBoilerplateSourcePath(): string {
@@ -178,19 +140,10 @@ function routeCommand(
       return unknownCommandOption(command, unknownOpt);
     }
 
-    if (remainingArgs.length === 0) {
-      return {
-        exitCode: 1,
-        stdout: "",
-        stderr: `Usage: pnpm tstack init <project-dir> [--app-name <name>]\n`,
-      };
-    }
-
     const projectDir = remainingArgs[0];
-    const targetPath = resolveProjectDir(projectDir);
-    const slug = targetPath.split("/").pop() ?? projectDir;
 
-    if (!appName) {
+    // Interactive mode if project dir or app name is missing
+    if (!projectDir || !appName) {
       return {
         exitCode: 0,
         stdout: "",
@@ -198,6 +151,9 @@ function routeCommand(
         interactive: true,
       };
     }
+
+    const targetPath = resolveProjectDir(projectDir);
+    const slug = targetPath.split("/").pop() ?? projectDir;
 
     try {
       initProject({
@@ -370,13 +326,6 @@ export async function runCliAsync(
       syncResult.interactive
     ) {
       const projectDir = args[1];
-      if (!projectDir) {
-        return {
-          exitCode: 1,
-          stdout: "",
-          stderr: `Usage: pnpm tstack init <project-dir> [--app-name <name>]\n`,
-        };
-      }
 
       const { render } = await import("ink");
       const { Wizard } = await import("./Wizard.js");
@@ -384,7 +333,7 @@ export async function runCliAsync(
       await new Promise<void>((done) => {
         render(
           React.createElement(Wizard, {
-            projectDir: resolveProjectDir(projectDir),
+            projectDir: projectDir ? resolveProjectDir(projectDir) : undefined,
             sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
             onComplete: done,
           }),

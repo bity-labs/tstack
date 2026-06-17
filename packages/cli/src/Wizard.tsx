@@ -8,9 +8,11 @@ import { Select } from "./components/Select.js";
 import { MultiSelect } from "./components/MultiSelect.js";
 import { StatusMessage } from "./components/StatusMessage.js";
 import { validateProjectSlug } from "./lib/validate.js";
+import { resolveProjectDir } from "./lib/resolve-project-dir.js";
 import { initProject, type ProviderConfig } from "./lib/init-project.js";
 
 type WizardStep =
+  | "projectDir"
   | "slug"
   | "displayName"
   | "providers"
@@ -30,13 +32,14 @@ interface EnvQuestion {
 }
 
 export interface WizardProps {
-  projectDir: string;
+  projectDir?: string;
   sourceDir: string;
   onComplete?: () => void;
 }
 
-export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
-  const [step, setStep] = useState<WizardStep>("slug");
+export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }: WizardProps) {
+  const [step, setStep] = useState<WizardStep>(initialProjectDir ? "slug" : "projectDir");
+  const [projectDir, setProjectDir] = useState(initialProjectDir ?? "");
   const [slug, setSlug] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [providers, setProviders] = useState<ProviderConfig>({
@@ -53,6 +56,23 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
   const [initGit, setInitGit] = useState(false);
   const [installDeps, setInstallDeps] = useState(false);
   const [error, setError] = useState("");
+
+  const handleProjectDirSubmit = (value: string) => {
+    const name = value.trim();
+    if (!name) {
+      setError("Project directory name is required.");
+      return;
+    }
+    const validation = validateProjectSlug(name);
+    if (validation) {
+      setError(validation);
+      return;
+    }
+    setError("");
+    setProjectDir(resolveProjectDir(name));
+    setSlug(name);
+    setStep("displayName");
+  };
 
   const handleSlugSubmit = (value: string) => {
     const validation = validateProjectSlug(value);
@@ -181,6 +201,19 @@ export function Wizard({ projectDir, sourceDir, onComplete }: WizardProps) {
   return (
     <Box flexDirection="column">
       <Header />
+      {step === "projectDir" && (
+        <Box flexDirection="column">
+          <TextInput
+            label="Project directory name"
+            value={slug}
+            onChange={setSlug}
+            onSubmit={handleProjectDirSubmit}
+            placeholder="my-app"
+            error={error}
+          />
+          <Text dimColor>Lowercase letters, numbers, and hyphens only. Created as a sibling to the tstack repo.</Text>
+        </Box>
+      )}
       {step === "slug" && (
         <Box flexDirection="column">
           <TextInput
