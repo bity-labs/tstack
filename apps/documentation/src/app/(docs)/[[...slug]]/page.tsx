@@ -33,7 +33,7 @@ export default async function Page({ params }: DocsPageProps) {
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            a: createRelativeLink(source, page),
+            a: createRelativeLink(source, page) as any,
           })}
         />
       </DocsBody>

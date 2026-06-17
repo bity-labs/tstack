@@ -1,4 +1,4 @@
 {
   "title": "Reference",
-  "pages": ["commands", "troubleshooting", "known-limitations"]
+  "pages": ["commands", "cli", "troubleshooting", "known-limitations"]
 }

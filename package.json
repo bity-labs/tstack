@@ -8,6 +8,7 @@
     "dev:documentation": "turbo run dev --filter=@tstack/documentation",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "tstack": "pnpm --filter @tstack/cli tstack",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

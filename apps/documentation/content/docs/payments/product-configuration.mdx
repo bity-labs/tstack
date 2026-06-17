@@ -1,6 +1,6 @@
 ---
 title: "Product Configuration"
-description: "Configure Polar products and meters without assuming a TStack CLI exists."
+description: "Configure Polar products and meters with or without the TStack CLI."
 ---
 
 Product and meter configuration currently lives in the boilerplate source.
@@ -19,9 +19,9 @@ src/features/billing/generated/
 └── meters.generated.ts
 ```
 
-## Important limitation
+## TStack CLI product workflow
 
-There is no buyer-facing TStack command for syncing products or regenerating product files today. Do not tell buyers to run a product CLI as a current TStack feature. Until a dedicated workflow exists, update the JSON and generated TypeScript deliberately and keep them in sync with the Polar dashboard.
+Use `tstack products` from the TStack repository to manage Polar products and regenerate generated files. See the [CLI reference](/reference/cli) for options such as `--env` and `--token`.
 
 ## Product JSON shape
 

@@ -1,0 +1,60 @@
+---
+title: "TStack CLI"
+description: "Run the TStack CLI from the repository to scaffold apps and manage products."
+---
+
+## Distribution model
+
+The TStack CLI is designed to run from the TStack repository. Buyers with repository access run it directly via pnpm. npm publishing is out of scope unless a later issue changes it.
+
+## Bootstrap flow
+
+1. Clone or access the TStack repository.
+2. Install dependencies:
+   ```sh
+   pnpm install
+   ```
+3. Scaffold a new app:
+   ```sh
+   pnpm tstack init my-app
+   ```
+4. Enter the generated app directory and continue setup:
+   ```sh
+   cd my-app
+   ```
+
+## Commands
+
+### `tstack init`
+
+Scaffold a new TStack app from `apps/boilerplate`:
+
+```sh
+pnpm tstack init <project-dir>
+```
+
+### `tstack ready`
+
+Run the production environment wizard for a scaffolded app:
+
+```sh
+pnpm tstack ready --project-dir <project-dir>
+```
+
+### `tstack products`
+
+Manage TStack product definitions from the repository:
+
+```sh
+pnpm tstack products
+```
+
+## Working directories
+
+All CLI commands expect to run from the TStack repository root. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
+
+## Polar product setup
+
+`tstack products` connects to Polar to manage products and meters. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
+
+After product operations, the CLI generates billing exports such as `products.generated.ts` and `meters.generated.ts` in the scaffolded app.
