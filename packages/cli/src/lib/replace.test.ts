@@ -46,4 +46,10 @@ describe("replacePlaceholders", () => {
     const result = replacePlaceholders(text, map);
     expect(result).toBe("postgresql://acme:acme-dev-password@localhost:5432/acme");
   });
+
+  it("does not replace inside larger words", () => {
+    const text = "myapple";
+    const result = replacePlaceholders(text, new Map([["myapp", "acme"]]));
+    expect(result).toBe("myapple");
+  });
 });

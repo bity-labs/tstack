@@ -2,14 +2,14 @@
 
 ## Purpose
 
-TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack product surface. The repository currently contains the generic engineering harness package, the buyer-facing documentation app, and the Agent-Ready Boilerplate app. The CLI package is still a placeholder for future installer/scaffold work.
+TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack product surface. The repository currently contains the generic engineering harness package, the buyer-facing documentation app, the Agent-Ready Boilerplate app, and the customer-facing CLI package.
 
 ## Current Scope
 
 - `packages/harness` stores reusable harness templates for agentic software delivery.
 - `apps/documentation` is the Fumadocs documentation app for TStack users.
 - `apps/boilerplate` is the concrete Next.js SaaS starter app with authentication, billing, email, content, file upload, analytics, web3 wallet sign-in, and agent-facing docs.
-- `packages/cli` is a tracked placeholder until a dedicated installer/scaffold issue exists.
+- `packages/cli` is the customer-facing CLI (`@tstack/cli`) providing `init`, `ready`, and `products` commands for TStack projects.
 - Root repository work should focus on monorepo maintenance, workspace orchestration, product packaging boundaries, and durable engineering guidance.
 
 ## Repository Boundaries
