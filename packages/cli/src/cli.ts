@@ -10,6 +10,8 @@ export type CliResult = {
   exitCode: number;
   stdout: string;
   stderr: string;
+  /** Explicit signal that the command requires interactive (TUI) mode. */
+  interactive?: boolean;
 };
 
 const rootHelp = `TStack CLI
@@ -148,6 +150,7 @@ function routeCommand(
         exitCode: 0,
         stdout: "",
         stderr: `Interactive mode required. Use --app-name to run non-interactively, or use the wizard.\n`,
+        interactive: true,
       };
     }
 
@@ -200,6 +203,7 @@ function routeCommand(
       exitCode: 0,
       stdout: "",
       stderr: `Interactive mode required. Use the wizard to configure the production environment.\n`,
+      interactive: true,
     };
   }
 
@@ -254,6 +258,7 @@ function routeCommand(
       exitCode: 0,
       stdout: "",
       stderr: `Interactive mode required. Environment: ${env}. Project: ${resolve(projectDir)}${token ? `. Token: ${token}` : ""}\n`,
+      interactive: true,
     };
   }
 
@@ -312,7 +317,7 @@ export async function runCliAsync(
     // Check if this is the interactive-init signal
     if (
       args[0] === "init" &&
-      syncResult.stderr.includes("Interactive mode required")
+      syncResult.interactive
     ) {
       const projectDir = args[1];
       if (!projectDir) {
@@ -346,7 +351,7 @@ export async function runCliAsync(
     // Check if this is the interactive-ready signal
     if (
       args[0] === "ready" &&
-      syncResult.stderr.includes("Interactive mode required")
+      syncResult.interactive
     ) {
       const projectDirIndex = args.indexOf("--project-dir");
       const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : ".";
@@ -373,7 +378,7 @@ export async function runCliAsync(
     // Check if this is the interactive-products signal
     if (
       args[0] === "products" &&
-      syncResult.stderr.includes("Interactive mode required")
+      syncResult.interactive
     ) {
       const envMatch = syncResult.stderr.match(/Environment: (sandbox|production)/);
       const env = (envMatch?.[1] ?? "sandbox") as "sandbox" | "production";

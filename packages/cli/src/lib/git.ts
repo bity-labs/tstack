@@ -11,7 +11,8 @@ export function setupGit(targetDir: string): void {
     execSync("git init", { cwd: targetDir, stdio: "ignore" });
     execSync("git add .", { cwd: targetDir, stdio: "ignore" });
     execSync('git commit -m "Initial commit from TStack"', { cwd: targetDir, stdio: "ignore" });
-  } catch {
-    throw new Error("Failed to initialize git repository");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to initialize git repository: ${message}`);
   }
 }
