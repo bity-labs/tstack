@@ -9,7 +9,7 @@ apps/
   boilerplate/       Next.js SaaS starter that dogfoods the shared harness.
   documentation/    Fumadocs documentation app for TStack users.
 packages/
-  cli/              Placeholder for the future CLI package.
+  cli/              Customer-facing TStack CLI package.
   harness/          Generic engineering harness package.
     templates/default/  Installable default harness payload.
 docs/
@@ -43,5 +43,7 @@ pnpm lint
 pnpm test
 pnpm typecheck
 ```
+
+The `packages/cli` workspace contains the customer-facing TStack CLI. Run it with `pnpm tstack <command>` from the repository root.
 
 These commands are routed through Turbo and currently no-op cleanly for packages that do not define matching scripts.
