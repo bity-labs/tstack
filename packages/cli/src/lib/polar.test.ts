@@ -253,6 +253,39 @@ describe("syncProductToPolar", () => {
     );
     expect(result.polarProductId).toBe("existing-id");
   });
+
+  it("creates a replacement product when the stored polarProductId no longer exists", async () => {
+    const createMock = vi.fn().mockResolvedValue({ id: "replacement-id" });
+    const updateMock = vi.fn().mockRejectedValue({ name: "ResourceNotFound", message: "Not found" });
+    const client = {
+      products: {
+        create: createMock,
+        update: updateMock,
+      },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    const product: TStackProduct = {
+      slug: "pro-monthly",
+      name: "Pro Monthly",
+      type: "subscription",
+      recurringInterval: "month",
+      prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
+      display: {
+        title: "Pro",
+        features: ["Unlimited projects"],
+        badge: null,
+        highlighted: false,
+        cta: "Get Started",
+      },
+      polarProductId: "stale-id",
+    };
+
+    const result = await syncProductToPolar(client, product);
+
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ id: "stale-id" }));
+    expect(createMock).toHaveBeenCalled();
+    expect(result.polarProductId).toBe("replacement-id");
+  });
 });
 
 describe("checkSyncStatus", () => {
@@ -334,6 +367,33 @@ describe("checkSyncStatus", () => {
     const status = await checkSyncStatus(client, product);
     expect(status).toBe("not-synced");
     expect(client.products.get).not.toHaveBeenCalled();
+  });
+
+  it("returns not-synced when the stored polarProductId no longer exists", async () => {
+    const client = {
+      products: {
+        get: vi.fn().mockRejectedValue({ name: "ResourceNotFound", message: "Not found" }),
+      },
+    } as unknown as import("@polar-sh/sdk").Polar;
+
+    const product: TStackProduct = {
+      slug: "pro-monthly",
+      name: "Pro Monthly",
+      type: "subscription",
+      recurringInterval: "month",
+      prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
+      display: {
+        title: "Pro",
+        features: ["Unlimited projects"],
+        badge: null,
+        highlighted: false,
+        cta: "Get Started",
+      },
+      polarProductId: "stale-id",
+    };
+
+    const status = await checkSyncStatus(client, product);
+    expect(status).toBe("not-synced");
   });
 
   it("returns error when product lookup fails", async () => {

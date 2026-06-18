@@ -122,6 +122,19 @@ export interface SyncResult {
   polarProductId: string;
 }
 
+function isResourceNotFound(error: unknown): boolean {
+  const name =
+    typeof error === "object" && error !== null && "name" in error && typeof error.name === "string"
+      ? error.name
+      : "";
+  const message =
+    typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+      ? error.message
+      : "";
+
+  return name === "ResourceNotFound" || message.toLowerCase().includes("not found");
+}
+
 export async function syncProductToPolar(
   client: Polar,
   localProduct: TStackProduct,
@@ -129,15 +142,21 @@ export async function syncProductToPolar(
   const polarProduct = convertToPolarProduct(localProduct);
 
   if (localProduct.polarProductId) {
-    const updated = await client.products.update({
-      id: localProduct.polarProductId,
-      productUpdate: {
-        name: polarProduct.name,
-        description: polarProduct.description,
-        metadata: polarProduct.metadata,
-      },
-    });
-    return { polarProductId: updated.id };
+    try {
+      const updated = await client.products.update({
+        id: localProduct.polarProductId,
+        productUpdate: {
+          name: polarProduct.name,
+          description: polarProduct.description,
+          metadata: polarProduct.metadata,
+        },
+      });
+      return { polarProductId: updated.id };
+    } catch (error) {
+      if (!isResourceNotFound(error)) {
+        throw error;
+      }
+    }
   }
 
   const created = await client.products.create(polarProduct);
@@ -158,7 +177,10 @@ export async function checkSyncStatus(
       return "archived";
     }
     return "synced";
-  } catch {
+  } catch (error) {
+    if (isResourceNotFound(error)) {
+      return "not-synced";
+    }
     return "error";
   }
 }
@@ -222,7 +244,7 @@ export function toBuyerMessage(error: unknown): string {
       ? error.message
       : "";
 
-  if (name === "ResourceNotFound" || message.toLowerCase().includes("not found")) {
+  if (isResourceNotFound(error)) {
     return `Polar product not found: ${message}`;
   }
 
