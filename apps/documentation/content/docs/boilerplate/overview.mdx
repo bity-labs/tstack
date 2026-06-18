@@ -44,12 +44,12 @@ A standalone app must contain real copies of both linked harness assets and boil
 ## Documentation map
 
 - [Getting Started](/getting-started) — setup and environment.
-- [Project Configuration](/project-configuration/file-structure) — structure, config, locales, and access control.
-- [Features](/features) — landing mode, content, utilities, email, analytics, uploads, and testing.
-- [Authentication](/authentication) — Better Auth flows.
-- [Payments](/payments) — Polar products, subscriptions, one-time purchases, benefits, and credits.
-- [Deployments](/deployments/self-hosted) — self-hosted and managed deployment recipes.
+- [Project Configuration](/boilerplate/project-configuration/file-structure) — structure, config, locales, and access control.
+- [Features](/boilerplate/features) — landing mode, content, utilities, email, analytics, uploads, and testing.
+- [Authentication](/boilerplate/authentication) — Better Auth flows.
+- [Payments](/boilerplate/payments) — Polar products, subscriptions, one-time purchases, benefits, and credits.
+- [Deployments](/boilerplate/deployments/self-hosted) — self-hosted and managed deployment recipes.
 
 ## Current limitation
 
-There is no automated TStack scaffold/export command yet. Until that exists, the boilerplate is available from the monorepo source and standalone extraction is manual.
+The boilerplate is available from the monorepo source or as a standalone app created with `pnpm tstack init`. The CLI scaffolds the app, materializes linked harness assets as real files, and generates a local `.env`. Manual standalone extraction remains documented for custom workflows.

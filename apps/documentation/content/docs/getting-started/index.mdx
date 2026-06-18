@@ -19,4 +19,4 @@ Use the [Harness Installation](/harness/installation) guide.
 
 ## Important current limitation
 
-There is no TStack CLI scaffold/export command yet. A standalone boilerplate app must be extracted manually from the monorepo and must materialize linked harness resources as real files. See [Manual Standalone Extraction](/getting-started/manual-standalone-extraction).
+To create a standalone boilerplate app, use `pnpm tstack init` from the TStack repository. It scaffolds a new app from `apps/boilerplate`, copies harness resources as real files, and generates a local `.env`. For projects that need a fully custom copy outside the monorepo workflow, manual standalone extraction remains documented. See [Manual Standalone Extraction](/getting-started/manual-standalone-extraction).
