@@ -7,7 +7,7 @@ import {
   Preview,
   Section,
   Text,
-} from "@react-email/components";
+} from "./EmailPrimitives";
 
 interface EmailLayoutProps {
   preview: string;
