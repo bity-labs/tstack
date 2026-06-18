@@ -9,7 +9,11 @@ The TStack CLI is private and is not published to the public npm registry. Buyer
 
 ## Bootstrap flow
 
-1. Clone or access the TStack repository.
+1. Clone or access the TStack repository:
+   ```sh
+   git clone https://github.com/bity-labs/tstack tstack
+   cd tstack
+   ```
 2. Install dependencies:
    ```sh
    pnpm install
@@ -24,7 +28,7 @@ The TStack CLI is private and is not published to the public npm registry. Buyer
    ```
 5. Enter the generated app directory and continue setup:
    ```sh
-   cd my-app
+   cd ../my-app
    ```
 
 ## Commands
@@ -55,7 +59,7 @@ tstack products
 
 ## Working directories
 
-After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
+After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. If you run `tstack init my-app` from inside the TStack repository, the app is created as a sibling directory (`../my-app`). From other directories, bare project names are created under the current directory. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
 
 ## Polar product setup
 
