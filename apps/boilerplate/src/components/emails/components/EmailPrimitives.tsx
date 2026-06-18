@@ -6,6 +6,11 @@ interface BaseProps {
   style?: CSSProperties;
 }
 
+interface HtmlProps {
+  children?: ReactNode;
+  lang?: string;
+}
+
 interface ButtonProps extends BaseProps {
   href: string;
 }
@@ -18,8 +23,8 @@ interface ImgProps {
   width?: string | number;
 }
 
-export function Html({ children }: BaseProps) {
-  return <html lang="en">{children}</html>;
+export function Html({ children, lang = "en" }: HtmlProps) {
+  return <html lang={lang}>{children}</html>;
 }
 
 export function Head() {
@@ -35,11 +40,27 @@ export function Body({ children, style }: BaseProps) {
 }
 
 export function Container({ children, style }: BaseProps) {
-  return <div style={style}>{children}</div>;
+  return (
+    <table align="center" width="100%" border={0} cellPadding={0} cellSpacing={0} role="presentation" style={style}>
+      <tbody>
+        <tr>
+          <td>{children}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
 }
 
 export function Section({ children, style }: BaseProps) {
-  return <div style={style}>{children}</div>;
+  return (
+    <table align="center" width="100%" border={0} cellPadding={0} cellSpacing={0} role="presentation" style={style}>
+      <tbody>
+        <tr>
+          <td>{children}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
 }
 
 export function Text({ children, style }: BaseProps) {

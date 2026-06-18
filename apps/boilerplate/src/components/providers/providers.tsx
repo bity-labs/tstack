@@ -20,6 +20,8 @@ type ThemeProviderProps = {
   enableSystem: boolean;
 };
 
+// Cast is required because next-themes' ThemeProvider types are incompatible
+// with React 19's ComponentType in the current type resolution.
 const ThemeProvider = NextThemesProvider as ComponentType<ThemeProviderProps>;
 
 function RainbowKitThemeProvider({ children }: { children: React.ReactNode }) {

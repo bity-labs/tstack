@@ -12,6 +12,8 @@ type UmamiScriptProps = {
   strategy: "afterInteractive";
 };
 
+// Cast is required because Next.js 15.5.19 Script types are incompatible with
+// React 19's ComponentType for custom data attributes (data-website-id).
 const UmamiScript = Script as ComponentType<UmamiScriptProps>;
 
 export function AnalyticsScript() {
