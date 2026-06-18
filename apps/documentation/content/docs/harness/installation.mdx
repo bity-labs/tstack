@@ -35,6 +35,26 @@ A normal harness install should copy every file into the target repository. Do n
 
 Symlinks are only used inside the TStack monorepo while dogfooding harness-owned assets such as `.agents` and `docs/engineering`.
 
+## Agent Instruction
+
+There is no one-command harness installer yet. If you want to add the harness to an existing project, paste this prompt into your coding agent from the root of that project:
+
+```txt
+Install the TStack Engineering Harness into this existing project.
+
+Use the default harness template from a TStack checkout at:
+/path/to/tstack/packages/harness/templates/default
+
+Requirements:
+1. Copy the harness files into this repository as real files and directories. Do not create symlinks.
+2. If AGENTS.md, docs/context.md, docs/coding-standards.md, docs/adr/, or .agents/skills/ already exist, do not overwrite them blindly. Read both versions and merge the TStack guidance into the existing project-specific instructions.
+3. Preserve this project's existing commands, conventions, domain language, and architecture decisions.
+4. Replace template placeholders only when you can infer the correct project-specific content. Otherwise leave clear TODOs for me to fill in.
+5. After copying and merging, summarize the files changed and list any TODOs or conflicts that need human review.
+```
+
+Replace `/path/to/tstack` with the local path to your TStack checkout before sending the prompt.
+
 ## Merge existing project files carefully
 
 If your project already has any of these paths, review them before copying:
