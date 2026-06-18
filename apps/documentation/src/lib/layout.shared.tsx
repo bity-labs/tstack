@@ -15,10 +15,6 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
-        text: 'LLM Documentation',
-        url: '/llms-full.txt',
-      },
-      {
         text: 'GitHub',
         url: 'https://github.com/bity-labs/tstack',
       },
