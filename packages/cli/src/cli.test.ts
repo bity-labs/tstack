@@ -15,24 +15,26 @@ function makeTempDir(prefix: string): string {
 }
 
 describe("runCli", () => {
-  it("prints repo-run help with the supported TStack commands", () => {
+  it("prints linked-CLI help with the supported TStack commands", () => {
     const result = runCli(["--help"]);
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Run this CLI from the TStack repository");
-    expect(result.stdout).toContain("pnpm tstack <command> [options]");
+    expect(result.stdout).toContain("Run after linking the private CLI");
+    expect(result.stdout).toContain("tstack <command> [options]");
     expect(result.stdout).toContain("init");
     expect(result.stdout).toContain("ready");
     expect(result.stdout).toContain("products");
   });
 
-  it("is exposed through the root pnpm tstack script", () => {
+  it("is exposed through root scripts for local running and global setup", () => {
     const rootPackage = JSON.parse(
       readFileSync(new URL("../../../package.json", import.meta.url), "utf8"),
     ) as { scripts?: Record<string, string> };
 
     expect(rootPackage.scripts?.tstack).toBe("pnpm --filter @tstack/cli tstack");
+    expect(rootPackage.scripts?.setup).toBe("pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global");
+    expect(rootPackage.scripts?.["tstack:unlink"]).toBe("pnpm --global remove @tstack/cli || true");
   });
 
   it("is a private @tstack/cli workspace package without publishing config", () => {
@@ -100,7 +102,7 @@ describe("runCli", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Usage: pnpm tstack init [--project-dir <path>]");
+    expect(result.stdout).toContain("Usage: tstack init [project-dir] [--project-dir <path>]");
     expect(result.stdout).toContain("Scaffold a new TStack app");
   });
 
@@ -118,6 +120,28 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Interactive mode required");
+  });
+
+  it("init accepts a positional project directory", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const targetDir = join(tmpdir(), `positional-app-${Date.now()}`);
+
+    try {
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "@tstack/boilerplate"}');
+      writeFileSync(join(sourceDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=MyApp\n");
+
+      const result = runCli(["init", targetDir, "--app-name", "Positional App"], {
+        boilerplateSourcePath: sourceDir,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(result.stdout).toContain("Created TStack app");
+      expect(existsSync(join(targetDir, "package.json"))).toBe(true);
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
   });
 
   it("init accepts --app-name to scaffold with branding", () => {
@@ -167,7 +191,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain('Unknown option "--bogus"');
-    expect(result.stderr).toContain("pnpm tstack --help");
+    expect(result.stderr).toContain("tstack --help");
   });
 
   it("rejects unsupported commands with a useful message", () => {
@@ -176,7 +200,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain('Unknown command "deploy"');
-    expect(result.stderr).toContain("pnpm tstack --help");
+    expect(result.stderr).toContain("tstack --help");
   });
 
   it("rejects unsupported command flags with a useful message", () => {
@@ -185,7 +209,7 @@ describe("runCli", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain('Unknown option "--bogus" for tstack products');
-    expect(result.stderr).toContain("pnpm tstack products --help");
+    expect(result.stderr).toContain("tstack products --help");
   });
 
   it.each(["sandbox", "production"])("accepts the products --env %s flag", (environment) => {
@@ -219,7 +243,7 @@ describe("runCli", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Usage: pnpm tstack ready [--project-dir <path>]");
+    expect(result.stdout).toContain("Usage: tstack ready [--project-dir <path>]");
     expect(result.stdout).toContain("--project-dir <path>");
   });
 
@@ -244,7 +268,7 @@ describe("runCli", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Usage: pnpm tstack products [options]");
+    expect(result.stdout).toContain("Usage: tstack products [options]");
     expect(result.stdout).toContain("--env <sandbox|production>");
   });
 

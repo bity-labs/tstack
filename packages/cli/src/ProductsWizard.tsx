@@ -1,6 +1,6 @@
 import { Box, Text } from "ink";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { existsSync } from "node:fs";
 
 import { Header } from "./components/Header.js";
@@ -34,12 +34,12 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
 
   const productsFilePath = useMemo(() => {
     const fileName = env === "sandbox" ? "products.sandbox.json" : "products.production.json";
-    return join(projectDir, "polar", fileName);
+    return join(resolve(projectDir), "polar", fileName);
   }, [projectDir, env]);
 
   const otherProductsFilePath = useMemo(() => {
     const fileName = env === "sandbox" ? "products.production.json" : "products.sandbox.json";
-    return join(projectDir, "polar", fileName);
+    return join(resolve(projectDir), "polar", fileName);
   }, [projectDir, env]);
 
   const loadProducts = useCallback(() => {

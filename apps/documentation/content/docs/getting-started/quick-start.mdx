@@ -13,8 +13,9 @@ cd tstack
 # Install dependencies
 pnpm install
 
-# Scaffold a new standalone app
-pnpm tstack init my-app
+# Link the private CLI and scaffold a new standalone app
+pnpm run setup
+tstack init my-app
 
 # Enter your new app
 cd ../my-app
@@ -34,7 +35,8 @@ Open `http://localhost:3000`.
 | Command | Purpose |
 | --- | --- |
 | `pnpm install` | Installs TStack repository dependencies. |
-| `pnpm tstack init my-app` | Scaffolds a new standalone app from `apps/boilerplate`. |
+| `pnpm run setup` | Builds and globally links the private `tstack` CLI from this checkout. |
+| `tstack init my-app` | Scaffolds a new standalone app from `apps/boilerplate`. |
 | `pnpm db:start` | Starts the local PostgreSQL Docker service. |
 | `pnpm db:push` | Pushes the Prisma schema to the local database. |
 | `pnpm dev` | Starts Velite and the Next.js development server. |

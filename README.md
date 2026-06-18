@@ -44,6 +44,26 @@ pnpm test
 pnpm typecheck
 ```
 
-The `packages/cli` workspace contains the customer-facing TStack CLI. Run it with `pnpm tstack <command>` from the repository root.
+The `packages/cli` workspace contains the customer-facing TStack CLI. During local development, run it with `pnpm tstack <command>` from the repository root.
+
+To install the private CLI globally from this checkout without publishing it to npm, run:
+
+```sh
+pnpm run setup
+```
+
+That builds `@tstack/cli` and links the `tstack` binary globally. Keep this repository checkout on disk because the linked CLI resolves the boilerplate from `apps/boilerplate` in this repo. After setup, run the CLI from any directory:
+
+```sh
+tstack init
+tstack ready
+tstack products
+```
+
+To remove the global link, run:
+
+```sh
+pnpm tstack:unlink
+```
 
 These commands are routed through Turbo and currently no-op cleanly for packages that do not define matching scripts.

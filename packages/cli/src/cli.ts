@@ -23,15 +23,15 @@ export type CliResult = {
 
 const rootHelp = `TStack CLI
 
-Run this CLI from the TStack repository:
-  pnpm tstack <command> [options]
+Run after linking the private CLI from the TStack repository:
+  tstack <command> [options]
 
 Commands:
   init       Scaffold a TStack app from apps/boilerplate.
   ready      Prepare production environment configuration.
   products   Manage TStack product definitions.
 
-Use "pnpm tstack <command> --help" for command-specific help.
+Use "tstack <command> --help" for command-specific help.
 `;
 
 const supportedCommands = ["init", "ready", "products"] as const;
@@ -51,7 +51,7 @@ function unknownCommandOption(command: SupportedCommand, option: string): CliRes
   return {
     exitCode: 1,
     stdout: "",
-    stderr: `Unknown option "${option}" for tstack ${command}. Run "pnpm tstack ${command} --help" for usage.\n`,
+    stderr: `Unknown option "${option}" for tstack ${command}. Run "tstack ${command} --help" for usage.\n`,
   };
 }
 
@@ -59,7 +59,7 @@ function commandHelp(command: SupportedCommand): string {
   if (command === "products") {
     return `TStack products
 
-Usage: pnpm tstack products [options]
+Usage: tstack products [options]
 
 Manage TStack product definitions from the TStack repository.
 
@@ -73,7 +73,7 @@ Options:
   if (command === "init") {
     return `TStack init
 
-Usage: pnpm tstack init [--project-dir <path>] [--app-name <name>]
+Usage: tstack init [project-dir] [--project-dir <path>] [--app-name <name>]
 
 Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
 
@@ -87,7 +87,7 @@ Options:
   if (command === "ready") {
     return `TStack ready
 
-Usage: pnpm tstack ready [--project-dir <path>]
+Usage: tstack ready [--project-dir <path>]
 
 Run an interactive production environment wizard for a TStack scaffolded app.
 
@@ -99,7 +99,7 @@ Options:
 
   return `TStack ${command}
 
-Usage: pnpm tstack ${command} [options]
+Usage: tstack ${command} [options]
 
 This command is routed by the TStack repository CLI.
 
@@ -132,7 +132,7 @@ function routeCommand(
     const appNameIndex = args.indexOf("--app-name");
     const projectDirIndex = args.indexOf("--project-dir");
     const appName = appNameIndex !== -1 ? args[appNameIndex + 1] : undefined;
-    const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
+    const explicitProjectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
 
     const remainingArgs = args.filter((_, i) => {
       if (appNameIndex !== -1 && (i === appNameIndex || i === appNameIndex + 1)) return false;
@@ -145,13 +145,23 @@ function routeCommand(
       return unknownCommandOption(command, unknownOpt);
     }
 
-    if (remainingArgs.length > 0) {
+    if (explicitProjectDir && remainingArgs.length > 0) {
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Unexpected argument "${remainingArgs[0]}". Use --project-dir to specify the target directory.\n`,
+        stderr: `Unexpected argument "${remainingArgs[0]}". Use either a positional project directory or --project-dir, not both.\n`,
       };
     }
+
+    if (remainingArgs.length > 1) {
+      return {
+        exitCode: 1,
+        stdout: "",
+        stderr: `Unexpected argument "${remainingArgs[1]}". Only one project directory can be specified.\n`,
+      };
+    }
+
+    const projectDir = explicitProjectDir ?? remainingArgs[0];
 
     // Interactive mode if project dir or app name is missing
     if (!projectDir || !appName) {
@@ -308,7 +318,7 @@ export function runCli(
     return {
       exitCode: 1,
       stdout: "",
-      stderr: `Unknown option "${command}". Run "pnpm tstack --help" for usage.\n`,
+      stderr: `Unknown option "${command}". Run "tstack --help" for usage.\n`,
     };
   }
 
@@ -319,7 +329,7 @@ export function runCli(
   return {
     exitCode: 1,
     stdout: "",
-    stderr: `Unknown command "${command}". Run "pnpm tstack --help" for usage.\n`,
+    stderr: `Unknown command "${command}". Run "tstack --help" for usage.\n`,
   };
 }
 

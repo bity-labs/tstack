@@ -7,8 +7,10 @@
     "dev": "turbo run dev",
     "dev:documentation": "turbo run dev --filter=@tstack/documentation",
     "lint": "turbo run lint",
+    "setup": "pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global",
     "test": "turbo run test",
     "tstack": "pnpm --filter @tstack/cli tstack",
+    "tstack:unlink": "pnpm --global remove @tstack/cli || true",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

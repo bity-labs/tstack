@@ -1,11 +1,11 @@
 ---
 title: "TStack CLI"
-description: "Run the TStack CLI from the repository to scaffold apps and manage products."
+description: "Link and run the private TStack CLI to scaffold apps and manage products."
 ---
 
 ## Distribution model
 
-The TStack CLI is designed to run from the TStack repository. Buyers with repository access run it directly via pnpm. npm publishing is out of scope unless a later issue changes it.
+The TStack CLI is private and is not published to the public npm registry. Buyers with repository access build and globally link it from their TStack repository checkout. npm publish is out of scope unless a later issue changes it.
 
 ## Bootstrap flow
 
@@ -14,11 +14,15 @@ The TStack CLI is designed to run from the TStack repository. Buyers with reposi
    ```sh
    pnpm install
    ```
-3. Scaffold a new app:
+3. Link the private CLI globally:
    ```sh
-   pnpm tstack init my-app
+   pnpm run setup
    ```
-4. Enter the generated app directory and continue setup:
+4. Scaffold a new app from any directory:
+   ```sh
+   tstack init my-app
+   ```
+5. Enter the generated app directory and continue setup:
    ```sh
    cd my-app
    ```
@@ -30,7 +34,7 @@ The TStack CLI is designed to run from the TStack repository. Buyers with reposi
 Scaffold a new TStack app from `apps/boilerplate`:
 
 ```sh
-pnpm tstack init <project-dir>
+tstack init <project-dir>
 ```
 
 ### `tstack ready`
@@ -38,7 +42,7 @@ pnpm tstack init <project-dir>
 Run the production environment wizard for a scaffolded app:
 
 ```sh
-pnpm tstack ready --project-dir <project-dir>
+tstack ready --project-dir <project-dir>
 ```
 
 ### `tstack products`
@@ -46,12 +50,12 @@ pnpm tstack ready --project-dir <project-dir>
 Manage TStack product definitions from the repository:
 
 ```sh
-pnpm tstack products
+tstack products
 ```
 
 ## Working directories
 
-All CLI commands expect to run from the TStack repository root. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
+After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
 
 ## Polar product setup
 

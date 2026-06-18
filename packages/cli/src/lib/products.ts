@@ -1,5 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 export interface ProductPrice {
   amountType: "fixed" | "custom" | "free";
@@ -175,7 +175,7 @@ export function writeProductsGenerated(options: {
   productionProducts: Product[];
 }): void {
   const { projectDir, sandboxProducts, productionProducts } = options;
-  const generatedDir = join(projectDir, "src", "features", "billing", "generated");
+  const generatedDir = join(resolve(projectDir), "src", "features", "billing", "generated");
   mkdirSync(generatedDir, { recursive: true });
   const content = generateProductsTypeScript({ sandboxProducts, productionProducts });
   writeFileSync(join(generatedDir, "products.generated.ts"), content);

@@ -95,13 +95,13 @@ describe("CLI documentation", () => {
   });
 
   it("manual standalone extraction references tstack init", () => {
-    const extraction = readRepoFile("apps/documentation/content/docs/getting-started/manual-standalone-extraction.mdx");
+    const extraction = readRepoFile("apps/documentation/content/docs/getting-started/manual-installation.mdx");
 
     expect(extraction).toContain("tstack init");
   });
 
   it("product configuration no longer claims there is no product CLI", () => {
-    const productConfig = readRepoFile("apps/documentation/content/docs/payments/product-configuration.mdx");
+    const productConfig = readRepoFile("apps/documentation/content/docs/boilerplate/payments/product-configuration.mdx");
 
     expect(productConfig).not.toContain("There is no buyer-facing TStack command for syncing products");
   });

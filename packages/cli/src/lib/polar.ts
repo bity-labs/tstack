@@ -3,11 +3,11 @@ export interface PolarCredentials {
 }
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 function readEnvValue(projectDir: string, fileName: string, key: string): string | undefined {
   try {
-    const content = readFileSync(join(projectDir, fileName), "utf8");
+    const content = readFileSync(join(resolve(projectDir), fileName), "utf8");
     const lines = content.split("\n");
     for (const line of lines) {
       const trimmed = line.trim();
