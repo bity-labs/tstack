@@ -22,6 +22,10 @@ yarn-error.log*
 .env.*
 !.env.example
 
+# Local agent/worktree state
+.looper/
+.worktrees/
+
 # OS/editor files
 .DS_Store
 .idea/
