@@ -1,4 +1,4 @@
-import { Section, Text } from "@react-email/components";
+import { Section, Text } from "./components/EmailPrimitives";
 import { EmailLayout } from "./components/EmailLayout";
 import { formatExpiryTime } from "./utils";
 

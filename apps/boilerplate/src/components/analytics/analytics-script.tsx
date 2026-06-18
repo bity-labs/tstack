@@ -1,9 +1,18 @@
 "use client";
 
+import type { ComponentType } from "react";
 import Script from "next/script";
 
 import { env } from "@/config";
 import { logger } from "@/lib/logger";
+
+type UmamiScriptProps = {
+  "data-website-id": string;
+  src: string;
+  strategy: "afterInteractive";
+};
+
+const UmamiScript = Script as ComponentType<UmamiScriptProps>;
 
 export function AnalyticsScript() {
   // Only render Umami script when Umami is the provider and properly configured
@@ -21,7 +30,7 @@ export function AnalyticsScript() {
   }
 
   return (
-    <Script
+    <UmamiScript
       src={`${env.analytics.umamiHost}/script.js`}
       data-website-id={env.analytics.umamiWebsiteId}
       strategy="afterInteractive"

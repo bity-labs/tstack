@@ -79,7 +79,7 @@ describe("getPurchasableProducts", () => {
 
     expect(products.length).toBeGreaterThan(0);
     expect(products).toEqual(
-      products.map((product) => ({
+      products.map(() => ({
         productId: expect.any(String),
         slug: expect.any(String),
       }))

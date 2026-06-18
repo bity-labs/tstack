@@ -1,4 +1,4 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Button, Section, Text } from "./components/EmailPrimitives";
 import { EmailLayout } from "./components/EmailLayout";
 
 interface DeleteAccountEmailProps {
