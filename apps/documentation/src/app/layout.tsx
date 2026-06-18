@@ -16,6 +16,10 @@ export const metadata: Metadata = {
     title: 'TStack Documentation',
     description,
     siteName: 'TStack Docs',
+    images: ['/og.png'],
+  },
+  icons: {
+    icon: '/favicon.ico',
   },
 };
 

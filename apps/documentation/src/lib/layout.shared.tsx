@@ -1,14 +1,18 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import Image from 'next/image';
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
         <span className="flex items-center gap-2 font-medium">
-          <span aria-hidden="true" className="text-lg">
-            ◇
-          </span>
-          TStack
+          <Image
+            src="/logo.png"
+            alt="TStack"
+            width={120}
+            height={32}
+            className="h-8 w-auto"
+          />
         </span>
       ),
       url: '/',
