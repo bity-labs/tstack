@@ -64,6 +64,7 @@ export const env = {
   // Email Configuration (Resend)
   email: {
     resendApiKey: process.env.RESEND_API_KEY,
+    resendSegmentId: process.env.RESEND_SEGMENT_ID,
     fromAddress: process.env.EMAIL_FROM_ADDRESS || "no-reply@myapp.example.com",
     brandLogoUrl: process.env.EMAIL_BRAND_LOGO_URL,
   },
