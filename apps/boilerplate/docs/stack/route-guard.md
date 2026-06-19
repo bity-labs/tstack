@@ -87,6 +87,7 @@ const hasUserAccess = await hasActiveSubscription(userId); // subscription
 Rules:
 
 - Keep `AUTH_API_PREFIX` public so Better Auth endpoints can operate.
+- Keep `AUTH_API_PREFIX` allowed during landing mode so public pages can resolve `useSession()` state correctly.
 - Keep static assets, images, sitemap, manifest, and analytics ingest excluded from the matcher.
 - Do not duplicate route lists across features. Update `src/config/routes.ts` and `src/middleware.ts` together when adding protected routes.
 - If access gating changes from subscription-only to one-time or hybrid, update `docs/context.md` and this file.

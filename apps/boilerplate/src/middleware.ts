@@ -36,7 +36,9 @@ function handleLandingMode(request: NextRequest): NextResponse | null {
 
   const { pathname } = request.nextUrl;
 
-  const isAllowedRoute = LANDING_MODE_ALLOWED_ROUTES.includes(pathname);
+  const isAllowedRoute =
+    LANDING_MODE_ALLOWED_ROUTES.includes(pathname) ||
+    pathname.startsWith(AUTH_API_PREFIX);
   return isAllowedRoute
     ? NextResponse.next()
     : NextResponse.redirect(new URL(routes.landing, request.url));
