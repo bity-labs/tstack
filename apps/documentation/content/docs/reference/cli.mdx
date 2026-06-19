@@ -1,0 +1,68 @@
+---
+title: "TStack CLI"
+description: "Link and run the private TStack CLI to scaffold apps and manage products."
+---
+
+## Distribution model
+
+The TStack CLI is private and is not published to the public npm registry. Buyers with repository access build and globally link it from their TStack repository checkout. npm publish is out of scope unless a later issue changes it.
+
+## Bootstrap flow
+
+1. Clone or access the TStack repository:
+   ```sh
+   git clone https://github.com/bity-labs/tstack tstack
+   cd tstack
+   ```
+2. Install dependencies:
+   ```sh
+   pnpm install
+   ```
+3. Link the private CLI globally:
+   ```sh
+   pnpm run setup
+   ```
+4. Scaffold a new app from any directory:
+   ```sh
+   tstack init my-app
+   ```
+5. Enter the generated app directory and continue setup:
+   ```sh
+   cd ../my-app
+   ```
+
+## Commands
+
+### `tstack init`
+
+Scaffold a new TStack app from `apps/boilerplate`:
+
+```sh
+tstack init <project-dir>
+```
+
+### `tstack ready`
+
+Run the production environment wizard for a scaffolded app:
+
+```sh
+tstack ready --project-dir <project-dir>
+```
+
+### `tstack products`
+
+Manage TStack product definitions from the repository:
+
+```sh
+tstack products
+```
+
+## Working directories
+
+After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. If you run `tstack init my-app` from inside the TStack repository, the app is created as a sibling directory (`../my-app`). From other directories, bare project names are created under the current directory. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
+
+## Polar product setup
+
+`tstack products` connects to Polar to manage products and meters. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
+
+After product operations, the CLI generates billing exports such as `products.generated.ts` and `meters.generated.ts` in the scaffolded app.

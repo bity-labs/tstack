@@ -1,0 +1,61 @@
+---
+title: "Quick Start"
+description: "Create a standalone TStack app and run it locally."
+---
+
+## Create and run a standalone app
+
+```sh
+# Clone the TStack repository
+git clone https://github.com/bity-labs/tstack tstack
+cd tstack
+
+# Install dependencies
+pnpm install
+
+# Link the private CLI and scaffold a new standalone app
+pnpm run setup
+tstack init my-app
+
+# Enter your new app
+cd ../my-app
+
+# Start the database
+pnpm db:start
+pnpm db:push
+
+# Run the app
+pnpm dev
+```
+
+Open `http://localhost:3000`.
+
+## What these commands do
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm install` | Installs TStack repository dependencies. |
+| `pnpm run setup` | Builds and globally links the private `tstack` CLI from this checkout. |
+| `tstack init my-app` | Scaffolds a new standalone app from `apps/boilerplate`. |
+| `pnpm db:start` | Starts the local PostgreSQL Docker service. |
+| `pnpm db:push` | Pushes the Prisma schema to the local database. |
+| `pnpm dev` | Starts Velite and the Next.js development server. |
+
+## Common next steps
+
+- Read [File Structure](/boilerplate/project-configuration/file-structure) before changing the app.
+- Read [Product Configuration](/boilerplate/payments/product-configuration) before changing pricing or checkout behavior.
+
+## Run from the monorepo instead
+
+To run the boilerplate directly from the TStack monorepo without creating a standalone app:
+
+```sh
+git clone https://github.com/bity-labs/tstack my-app
+cd my-app
+pnpm install
+cp apps/boilerplate/.env.example apps/boilerplate/.env
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:push
+pnpm --filter @tstack/boilerplate dev
+```

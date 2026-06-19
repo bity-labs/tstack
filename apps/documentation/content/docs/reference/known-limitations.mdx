@@ -1,0 +1,28 @@
+---
+title: "Known Limitations"
+description: "Current limitations buyers should understand before using TStack."
+---
+
+## Scaffold via CLI
+
+The TStack CLI includes `tstack init` to scaffold a standalone app from `apps/boilerplate`. Run `pnpm run setup` from the TStack checkout first to build and globally link the private CLI. It is the preferred path for new projects; manual extraction remains available for custom workflows.
+
+## Product sync via CLI
+
+The TStack CLI includes `tstack products` to manage Polar products, meters, and generated TypeScript files. See the [CLI reference](/reference/cli) for usage. Keep Polar dashboard state, JSON config, and generated TypeScript aligned deliberately.
+
+## No deployment automation
+
+Deployment recipes are documentation-only. TStack does not provision servers, managed databases, environment variables, domains, webhooks, or secrets.
+
+## No repository-access automation outside Polar benefits
+
+The boilerplate can display Polar GitHub benefits, but TStack does not automate repository creation, GitHub organization management, or custom access reconciliation.
+
+## Manual provider configuration
+
+OAuth, Resend, Polar, analytics, WalletConnect, and DigitalOcean Spaces require manual accounts, keys, callbacks, and production testing.
+
+## Monorepo symlinks are development-only
+
+Inside the TStack monorepo, `.agents` and `docs/engineering` are symlinked to the shared Engineering Harness. Standalone apps must use real copied files.

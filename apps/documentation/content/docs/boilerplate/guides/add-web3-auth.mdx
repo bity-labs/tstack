@@ -1,0 +1,42 @@
+---
+title: "Add Web3 Authentication"
+description: "Enable wallet sign-in through WalletConnect, RainbowKit, Wagmi, and SIWE."
+---
+
+The boilerplate already includes the web3 auth code path. You mainly need provider configuration and product decisions.
+
+## 1. Create a WalletConnect project
+
+Create a project in WalletConnect Cloud and copy its project ID.
+
+## 2. Set the environment variable
+
+The current example env file uses:
+
+```sh
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
+```
+
+Use the variable name from your current source when wiring a standalone extraction, and keep `.env.example`, `src/config/env.ts`, and `src/config/wagmi.ts` aligned.
+
+## 3. Run and test
+
+```sh
+pnpm --filter @tstack/boilerplate dev
+```
+
+Then:
+
+1. Open `/login` or `/signup`.
+2. Click the wallet/SIWE button.
+3. Connect a wallet.
+4. Sign the SIWE message.
+5. Confirm the authenticated session is created.
+
+## 4. Customize supported chains
+
+Edit `src/config/wagmi.ts` to add or remove chains. Keep chain choices aligned with your product's actual supported networks.
+
+## 5. Remove it if unused
+
+If your product does not need wallet sign-in, remove SIWE deliberately: UI button, client plugin, server plugin, wallet providers, dependencies, env docs, and related tests.

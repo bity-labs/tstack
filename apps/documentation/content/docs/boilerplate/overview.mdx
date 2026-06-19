@@ -1,0 +1,55 @@
+---
+title: "Boilerplate Overview"
+description: "Understand the TStack Agent-Ready Boilerplate layer."
+---
+
+The TStack Agent-Ready Boilerplate is the application layer of TStack. It lives in `apps/boilerplate` and provides a production-ready SaaS starter that already dogfoods the Engineering Harness.
+
+## Included stack
+
+- Next.js App Router application structure.
+- Better Auth with email/password, Email OTP, GitHub OAuth, Twitter/X OAuth, and SIWE support.
+- Polar subscriptions, one-time payments, customer portal, benefits, and credit metering.
+- Prisma with PostgreSQL.
+- Resend and React Email templates.
+- MDX blog content through Velite.
+- Umami/PostHog analytics abstraction.
+- Database or DigitalOcean Spaces file upload.
+- Vitest, React Testing Library, and Prisma mocking patterns.
+- Agent-facing docs, ADRs, coding standards, and shared harness skills.
+
+## Run it locally
+
+```sh
+git clone https://github.com/bity-labs/tstack my-app
+cd my-app
+pnpm install
+cp apps/boilerplate/.env.example apps/boilerplate/.env
+pnpm --filter @tstack/boilerplate db:start
+pnpm --filter @tstack/boilerplate db:push
+pnpm --filter @tstack/boilerplate dev
+```
+
+## Harness integration model
+
+Inside the TStack monorepo, the boilerplate links only harness-owned reusable assets:
+
+- `apps/boilerplate/.agents` links to the shared skills and workflows.
+- `apps/boilerplate/docs/engineering` links to shared engineering doctrine.
+
+Boilerplate-owned working documents are real files: `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, `docs/adr/**`, `docs/feature-architecture.md`, `docs/server-patterns.md`, `docs/quick-reference.md`, and `docs/stack/**`.
+
+A standalone app must contain real copies of both linked harness assets and boilerplate-specific docs.
+
+## Documentation map
+
+- [Getting Started](/getting-started) — setup and environment.
+- [Project Configuration](/boilerplate/project-configuration/file-structure) — structure, config, locales, and access control.
+- [Features](/boilerplate/features) — landing mode, content, utilities, email, analytics, uploads, and testing.
+- [Authentication](/boilerplate/authentication) — Better Auth flows.
+- [Payments](/boilerplate/payments) — Polar products, subscriptions, one-time purchases, benefits, and credits.
+- [Deployments](/boilerplate/deployments/self-hosted) — self-hosted and managed deployment recipes.
+
+## Current limitation
+
+The boilerplate is available from the monorepo source or as a standalone app created with `tstack init` after `pnpm run setup`. The CLI scaffolds the app, materializes linked harness assets as real files, and generates a local `.env`. Manual standalone extraction remains documented for custom workflows.

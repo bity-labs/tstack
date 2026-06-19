@@ -1,0 +1,24 @@
+{
+  "name": "tstack",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:documentation": "turbo run dev --filter=@tstack/documentation",
+    "lint": "turbo run lint",
+    "release": "semantic-release",
+    "setup": "pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global",
+    "test": "turbo run test",
+    "tstack": "pnpm --filter @tstack/cli tstack",
+    "tstack:unlink": "pnpm --global remove @tstack/cli || true",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/github": "^12.0.8",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "semantic-release": "^25.0.5",
+    "turbo": "^2.5.6"
+  }
+}

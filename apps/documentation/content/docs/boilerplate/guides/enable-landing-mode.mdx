@@ -1,0 +1,44 @@
+---
+title: "Enable Landing Mode"
+description: "Turn on the pre-launch landing page and collect emails."
+---
+
+## 1. Enable the flag
+
+In `apps/boilerplate/.env`:
+
+```sh
+LANDING_MODE=true
+```
+
+## 2. Run the app
+
+From the monorepo root:
+
+```sh
+pnpm --filter @tstack/boilerplate dev
+```
+
+For a standalone extraction, run the equivalent local `pnpm dev` script from that app root.
+
+## 3. Customize the page
+
+Edit:
+
+- `src/app/(landing)/landing/page.tsx`
+- `src/app/(landing)/landing/client-page.tsx`
+- `src/locales/index.ts`
+- `src/features/newsletter/*`
+
+## 4. Choose email collection behavior
+
+The newsletter service can store emails in the database and has a provider path for Resend contacts. Keep the database path for a simple local waitlist, or deliberately switch to provider sync when your email marketing setup is ready.
+
+## 5. Test it
+
+- Visit `/` and confirm it redirects to `/landing`.
+- Submit an email.
+- Check the database or configured provider.
+- Confirm `/terms-of-service` and `/privacy` still work.
+
+Disable by setting `LANDING_MODE=false`.

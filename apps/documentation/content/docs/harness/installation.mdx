@@ -1,0 +1,85 @@
+---
+title: "Installation"
+description: "Copy the default harness template into an existing project."
+---
+
+## Prerequisites
+
+You need:
+
+- A target project repository.
+- A TStack checkout or package source that contains `packages/harness/templates/default`.
+- A shell that can copy files.
+
+## Copy the default template
+
+The installable template is:
+
+```txt
+packages/harness/templates/default
+```
+
+Copy its contents into the root of your target project:
+
+```sh
+SOURCE=/path/to/tstack/packages/harness/templates/default
+TARGET=/path/to/your/project
+cp -R "$SOURCE"/. "$TARGET"/
+```
+
+This adds the harness files directly to the target project root.
+
+## Copy, do not symlink, for installed projects
+
+A normal harness install should copy every file into the target repository. Do not symlink a customer or standalone project back to your TStack checkout; the project should work in isolation.
+
+Symlinks are only used inside the TStack monorepo while dogfooding harness-owned assets such as `.agents` and `docs/engineering`.
+
+## Agent Instruction
+
+There is no one-command harness installer yet. If you want to add the harness to an existing project, paste this prompt into your coding agent from the root of that project:
+
+```txt
+Install the TStack Engineering Harness into this existing project.
+
+Use the default harness template from a TStack checkout at:
+/path/to/tstack/packages/harness/templates/default
+
+Requirements:
+1. Copy the harness files into this repository as real files and directories. Do not create symlinks.
+2. If AGENTS.md, docs/context.md, docs/coding-standards.md, docs/adr/, or .agents/skills/ already exist, do not overwrite them blindly. Read both versions and merge the TStack guidance into the existing project-specific instructions.
+3. Preserve this project's existing commands, conventions, domain language, and architecture decisions.
+4. Replace template placeholders only when you can infer the correct project-specific content. Otherwise leave clear TODOs for me to fill in.
+5. After copying and merging, summarize the files changed and list any TODOs or conflicts that need human review.
+```
+
+Replace `/path/to/tstack` with the local path to your TStack checkout before sending the prompt.
+
+## Merge existing project files carefully
+
+If your project already has any of these paths, review them before copying:
+
+- `AGENTS.md`
+- `docs/context.md`
+- `docs/coding-standards.md`
+- `docs/adr/`
+- `.agents/skills/`
+
+Prefer an intentional merge so you preserve project-specific instructions and avoid replacing real context with template placeholders.
+
+## Customize after copying
+
+At minimum, update:
+
+1. `docs/context.md` with real product and domain language.
+2. `docs/coding-standards.md` with real validation commands and conventions.
+3. `AGENTS.md` with any repository-specific navigation rules.
+4. `docs/adr/` with decisions that should survive future agent sessions.
+
+The copied template includes placeholder text. Do not treat placeholders as authoritative project context.
+
+## Validate the install
+
+Ask a coding agent to read `AGENTS.md` and summarize the project instructions it found. Then run your project's normal validation command to ensure the copy did not disturb the repository.
+
+There is no TStack CLI installer yet, so installation is complete when the files are copied, customized, committed, and usable by your agent.

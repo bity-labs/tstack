@@ -1,0 +1,80 @@
+---
+title: "Server Utilities"
+description: "Use unified wrappers for queries, server actions, and API routes."
+---
+
+`src/lib/handler.ts` centralizes request-boundary behavior for authentication, input validation, response shapes, logging, and error classification.
+
+## Roots and terminals
+
+| Root | Context |
+| --- | --- |
+| `authed` | Requires a session and provides `{ user, session }`. |
+| `publicly` | Allows anonymous access and provides `{ user: null, session }`. |
+
+| Terminal | Use for |
+| --- | --- |
+| `.query()` | React Server Component data fetching. |
+| `.action()` | Server actions and forms. |
+| `.route()` | API route handlers. |
+
+Chain `.input(schema)` to parse Zod input.
+
+## Query example
+
+```ts
+import { authed } from "@/lib/handler";
+import { getUserProfile } from "../services/profile.service";
+
+export const getProfileQuery = () =>
+  authed.query(async ({ user }) => {
+    return getUserProfile(user.id);
+  });
+```
+
+Queries return a `Result<T>` union:
+
+```ts
+type Result<T> =
+  | { data: T; error: null }
+  | { data: null; error: string };
+```
+
+## Server action example
+
+```ts
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { authed } from "@/lib/handler";
+import { updateProfileSchema } from "../schemas/profile.schema";
+import { updateProfile } from "../services/profile.service";
+
+export const updateProfileAction = authed
+  .input(updateProfileSchema)
+  .action(async ({ input, user }) => {
+    const profile = await updateProfile(user.id, input);
+    revalidatePath("/account/general");
+    return { success: true, data: profile };
+  });
+```
+
+## Route handler example
+
+```ts
+import { z } from "zod";
+import { authed } from "@/lib/handler";
+
+const schema = z.object({ name: z.string().min(1) });
+
+export const POST = authed
+  .input(schema)
+  .route(async ({ input, user }) => ({ userId: user.id, input }));
+```
+
+## Rules
+
+- Call services from queries/actions/routes; keep persistence in services.
+- Use `authed` instead of manual session checks when a user is required.
+- Use typed errors from `@/lib/errors` for expected failures.
+- Log boundary events with `logger`, but never secrets or tokens.

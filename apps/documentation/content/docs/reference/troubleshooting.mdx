@@ -1,0 +1,58 @@
+---
+title: "Troubleshooting"
+description: "Fix common setup, configuration, and deployment issues."
+---
+
+## I expected a TStack CLI command
+
+Use `tstack init` to scaffold a new standalone app from `apps/boilerplate`. Use `tstack products` to manage Polar product definitions. Use `tstack ready` to run the production environment wizard. Run `pnpm run setup` in the TStack checkout first to build and link the private CLI. See the [CLI reference](/reference/cli) for full usage. Manual standalone extraction remains documented for custom workflows outside the CLI.
+
+## The boilerplate cannot connect to the database
+
+- Confirm Docker is running for local development.
+- Run `pnpm --filter @tstack/boilerplate db:start`.
+- Confirm `DATABASE_URL` matches `apps/boilerplate/.env.example` locally or your managed database in production.
+- Run `db:push` locally or `db:migrate` in production.
+
+## Auth callbacks fail
+
+- Confirm `BETTER_AUTH_SECRET` is set.
+- Confirm `BETTER_AUTH_URL`, `PROJECT_URL`, and provider callback URLs use the same host.
+- Confirm `/api/auth/*` remains public in middleware.
+
+## OAuth buttons do not appear
+
+OAuth buttons are shown only when provider credentials are configured. Set both client ID and client secret for the provider.
+
+## Wallet sign-in does not open or connect
+
+- Confirm WalletConnect project ID is configured.
+- Keep the variable name aligned between `.env.example`, `src/config/env.ts`, and `src/config/wagmi.ts` in your current source.
+- Confirm the app runs on the same domain used in SIWE messages.
+
+## Checkout does not start
+
+- Confirm `POLAR_SERVER` matches the product IDs you configured.
+- Confirm the product has a non-null Polar product ID in generated checkout products.
+- Confirm the user is authenticated if checkout requires authenticated users.
+
+## Subscription status does not update
+
+- Confirm the success page ran after checkout.
+- Confirm Polar webhook URL and `POLAR_WEBHOOK_SECRET` are correct.
+- Confirm your app can reach the Polar API with `POLAR_ACCESS_TOKEN`.
+
+## File upload works locally but not in production
+
+- Database provider is intended for local/prototyping.
+- For DigitalOcean, confirm endpoint, region, bucket, keys, CDN URL, and CORS settings.
+- Do not include the bucket name in `DIGITALOCEAN_SPACES_ENDPOINT`.
+
+## A standalone app still points to monorepo symlinks
+
+Replace linked harness resources with real directories:
+
+- `.agents/`
+- `docs/engineering/`
+
+Standalone apps should not depend on a TStack checkout at runtime or during agent work.

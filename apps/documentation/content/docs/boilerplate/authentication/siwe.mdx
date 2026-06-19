@@ -1,0 +1,51 @@
+---
+title: "SIWE / Wallet Sign-In"
+description: "Wallet authentication with RainbowKit, Wagmi, viem, and Better Auth SIWE."
+---
+
+The boilerplate includes Sign-In With Ethereum for builders who want wallet-based authentication.
+
+## Stack
+
+| Library | Purpose |
+| --- | --- |
+| RainbowKit | Wallet connection UI. |
+| Wagmi | React hooks for wallet state and signing. |
+| viem and SIWE | Message creation and signature verification utilities. |
+| Better Auth SIWE plugin | Nonce and verification endpoints. |
+
+## Key files
+
+| File | Purpose |
+| --- | --- |
+| `src/config/wagmi.ts` | RainbowKit/Wagmi configuration. |
+| `src/components/providers/providers.tsx` | Wallet providers in the React tree. |
+| `src/lib/auth/plugins/siwe.ts` | Server-side SIWE plugin. |
+| `src/lib/auth-client.ts` | SIWE client plugin. |
+| `src/features/authentication/hooks/use-ethereum-auth.ts` | Client SIWE flow. |
+| `src/features/authentication/components/siwe-button.tsx` | Wallet connect/sign-in UI. |
+
+## Environment
+
+The example environment file includes:
+
+```sh
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_walletconnect_project_id
+```
+
+Create a project ID in WalletConnect Cloud before testing mobile wallet connections.
+
+## Flow
+
+1. User connects a wallet through RainbowKit.
+2. Client requests a nonce from Better Auth.
+3. Client builds a SIWE message for the current domain and chain.
+4. User signs the message in the wallet.
+5. Server verifies nonce, domain, address, chain ID, and signature.
+6. Better Auth creates or resumes the session.
+
+## Customization
+
+- Edit supported chains in `src/config/wagmi.ts`.
+- Edit wallet UI/theme in `src/lib/rainbowkit-theme.ts` and provider components.
+- Remove SIWE deliberately if your product does not need wallet login.

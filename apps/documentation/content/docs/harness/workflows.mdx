@@ -1,0 +1,40 @@
+---
+title: "Workflows"
+description: "Apply the harness to common product and engineering tasks."
+---
+
+## Start every task from context
+
+For most tasks, the agent should begin with `AGENTS.md`, then load only the docs that matter for the work. This keeps the task grounded without forcing the agent to read unrelated files.
+
+## Idea to implementation
+
+A typical planning flow is:
+
+1. `ideate` to explore a raw idea.
+2. `clarify-with-context` when the idea needs project language, existing decisions, or codebase reality.
+3. `write-prd` when the idea is ready to specify.
+4. `break-into-issues` when the PRD should become concrete implementation tasks.
+5. `implement-with-tdd` for each well-scoped behavior change.
+
+Use this flow when you need stronger shared understanding before editing code.
+
+## Issue triage
+
+Use `issues-triage` for incoming bug reports or feature requests that are not yet ready to implement. The skill helps classify the issue, identify missing information, and decide the next state.
+
+## Debugging
+
+Use `debug` when something is failing, throwing, broken, or slower than expected. The workflow emphasizes reproduction, minimization, hypotheses, instrumentation, a focused fix, and regression coverage.
+
+## Refactoring and architecture improvement
+
+Use `inspect-architecture` to find structural friction, then `break-architecture-into-issues` to turn opportunities into implementation tasks. Use `refactor-safely` when the desired refactor is already scoped and behavior should remain unchanged.
+
+## Pull request review
+
+Use `code-review` to evaluate a pull request against the project's engineering doctrine. Use `fix-code-review` to address review feedback with small, verified changes.
+
+## Validation
+
+Each workflow should end by running the validation commands defined by the target project. Put those commands in `docs/coding-standards.md` so agents do not have to guess.

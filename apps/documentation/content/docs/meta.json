@@ -1,0 +1,11 @@
+{
+  "title": "TStack",
+  "pages": [
+    "index",
+    "getting-started",
+    "harness",
+    "boilerplate",
+    "reference",
+    "[LLM Documentation](/llms-full.txt)"
+  ]
+}

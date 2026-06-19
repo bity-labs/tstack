@@ -1,0 +1,61 @@
+---
+title: "Manual Installation"
+description: "Manually extract the boilerplate into a standalone app for full control over the process."
+---
+
+## When to use manual installation
+
+Use `tstack init` after `pnpm run setup` for most new projects. Manual installation is for projects that need full control over the extraction process or want to customize which files are copied.
+
+## What to copy
+
+From a TStack checkout, copy the concrete boilerplate app and the harness-owned resources it links to:
+
+```txt
+apps/boilerplate/                                  # application source
+packages/harness/templates/default/.agents         # agent skills and workflows
+packages/harness/templates/default/docs/engineering # shared engineering doctrine
+```
+
+In the monorepo, these boilerplate paths are symlinks:
+
+```txt
+apps/boilerplate/.agents
+apps/boilerplate/docs/engineering
+```
+
+In a standalone repository, both must become real directories with real files.
+
+## Suggested manual flow
+
+```sh
+# From the TStack checkout
+mkdir -p ../my-standalone-app
+rsync -a --exclude node_modules --exclude .next --exclude .turbo apps/boilerplate/ ../my-standalone-app/
+rm -rf ../my-standalone-app/.agents ../my-standalone-app/docs/engineering
+mkdir -p ../my-standalone-app/docs
+rsync -a packages/harness/templates/default/.agents/ ../my-standalone-app/.agents/
+rsync -a packages/harness/templates/default/docs/engineering/ ../my-standalone-app/docs/engineering/
+```
+
+Then in the standalone app:
+
+```sh
+cd ../my-standalone-app
+pnpm install
+cp .env.example .env
+pnpm db:start
+pnpm db:push
+pnpm dev
+```
+
+Those standalone commands assume you also copied or created a standalone `package.json` workspace shape. If you keep the monorepo layout, continue using `pnpm --filter @tstack/boilerplate ...` commands.
+
+## Checklist before handing off a standalone app
+
+- [ ] `.agents/` is a real directory, not a symlink.
+- [ ] `docs/engineering/` is a real directory, not a symlink.
+- [ ] `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` are present.
+- [ ] Local environment files are ignored and not committed.
+- [ ] `MyApp`, `myapp`, and `myapp.example.com` placeholders are intentionally kept or replaced.
+- [ ] The app validates from its new repository root.

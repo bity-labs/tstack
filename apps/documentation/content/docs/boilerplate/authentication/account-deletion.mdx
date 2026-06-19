@@ -1,0 +1,35 @@
+---
+title: "Account Deletion"
+description: "Email-confirmed deletion with external cleanup hooks."
+---
+
+The boilerplate supports account deletion through Better Auth user hooks and a settings UI.
+
+## User flow
+
+1. User opens account settings.
+2. User requests account deletion.
+3. Better Auth sends a confirmation email.
+4. User confirms through the email link.
+5. Better Auth deletes the local user and invalidates sessions.
+6. A side-effect hook attempts external cleanup, including Polar customer cleanup.
+
+## Key files
+
+| File | Purpose |
+| --- | --- |
+| `src/features/settings/components/delete-account-form.tsx` | User-facing deletion request UI. |
+| `src/lib/auth/user-hooks.ts` | Better Auth delete-user configuration. |
+| `src/lib/auth/side-effects.ts` | External cleanup boundary. |
+| `src/lib/auth/email-hooks.ts` | Confirmation email callback. |
+| `src/components/emails/DeleteAccountEmail.tsx` | Email template. |
+
+## Cleanup behavior
+
+Polar cleanup failures are logged but do not roll back a confirmed local account deletion. Missing Polar customers are treated as already cleaned up. If your product needs guaranteed third-party cleanup, add a deliberate retry/outbox design rather than duplicating cleanup in route handlers.
+
+## Security notes
+
+- Email confirmation protects against accidental or unauthorized deletion.
+- Accounts without a reachable email need a deliberate alternative policy before deletion can be safe.
+- Treat deletion as irreversible in product copy and support docs.

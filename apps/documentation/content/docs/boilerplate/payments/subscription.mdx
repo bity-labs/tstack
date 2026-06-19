@@ -1,0 +1,69 @@
+---
+title: "Subscriptions"
+description: "Recurring Polar subscriptions with local sync and access checks."
+---
+
+Subscriptions are owned by the billing feature and synced from Polar into the local database.
+
+## Architecture
+
+```txt
+src/features/billing/
+├── generated/products.generated.ts
+├── models/subscription.model.ts
+├── queries/subscription.query.ts
+├── queries/billing-overview.query.ts
+├── services/subscription.service.ts
+└── server-api.ts
+```
+
+The Better Auth Polar plugin uses checkout products from generated product config and handles webhooks through `src/lib/auth/plugins/polar.ts`.
+
+## Checkout flow
+
+1. User chooses a plan through a pricing card or `BuyButton`.
+2. Better Auth Polar checkout creates a Polar checkout session.
+3. User completes checkout.
+4. User returns to `/success?checkout_id=...`.
+5. The success page calls `syncSubscriptionFromPolar(userId)`.
+6. Webhooks also sync customer state when Polar sends updates.
+
+## Subscription service
+
+`src/features/billing/services/subscription.service.ts` provides:
+
+```ts
+getUserSubscription(userId);
+hasActiveSubscription(userId);
+syncSubscription(userId, activeSubscriptions);
+deleteSubscription(userId);
+syncSubscriptionFromPolar(userId);
+```
+
+Use these helpers instead of querying subscription tables directly from pages or middleware.
+
+## Webhooks
+
+Create a Polar webhook endpoint pointing at your deployed auth route:
+
+```txt
+https://yourdomain.com/api/auth/polar/webhooks
+```
+
+Set the secret in `POLAR_WEBHOOK_SECRET`.
+
+Webhook side effects must be idempotent. Key behavior on stable Polar IDs, not webhook arrival order.
+
+## Access gating
+
+The default middleware paid gate checks `hasActiveSubscription(userId)` for `/dashboard`.
+
+```ts
+const hasUserAccess = await hasActiveSubscription(userId);
+```
+
+If your product uses one-time purchase access instead, switch the gate deliberately and update product copy/docs.
+
+## Customer portal
+
+Use the Better Auth Polar customer portal client to let users manage subscription state from Polar's hosted portal.

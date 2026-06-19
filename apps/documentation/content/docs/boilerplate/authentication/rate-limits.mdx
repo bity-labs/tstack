@@ -1,0 +1,32 @@
+---
+title: "Rate Limits"
+description: "Database-backed limits for sensitive authentication endpoints."
+---
+
+Better Auth rate limits are configured in `src/lib/auth/rate-limit.ts` and passed into the server auth config.
+
+## Default model
+
+- Global auth limit for general endpoints.
+- Stricter custom rules for email sign-in, signup, OTP send, and OTP verify.
+- Database storage so limits survive server restarts and work across instances.
+- Proxy-aware IP detection through common forwarded headers.
+
+## Sensitive endpoints
+
+| Endpoint | Purpose |
+| --- | --- |
+| `/sign-in/email` | Password sign-in attempts. |
+| `/sign-up/email` | Account creation attempts. |
+| `/email-otp/send-verification-otp` | OTP email sending. |
+| `/sign-in/email-otp` | OTP verification attempts. |
+
+## Client handling
+
+`src/lib/auth-client.ts` handles 429 responses and reads retry headers for user-facing feedback.
+
+## Production notes
+
+- Keep rate limits enabled for public auth forms.
+- Validate real client IP behavior behind your proxy/CDN.
+- Avoid logging raw tokens, OTPs, or secrets in production.
