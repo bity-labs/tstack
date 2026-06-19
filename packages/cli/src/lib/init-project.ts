@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 
 import { exportBoilerplate } from "./export-boilerplate.js";
 import { generateEnv } from "./env.js";
@@ -27,6 +27,7 @@ export interface InitProjectOptions {
   envOverrides?: Record<string, string>;
   initGit?: boolean;
   installDeps?: boolean;
+  templatesDir?: string;
 }
 
 function isTextFile(filePath: string): boolean {
@@ -67,6 +68,31 @@ function replaceInDirectory(dir: string, replacements: Map<string, string>): voi
   }
 }
 
+const boilerplateDocPaths = [
+  "AGENTS.md",
+  ".agents",
+  "docs/context.md",
+  "docs/coding-standards.md",
+  "docs/adr",
+  "docs/engineering",
+  "docs/feature-architecture.md",
+  "docs/server-patterns.md",
+  "docs/quick-reference.md",
+  "docs/stack",
+];
+
+function resolveTemplatesDir(sourceDir: string): string {
+  return resolve(sourceDir, "../../packages/harness/templates");
+}
+
+function overlayTemplate(templateDir: string, targetDir: string): void {
+  if (!existsSync(templateDir)) {
+    return;
+  }
+
+  exportBoilerplate({ sourceDir: templateDir, targetDir, allowExistingTarget: true });
+}
+
 function updateGeneratedHeader(dir: string): void {
   const generatedDir = join(dir, "src", "features", "billing", "generated");
   try {
@@ -87,8 +113,11 @@ function updateGeneratedHeader(dir: string): void {
 
 export function initProject(options: InitProjectOptions): void {
   const { sourceDir, targetDir, slug, displayName, providers, envOverrides, initGit, installDeps } = options;
+  const templatesDir = options.templatesDir ?? resolveTemplatesDir(sourceDir);
 
-  exportBoilerplate({ sourceDir, targetDir });
+  exportBoilerplate({ sourceDir, targetDir, excludedPaths: boilerplateDocPaths });
+  overlayTemplate(join(templatesDir, "default"), targetDir);
+  overlayTemplate(join(templatesDir, "tstack-next"), targetDir);
 
   const replacements = buildReplacements({ slug, displayName });
   replaceInDirectory(targetDir, replacements);
