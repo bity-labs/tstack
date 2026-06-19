@@ -29,6 +29,10 @@ const PUBLIC_ROUTE_PREFIXES = [routes.blog];
 
 const AUTH_API_PREFIX = "/api/auth";
 
+function isAuthApiRoute(pathname: string): boolean {
+  return pathname === AUTH_API_PREFIX || pathname.startsWith(`${AUTH_API_PREFIX}/`);
+}
+
 const REQUIRE_ACCESS_ROUTES: string[] = [routes.dashboard];
 
 function handleLandingMode(request: NextRequest): NextResponse | null {
@@ -37,8 +41,7 @@ function handleLandingMode(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
 
   const isAllowedRoute =
-    LANDING_MODE_ALLOWED_ROUTES.includes(pathname) ||
-    pathname.startsWith(AUTH_API_PREFIX);
+    LANDING_MODE_ALLOWED_ROUTES.includes(pathname) || isAuthApiRoute(pathname);
   return isAllowedRoute
     ? NextResponse.next()
     : NextResponse.redirect(new URL(routes.landing, request.url));
@@ -79,7 +82,7 @@ async function handleAuthentication(request: NextRequest): Promise<NextResponse>
     PUBLIC_ROUTE_PREFIXES.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     ) ||
-    pathname.startsWith(AUTH_API_PREFIX);
+    isAuthApiRoute(pathname);
 
   if (isPublicRoute) return NextResponse.next();
 
