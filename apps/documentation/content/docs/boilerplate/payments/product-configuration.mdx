@@ -23,6 +23,15 @@ src/features/billing/generated/
 
 Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate generated files. Regeneration reads both product JSON and meter JSON before writing the billing generated TypeScript files. See the [CLI reference](/reference/cli) for options such as `--env` and `--token`.
 
+When you pass `--token` for Polar product operations, the CLI token needs only:
+
+```txt
+products:read
+products:write
+```
+
+`products:write` creates, updates, archives, and unarchives Polar products. `products:read` gets/lists products for sync status and cleanup/orphan detection. Regenerating local generated files does not contact Polar and does not require a token.
+
 ## Product JSON shape
 
 Each product has a stable slug, a billing type, price data, display metadata, and an environment-specific Polar product ID.
@@ -78,7 +87,7 @@ Meters are configured similarly:
 
 The generated meter helpers expose meter lookup and event display names for credit usage UI.
 
-Meter sync with Polar is manual for now: create or update meters in the correct Polar dashboard environment, copy each Polar meter ID into the matching `polar/meters.*.json` file, and run `tstack products` → regenerate. The CLI only generates local TypeScript for meters, so local generation does not require `meters:read` or `meters:write` token scopes.
+Meter sync with Polar is manual for now: create or update meters in the correct Polar dashboard environment, copy each Polar meter ID into the matching `polar/meters.*.json` file, and run `tstack products` → regenerate. The CLI generates local TypeScript for meters from `polar/meters.*.json`, but it does not create/update Polar meter definitions. Local generation therefore does not require `meters:read` or `meters:write` token scopes. A future Polar meter-sync feature would need both scopes.
 
 ## Safe update checklist
 
