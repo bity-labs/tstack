@@ -1,6 +1,6 @@
 # @tstack/cli
 
-Customer-facing TStack repository CLI.
+Customer-facing TStack repository CLI for scaffolding apps and managing local billing configuration.
 
 ## Local development
 

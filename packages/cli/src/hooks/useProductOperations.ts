@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
-import { join } from "node:path";
 import { existsSync } from "node:fs";
 import type { Product } from "../lib/products.js";
-import { readProducts, writeProducts, writeProductsGenerated } from "../lib/products.js";
+import { readProducts, writeProducts } from "../lib/products.js";
+import { writeBillingGenerated } from "../lib/billing-generated.js";
 import {
   loadPolarCredentials,
   createPolarClient,
@@ -58,29 +58,19 @@ export function useProductOperations(options: UseProductOperationsOptions) {
   const [cleanupAction, setCleanupAction] = useState<string>("");
   const [sandboxProductsList, setSandboxProductsList] = useState<Product[]>([]);
 
-  const regenerateFiles = useCallback((currentProducts: Product[]) => {
-    const sandboxProducts = env === "sandbox"
-      ? currentProducts
-      : (existsSync(otherProductsFilePath) ? readProducts(otherProductsFilePath) : []);
-    const productionProducts = env === "production"
-      ? currentProducts
-      : (existsSync(otherProductsFilePath) ? readProducts(otherProductsFilePath) : []);
-    writeProductsGenerated({ projectDir, sandboxProducts, productionProducts });
-  }, [env, otherProductsFilePath, projectDir]);
+  const regenerateFiles = useCallback((_currentProducts: Product[]) => {
+    writeBillingGenerated({ projectDir });
+  }, [projectDir]);
 
   const handleRegenerate = useCallback(() => {
     try {
-      const currentProducts = existsSync(productsFilePath) ? readProducts(productsFilePath) : [];
-      const otherProducts = existsSync(otherProductsFilePath) ? readProducts(otherProductsFilePath) : [];
-      const sandboxProducts = env === "sandbox" ? currentProducts : otherProducts;
-      const productionProducts = env === "production" ? currentProducts : otherProducts;
-      writeProductsGenerated({ projectDir, sandboxProducts, productionProducts });
+      writeBillingGenerated({ projectDir });
       setStep("done");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setStep("error");
     }
-  }, [env, productsFilePath, otherProductsFilePath, projectDir, setStep, setError]);
+  }, [projectDir, setStep, setError]);
 
   const runSync = useCallback(async () => {
     const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };

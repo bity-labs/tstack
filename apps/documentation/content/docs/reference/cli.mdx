@@ -1,6 +1,6 @@
 ---
 title: "TStack CLI"
-description: "Link and run the private TStack CLI to scaffold apps and manage products."
+description: "Link and run the private TStack CLI to scaffold apps and manage billing configuration."
 ---
 
 ## Distribution model
@@ -51,7 +51,7 @@ tstack ready --project-dir <project-dir>
 
 ### `tstack products`
 
-Manage TStack product definitions from the repository:
+Manage TStack product definitions and regenerate local billing exports from the repository:
 
 ```sh
 tstack products
@@ -61,8 +61,10 @@ tstack products
 
 After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. If you run `tstack init my-app` from inside the TStack repository, the app is created as a sibling directory (`../my-app`). From other directories, bare project names are created under the current directory. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
 
-## Polar product setup
+## Polar billing setup
 
-`tstack products` connects to Polar to manage products and meters. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
+`tstack products` connects to Polar to manage products and regenerate billing exports. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
 
-After product operations, the CLI generates billing exports such as `products.generated.ts` and `meters.generated.ts` in the scaffolded app.
+After product operations or the regenerate action, the CLI reads `polar/products.*.json` and `polar/meters.*.json`, then writes `products.generated.ts` and `meters.generated.ts` in the scaffolded app.
+
+Meter sync with Polar is not implemented yet. Create or update meters manually in the matching Polar dashboard environment, copy the returned IDs into `polar/meters.sandbox.json` or `polar/meters.production.json`, and run `tstack products` → regenerate. No `meters:read` or `meters:write` token scopes are needed for local meter generation.

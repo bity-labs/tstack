@@ -21,7 +21,7 @@ src/features/billing/generated/
 
 ## TStack CLI product workflow
 
-Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate generated files. See the [CLI reference](/reference/cli) for options such as `--env` and `--token`.
+Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate generated files. Regeneration reads both product JSON and meter JSON before writing the billing generated TypeScript files. See the [CLI reference](/reference/cli) for options such as `--env` and `--token`.
 
 ## Product JSON shape
 
@@ -78,11 +78,14 @@ Meters are configured similarly:
 
 The generated meter helpers expose meter lookup and event display names for credit usage UI.
 
+Meter sync with Polar is manual for now: create or update meters in the correct Polar dashboard environment, copy each Polar meter ID into the matching `polar/meters.*.json` file, and run `tstack products` → regenerate. The CLI only generates local TypeScript for meters, so local generation does not require `meters:read` or `meters:write` token scopes.
+
 ## Safe update checklist
 
-- [ ] Create or update products/meters in the correct Polar environment.
+- [ ] Create or update products in the correct Polar environment.
+- [ ] Create or update meters manually in the correct Polar environment.
 - [ ] Update the matching `polar/*.json` file.
-- [ ] Update generated TypeScript to match the JSON.
+- [ ] Run `tstack products` and regenerate generated TypeScript to match the JSON.
 - [ ] Confirm pricing cards show intended customer-facing products.
 - [ ] Confirm checkout only includes products with real Polar IDs.
 - [ ] Test sandbox checkout before switching `POLAR_SERVER=production`.
