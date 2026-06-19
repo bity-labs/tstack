@@ -39,6 +39,33 @@ POLAR_ORGANIZATION_ID=...
 
 Use `sandbox` while developing and `production` for live payments.
 
+### Runtime token scopes
+
+Grant `POLAR_ACCESS_TOKEN` only the scopes required by current runtime code:
+
+```txt
+checkouts:write
+customers:read
+customers:write
+orders:read
+events:read
+events:write
+customer_sessions:write
+customer_portal:read
+customer_portal:write
+```
+
+These cover checkout creation, customer creation/cleanup, customer state reads, order history, usage event read/write, customer sessions, and Customer Portal API access for customer-owned benefits/downloadables and hosted portal flows.
+
+Not required for current code paths:
+
+- `benefits:read` / `benefits:write` — benefit display uses Customer Portal APIs and customer state, not core benefit-management APIs.
+- `meters:read` / `meters:write` — runtime records/lists usage events and reads active meter balances from customer state; it does not manage Polar meter definitions.
+- `webhooks:read` / `webhooks:write` — incoming webhooks are verified with `POLAR_WEBHOOK_SECRET`; the app does not create/update webhook endpoints through the API.
+- Broad product, subscription, checkout-link, discount, refund, file, license-key, metric, or organization scopes unless you add code that uses those APIs.
+
+Optional: add `customer_meters:read` only if you explicitly build against Better Auth usage customer-meter endpoints. The bundled app does not call `authClient.usage.meters.*` directly.
+
 ## Current product automation status
 
-The boilerplate contains product and meter JSON files plus generated TypeScript files. Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products, meters, and generated TypeScript through an interactive CLI. Keep the JSON, generated files, and Polar dashboard state aligned deliberately.
+The boilerplate contains product and meter JSON files plus generated TypeScript files. Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate local product/meter TypeScript through an interactive CLI. The CLI syncs products to Polar and regenerates `products.generated.ts` plus `meters.generated.ts` from local JSON. It does not sync meter definitions to Polar, so local meter generation does not need `meters:read` or `meters:write`. Keep the JSON, generated files, and Polar dashboard state aligned deliberately.

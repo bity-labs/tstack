@@ -65,6 +65,15 @@ After `pnpm run setup`, the linked `tstack` command can run from any directory. 
 
 `tstack products` connects to Polar to manage products and regenerate billing exports. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
 
-After product operations or the regenerate action, the CLI reads `polar/products.*.json` and `polar/meters.*.json`, then writes `products.generated.ts` and `meters.generated.ts` in the scaffolded app.
+For the current CLI product sync/cleanup flows, the Polar token needs only:
 
-Meter sync with Polar is not implemented yet. Create or update meters manually in the matching Polar dashboard environment, copy the returned IDs into `polar/meters.sandbox.json` or `polar/meters.production.json`, and run `tstack products` → regenerate. No `meters:read` or `meters:write` token scopes are needed for local meter generation.
+```txt
+products:read
+products:write
+```
+
+`products:write` creates, updates, archives, and unarchives Polar products. `products:read` gets/lists products for sync status and cleanup/orphan detection.
+
+After product operations or the regenerate action, the CLI reads `polar/products.*.json` and `polar/meters.*.json`, then writes `products.generated.ts` and `meters.generated.ts` in the scaffolded app. Regeneration is local and does not require a Polar token.
+
+Meter sync with Polar is not implemented yet. Create or update meters manually in the matching Polar dashboard environment, copy the returned IDs into `polar/meters.sandbox.json` or `polar/meters.production.json`, and run `tstack products` → regenerate. No `meters:read` or `meters:write` token scopes are needed for local meter generation; a future Polar meter-sync command would need both scopes.

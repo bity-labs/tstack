@@ -5,19 +5,34 @@ description: "Configure recurring Polar checkout in the boilerplate."
 
 ## 1. Create a Polar token
 
-In Polar, create an access token for the environment you are testing. For subscription checkout, customer state, orders, portal, and webhooks, include only the scopes your product needs.
+In Polar, create an access token for the environment you are testing. For the current boilerplate runtime, grant only these scopes to `POLAR_ACCESS_TOKEN`:
 
-Common scopes include:
+```txt
+checkouts:write
+customers:read
+customers:write
+orders:read
+events:read
+events:write
+customer_sessions:write
+customer_portal:read
+customer_portal:write
+```
 
-- `checkouts:write`
-- `customers:read`
-- `customers:write`
-- `customer_portal:read`
-- `customer_portal:write`
-- `orders:read`
-- `subscriptions:read`
+Why these scopes are needed:
 
-Add optional scopes for benefits, files, or usage meters only when you use those features.
+- `checkouts:write` creates Better Auth Polar checkout sessions.
+- `customers:read` reads customer state, including active subscriptions, granted customer benefits, and active meter balances.
+- `customers:write` creates customers on signup and cleans them up by external ID on account deletion.
+- `orders:read` powers billing overview and order history.
+- `events:write` records usage/credit events.
+- `events:read` lists usage history.
+- `customer_sessions:write` creates customer sessions before using Customer Portal APIs.
+- `customer_portal:read` and `customer_portal:write` allow customer-owned benefit/downloadable reads and hosted portal flows.
+
+Optional: add `customer_meters:read` only if you explicitly build against Better Auth usage customer-meter endpoints. The bundled app does not call `authClient.usage.meters.*` directly.
+
+Do not add broad/all-scopes tokens by default. Current benefit display does **not** need `benefits:read` or `benefits:write`; it reads customer-owned grants/downloadables through Customer Portal APIs and customer state. Webhook receiving uses `POLAR_WEBHOOK_SECRET`, not `webhooks:*` scopes. Current runtime usage flows record/list events and read customer state; they do not manage Polar meter definitions through `client.meters.*`, so `meters:read` and `meters:write` are not needed unless future Polar meter sync is implemented.
 
 ## 2. Set environment variables
 
@@ -41,7 +56,7 @@ polar/products.production.json
 
 ## 4. Keep generated files aligned
 
-The boilerplate currently includes generated TypeScript under `src/features/billing/generated/`. Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate generated TypeScript through an interactive CLI. Keep JSON, generated TypeScript, and Polar dashboard state aligned deliberately.
+The boilerplate currently includes generated TypeScript under `src/features/billing/generated/`. Use `tstack products` after `pnpm run setup` from the TStack repository to manage Polar products and regenerate generated TypeScript through an interactive CLI. The CLI regenerates both `products.generated.ts` and `meters.generated.ts` from local `polar/products.*.json` and `polar/meters.*.json` files, but it only syncs products to Polar. Keep JSON, generated TypeScript, and Polar dashboard state aligned deliberately.
 
 ## 5. Confirm checkout configuration
 
