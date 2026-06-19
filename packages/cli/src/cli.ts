@@ -29,7 +29,7 @@ Run after linking the private CLI from the TStack repository:
 Commands:
   init       Scaffold a TStack app from apps/boilerplate.
   ready      Prepare production environment configuration.
-  products   Manage TStack product definitions.
+  products   Manage products and regenerate billing definitions.
 
 Use "tstack <command> --help" for command-specific help.
 `;
@@ -61,7 +61,7 @@ function commandHelp(command: SupportedCommand): string {
 
 Usage: tstack products [options]
 
-Manage TStack product definitions from the TStack repository.
+Manage TStack product definitions and regenerate local billing exports from the TStack repository.
 
 Options:
   --env <sandbox|production>   Select the Polar environment. Defaults to sandbox.

@@ -72,6 +72,16 @@ describe("CLI documentation", () => {
     expect(guide).toMatch(/(bill|export|generated)/i);
   });
 
+  it("CLI guide documents local meter generation and manual Polar meter setup", () => {
+    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
+    const productConfig = readRepoFile("apps/documentation/content/docs/boilerplate/payments/product-configuration.mdx");
+
+    expect(guide).toContain("polar/meters.*.json");
+    expect(guide).toContain("meters.generated.ts");
+    expect(guide).toMatch(/Meter sync with Polar is not implemented yet/i);
+    expect(productConfig).toMatch(/Meter sync with Polar is manual for now/i);
+  });
+
   it("packages/cli/README.md links to buyer-facing docs", () => {
     const readme = readRepoFile("packages/cli/README.md");
 
