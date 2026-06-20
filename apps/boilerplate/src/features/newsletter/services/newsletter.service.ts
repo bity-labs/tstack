@@ -1,3 +1,4 @@
+import { env } from "@/config";
 import { prisma } from "@/lib/db";
 import { getResend } from "@/lib/email/resend-client";
 import { logger } from "@/lib/logger";
@@ -31,6 +32,9 @@ export async function addNewsletterContact(input: {
     email: input.email,
     firstName: input.firstName,
     lastName: input.lastName,
+    ...(env.email.resendSegmentId
+      ? { segments: [{ id: env.email.resendSegmentId }] }
+      : {}),
   });
 
   if (error) {
