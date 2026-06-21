@@ -2,6 +2,8 @@
 
 TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, the buyer-facing documentation app lives in `apps/documentation`, and the Agent-Ready Boilerplate lives in `apps/boilerplate`.
 
+Documentation is available at <https://doc.tstack.dev/>.
+
 ## Layout
 
 ```txt
