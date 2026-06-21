@@ -52,16 +52,19 @@ For a manually extracted standalone app, copy `.env.example` to `.env` from the 
 
 | Variable | Purpose |
 | --- | --- |
-| `POLAR_ACCESS_TOKEN` | Polar SDK access token for checkout, customer, orders, benefits, and usage APIs. |
+| `POLAR_ACCESS_TOKEN` | Polar SDK access token for runtime billing flows. Required scopes: `checkouts:write`, `customers:read`, `customers:write`, `orders:read`, `events:read`, `events:write`, `customer_sessions:write`, `customer_portal:read`, `customer_portal:write`. |
 | `POLAR_SERVER` | `sandbox` for testing or `production` for live payments. |
-| `POLAR_WEBHOOK_SECRET` | Secret used by the Polar webhook plugin. |
+| `POLAR_WEBHOOK_SECRET` | Secret used by the Polar webhook plugin. Webhook receiving does not require `webhooks:*` token scopes. |
 | `POLAR_ORGANIZATION_ID` | Organization identifier used by Polar-related flows that need it. |
+
+The current app does not need `benefits:*` for benefit display because it reads customer-owned benefits/downloadables through Customer Portal APIs and customer state. It also does not need `meters:*` unless future Polar meter sync is implemented; runtime usage records/lists events and reads active meter balances from customer state. Add optional `customer_meters:read` only if you explicitly build against Better Auth usage customer-meter endpoints.
 
 ## Email
 
 | Variable | Purpose |
 | --- | --- |
 | `RESEND_API_KEY` | Resend API key for production email delivery. |
+| `RESEND_SEGMENT_ID` | Optional Resend segment for newsletter/landing contacts. Contacts are still created when this is unset. |
 | `EMAIL_FROM_ADDRESS` | Sender address for transactional emails. |
 | `EMAIL_BRAND_LOGO_URL` | Optional logo URL used by email templates. |
 

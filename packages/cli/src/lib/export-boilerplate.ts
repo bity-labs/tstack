@@ -49,23 +49,25 @@ function isExcluded(entryName: string, relativePath: string): boolean {
 export function exportBoilerplate(options: {
   sourceDir: string;
   targetDir: string;
+  allowExistingTarget?: boolean;
+  excludedPaths?: string[];
 }): void {
-  const { sourceDir, targetDir } = options;
+  const { sourceDir, targetDir, allowExistingTarget = false, excludedPaths = [] } = options;
 
-  if (existsSync(targetDir)) {
+  if (!allowExistingTarget && existsSync(targetDir)) {
     throw new Error(`Target directory already exists: ${targetDir}`);
   }
 
-  copyDirectory(sourceDir, targetDir, "");
+  copyDirectory(sourceDir, targetDir, "", new Set(excludedPaths));
 }
 
-function copyDirectory(source: string, target: string, relativePath: string): void {
+function copyDirectory(source: string, target: string, relativePath: string, extraExcludedPaths: Set<string>): void {
   mkdirSync(target, { recursive: true });
 
   for (const entry of readdirSync(source, { withFileTypes: true })) {
     const entryRelativePath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
 
-    if (isExcluded(entry.name, entryRelativePath)) {
+    if (extraExcludedPaths.has(entryRelativePath) || isExcluded(entry.name, entryRelativePath)) {
       continue;
     }
 
@@ -75,12 +77,12 @@ function copyDirectory(source: string, target: string, relativePath: string): vo
     if (entry.isSymbolicLink()) {
       const linkTarget = statSync(sourcePath);
       if (linkTarget.isDirectory()) {
-        copyDirectory(sourcePath, targetPath, entryRelativePath);
+        copyDirectory(sourcePath, targetPath, entryRelativePath, extraExcludedPaths);
       } else {
         writeFileSync(targetPath, readFileSync(sourcePath));
       }
     } else if (entry.isDirectory()) {
-      copyDirectory(sourcePath, targetPath, entryRelativePath);
+      copyDirectory(sourcePath, targetPath, entryRelativePath, extraExcludedPaths);
     } else {
       writeFileSync(targetPath, readFileSync(sourcePath));
     }

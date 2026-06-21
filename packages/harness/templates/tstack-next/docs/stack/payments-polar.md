@@ -4,7 +4,7 @@ title: Polar Payments and Billing Guide
 
 ## Overview
 
-Polar handles subscriptions, one-time purchases, customer benefits, and credit metering. The boilerplate integrates Polar through the `@polar-sh/better-auth` plugin and accesses the SDK through a narrow `PolarGateway` abstraction.
+Polar handles subscriptions, one-time purchases, customer benefits, and credit metering. This starter integrates Polar through the `@polar-sh/better-auth` plugin and accesses the SDK through a narrow `PolarGateway` abstraction.
 
 Read this before touching checkout, subscription sync, credits, products/meters, benefits, webhooks, customer cleanup, or access gating.
 
@@ -157,7 +157,7 @@ products:write
 
 ## Products and Meters
 
-Product and meter definitions live under `apps/boilerplate/polar/`:
+Product and meter definitions live under `polar/`:
 
 - `polar/products.sandbox.json`
 - `polar/products.production.json`

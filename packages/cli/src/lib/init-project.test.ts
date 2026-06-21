@@ -99,6 +99,53 @@ describe("initProject", () => {
     }
   });
 
+  it("overlays default and tstack-next template docs while excluding monorepo boilerplate docs", () => {
+    const sourceDir = makeTempDir("tstack-init-source-");
+    const templatesDir = makeTempDir("tstack-init-templates-");
+    const targetDir = join(sourceDir, "../tstack-init-target-template-" + Date.now());
+
+    try {
+      writeFileSync(join(sourceDir, "AGENTS.md"), "boilerplate monorepo guidance");
+      mkdirSync(join(sourceDir, "docs", "adr"), { recursive: true });
+      writeFileSync(join(sourceDir, "docs", "context.md"), "apps/boilerplate packages/harness quality branch");
+      writeFileSync(join(sourceDir, "docs", "coding-standards.md"), "pnpm --filter @tstack/boilerplate test");
+      writeFileSync(join(sourceDir, "docs", "adr", "0004-quality-branch-integration-gate.md"), "quality branch");
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "@tstack/boilerplate"}');
+
+      mkdirSync(join(templatesDir, "default", ".agents", "skills"), { recursive: true });
+      mkdirSync(join(templatesDir, "default", "docs", "engineering"), { recursive: true });
+      writeFileSync(join(templatesDir, "default", ".agents", "skills", "example.md"), "default skill");
+      writeFileSync(join(templatesDir, "default", "docs", "engineering", "index.md"), "engineering doctrine");
+
+      mkdirSync(join(templatesDir, "tstack-next", "docs", "adr"), { recursive: true });
+      writeFileSync(join(templatesDir, "tstack-next", "AGENTS.md"), "# Agent Guidance - MyApp");
+      writeFileSync(join(templatesDir, "tstack-next", "docs", "context.md"), "# MyApp Context");
+      writeFileSync(join(templatesDir, "tstack-next", "docs", "coding-standards.md"), "pnpm test");
+      writeFileSync(join(templatesDir, "tstack-next", "docs", "adr", "0001-prisma-orm.md"), "Schema lives at `prisma/schema.prisma`.");
+
+      initProject({
+        sourceDir,
+        targetDir,
+        slug: "acme",
+        displayName: "Acme",
+        providers: { github: false, twitter: false, walletConnect: false, polar: false, digitalOcean: false, analytics: "none" },
+        templatesDir,
+      });
+
+      expect(readFileSync(join(targetDir, "AGENTS.md"), "utf8")).toBe("# Agent Guidance - Acme");
+      expect(readFileSync(join(targetDir, "docs", "context.md"), "utf8")).toBe("# Acme Context");
+      expect(readFileSync(join(targetDir, "docs", "coding-standards.md"), "utf8")).toBe("pnpm test");
+      expect(readFileSync(join(targetDir, "docs", "adr", "0001-prisma-orm.md"), "utf8")).toContain("`prisma/schema.prisma`");
+      expect(readFileSync(join(targetDir, ".agents", "skills", "example.md"), "utf8")).toBe("default skill");
+      expect(readFileSync(join(targetDir, "docs", "engineering", "index.md"), "utf8")).toBe("engineering doctrine");
+      expect(existsSync(join(targetDir, "docs", "adr", "0004-quality-branch-integration-gate.md"))).toBe(false);
+    } finally {
+      rmSync(sourceDir, { recursive: true, force: true });
+      rmSync(templatesDir, { recursive: true, force: true });
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
   it("throws when the target directory already exists", () => {
     const sourceDir = makeTempDir("tstack-init-source-");
     const targetDir = makeTempDir("tstack-init-target-");
