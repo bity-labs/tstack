@@ -579,6 +579,80 @@ describe("PolarGateway", () => {
       expect(client.customerPortal.benefitGrants.list).not.toHaveBeenCalled();
     });
 
+    it("merges core grants when some customer-state GitHub grants lack repository metadata", async () => {
+      const grantedAt = new Date("2026-03-01");
+      client.customers.getStateExternal.mockResolvedValue({
+        ...baseState,
+        grantedBenefits: [
+          {
+            benefitId: "b1",
+            benefitType: "github_repository",
+            properties: {
+              repositoryOwner: "acme",
+              repositoryName: "core",
+              permission: "push",
+            },
+            grantedAt,
+          },
+          {
+            benefitId: "b2",
+            benefitType: "github_repository",
+            properties: {},
+            grantedAt,
+          },
+        ],
+      });
+      client.benefitGrants.list.mockResolvedValue({
+        result: {
+          items: [
+            {
+              benefit: {
+                id: "b1",
+                type: "github_repository",
+                description: "Core access",
+                properties: { repositoryOwner: "acme", repositoryName: "core" },
+              },
+              properties: { permission: "pull" },
+              isGranted: true,
+              grantedAt,
+            },
+            {
+              benefit: {
+                id: "b2",
+                type: "github_repository",
+                description: "API access",
+                properties: { repositoryOwner: "acme", repositoryName: "api" },
+              },
+              properties: { permission: "push" },
+              isGranted: true,
+              grantedAt,
+            },
+          ],
+        },
+      });
+
+      const result = await makeGateway(client).listGitHubBenefits("user_1");
+
+      expect(result).toEqual([
+        expect.objectContaining({
+          id: "b1",
+          repositoryOwner: "acme",
+          repositoryName: "core",
+          permission: "pull",
+        }),
+        expect.objectContaining({
+          id: "b2",
+          repositoryOwner: "acme",
+          repositoryName: "api",
+          permission: "push",
+        }),
+      ]);
+      expect(client.benefitGrants.list).toHaveBeenCalledWith(
+        { customerId: "cust_1", isGranted: true, limit: 100 },
+        expect.any(Object)
+      );
+    });
+
     it("returns [] on ResourceNotFound", async () => {
       client.customers.getStateExternal.mockRejectedValue(makeNotFound());
       const result = await makeGateway(client).listGitHubBenefits("user_1");
