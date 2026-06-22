@@ -41,15 +41,17 @@ export function mapDownloadable(item: DownloadableItem): Downloadable {
 }
 
 interface BenefitGrantItem {
-  benefit: {
+  benefit?: {
     id: string;
     type: string;
     description?: string;
     properties: unknown;
   };
+  benefitId?: string;
+  benefitType?: string;
   properties: unknown;
-  isGranted: boolean;
-  grantedAt: Date | string | null;
+  isGranted?: boolean;
+  grantedAt?: Date | string | null;
 }
 
 interface GitHubBenefitProperties {
@@ -70,26 +72,26 @@ function readGitHubProps(value: unknown): GitHubBenefitProperties {
 
 export function mapGitHubBenefits(items: BenefitGrantItem[]): GitHubBenefit[] {
   return items
-    .filter((item) => item.benefit.type === "github_repository")
+    .filter((item) => (item.benefit?.type ?? item.benefitType) === "github_repository")
     .map((item): GitHubBenefit | null => {
       const itemProps = readGitHubProps(item.properties);
-      const benefitProps = readGitHubProps(item.benefit.properties);
+      const benefitProps = readGitHubProps(item.benefit?.properties);
 
       const repositoryOwner = itemProps.repositoryOwner || benefitProps.repositoryOwner;
       const repositoryName = itemProps.repositoryName || benefitProps.repositoryName;
-      const permission = itemProps.permission || "pull";
+      const permission = itemProps.permission || benefitProps.permission || "pull";
 
       if (!repositoryOwner || !repositoryName) return null;
 
       return {
-        id: item.benefit.id,
+        id: item.benefit?.id ?? item.benefitId ?? `${repositoryOwner}/${repositoryName}`,
         repositoryOwner,
         repositoryName,
         repositoryUrl: `https://github.com/${repositoryOwner}/${repositoryName}`,
         permission,
-        isGranted: item.isGranted,
+        isGranted: item.isGranted ?? true,
         grantedAt: item.grantedAt ? new Date(item.grantedAt) : null,
-        description: item.benefit.description ?? "",
+        description: item.benefit?.description ?? "",
       };
     })
     .filter((b): b is GitHubBenefit => b !== null);

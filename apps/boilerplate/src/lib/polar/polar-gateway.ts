@@ -79,6 +79,34 @@ function isUsageMetadata(value: unknown): value is UsageMetadata {
   return true;
 }
 
+interface BenefitGrantLike {
+  benefit?: { type?: string };
+  benefitType?: string;
+}
+
+function isGitHubBenefitGrant(item: BenefitGrantLike): boolean {
+  return (item.benefit?.type ?? item.benefitType) === "github_repository";
+}
+
+function mergeGitHubBenefits(
+  preferred: GitHubBenefit[],
+  fallback: GitHubBenefit[]
+): GitHubBenefit[] {
+  const merged: GitHubBenefit[] = [];
+  const ids = new Set<string>();
+  const repos = new Set<string>();
+
+  for (const benefit of [...preferred, ...fallback]) {
+    const repoKey = `${benefit.repositoryOwner}/${benefit.repositoryName}`;
+    if (ids.has(benefit.id) || repos.has(repoKey)) continue;
+    merged.push(benefit);
+    ids.add(benefit.id);
+    repos.add(repoKey);
+  }
+
+  return merged;
+}
+
 function toUsageMetadata(value: unknown): UsageMetadata {
   return isUsageMetadata(value) ? value : {};
 }
@@ -259,18 +287,24 @@ export function createPolarGateway(client: Polar): PolarGateway {
     return session.token;
   }
 
+  async function listGrantedBenefitGrants(userId: string, customerId: string) {
+    const response = await safeRead("listBenefitGrants", userId, (signal) =>
+      client.benefitGrants.list(
+        { customerId, isGranted: true, limit: 100 },
+        { signal }
+      )
+    );
+    return response.result.items ?? [];
+  }
+
   async function hasAnyBenefitGrant(userId: string): Promise<boolean> {
     return notFoundOr(
       (async () => {
-        const token = await openPortal(userId);
-        const response = await safeRead("listBenefitGrants", userId, (signal) =>
-          client.customerPortal.benefitGrants.list(
-            { customerSession: token },
-            {},
-            { signal }
-          )
-        );
-        return (response.result.items?.length ?? 0) > 0;
+        const state = await getUserCustomerState(userId);
+        if (!state) return false;
+        if ((state.grantedBenefits?.length ?? 0) > 0) return true;
+        const grants = await listGrantedBenefitGrants(userId, state.id);
+        return grants.length > 0;
       })(),
       false
     );
@@ -296,15 +330,17 @@ export function createPolarGateway(client: Polar): PolarGateway {
   async function listGitHubBenefits(userId: string): Promise<GitHubBenefit[]> {
     return notFoundOr<GitHubBenefit[]>(
       (async () => {
-        const token = await openPortal(userId);
-        const response = await safeRead("listGitHubBenefits", userId, (signal) =>
-          client.customerPortal.benefitGrants.list(
-            { customerSession: token },
-            {},
-            { signal }
-          )
-        );
-        return mapGitHubBenefits(response.result.items ?? []);
+        const state = await getUserCustomerState(userId);
+        if (!state) return [];
+
+        const stateGrants = (state.grantedBenefits ?? []).filter(isGitHubBenefitGrant);
+        const stateBenefits = mapGitHubBenefits(state.grantedBenefits ?? []);
+        if (stateBenefits.length > 0 && stateBenefits.length === stateGrants.length) {
+          return stateBenefits;
+        }
+
+        const grants = await listGrantedBenefitGrants(userId, state.id);
+        return mergeGitHubBenefits(mapGitHubBenefits(grants), stateBenefits);
       })(),
       []
     );

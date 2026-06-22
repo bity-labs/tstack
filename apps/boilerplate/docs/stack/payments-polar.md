@@ -97,6 +97,7 @@ events:write
 customer_sessions:write
 customer_portal:read
 customer_portal:write
+benefits:read
 ```
 
 Why:
@@ -108,14 +109,14 @@ Why:
 - `events:write` — usage/credit event ingestion.
 - `events:read` — usage history listing.
 - `customer_sessions:write` — creates customer sessions before using Customer Portal APIs.
-- `customer_portal:read` / `customer_portal:write` — Customer Portal API access for customer-owned benefits/downloadables and hosted portal flows.
+- `customer_portal:read` / `customer_portal:write` — Customer Portal API access for customer-owned downloadables and hosted portal flows.
+- `benefits:read` — server-side Core API fallback for granted benefits, including GitHub repository benefit metadata.
 
 Optional: add `customer_meters:read` only if you explicitly build against Better Auth usage customer-meter endpoints. The bundled app does not call `authClient.usage.meters.*` directly.
 
 Not required for current code paths:
 
 ```txt
-benefits:read
 benefits:write
 meters:read
 meters:write
@@ -140,7 +141,7 @@ organizations:write
 
 Clarifications:
 
-- Benefit display does **not** require `benefits:read`; the app reads customer-owned benefit grants/downloadables via Customer Portal APIs and customer state.
+- GitHub benefit display uses customer state first, then Core API benefit grants when repository metadata is missing. Downloadables still use Customer Portal APIs.
 - Webhook receiving uses `POLAR_WEBHOOK_SECRET`; the app does not create/update Polar webhook endpoints via API.
 - Meters are used conceptually for usage billing, but current runtime records/lists events and reads active meter balances from customer state. It does not manage Polar meter definitions through `client.meters.*`.
 
@@ -235,7 +236,7 @@ export const myAction = authed
 
 ## Benefits and One-Time Purchases
 
-One-time purchase benefits live in `src/features/benefits/` and read from the Polar customer portal through `PolarGateway`:
+One-time purchase benefits live in `src/features/benefits/` and read through `PolarGateway`. GitHub repository access uses customer state first, then the Polar Core API benefit grants endpoint (`benefits:read`) when customer state lacks repository metadata. Downloadables still use the Customer Portal API.
 
 - `hasActiveOrder(userId)` — checks for any active benefit grant.
 - `getDownloadables(userId)` — lists downloadable files.
