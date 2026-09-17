@@ -4,6 +4,10 @@
 
 TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack product surface. The repository currently contains the generic engineering harness package, the buyer-facing documentation app, the Agent-Ready Boilerplate app, and the customer-facing CLI package.
 
+## Access
+
+TStack is free to access from the public `bity-labs/tstack` repository. No purchase or account is required. The CLI remains unpublished to npm and is built and linked from a checkout. Billing integrations in the boilerplate are reusable features for products built with TStack, not a requirement for accessing TStack itself.
+
 ## Current Scope
 
 - `packages/harness` stores reusable harness templates for agentic software delivery.
