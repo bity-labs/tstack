@@ -22,6 +22,6 @@ Run tests:
 pnpm test
 ```
 
-## User documentation
+## Buyer-facing documentation
 
-See the [TStack CLI guide](https://doc.tstack.dev/reference/cli) for setup and usage. Repository access is free; the CLI is built locally rather than installed from npm.
+See the [TStack CLI guide](https://github.com/bity-labs/tstack/tree/quality/apps/documentation/content/docs/reference/cli.mdx) for buyer usage.

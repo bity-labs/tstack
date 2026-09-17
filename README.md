@@ -4,9 +4,7 @@
 
 <h1 align="center">TStack</h1>
 
-TStack is free to access—no purchase or account required. Get the harness, documentation, CLI, and Agent-Ready Boilerplate from this repository.
-
-TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, the user documentation app lives in `apps/documentation`, and the Agent-Ready Boilerplate lives in `apps/boilerplate`.
+TStack is organized as a pnpm/Turborepo monorepo. The generic engineering harness lives in `packages/harness`, the buyer-facing documentation app lives in `apps/documentation`, and the Agent-Ready Boilerplate lives in `apps/boilerplate`.
 
 Documentation is available at <https://doc.tstack.dev/>.
 
@@ -54,7 +52,7 @@ pnpm typecheck
 
 The `packages/cli` workspace contains the customer-facing TStack CLI. During local development, run it with `pnpm tstack <command>` from the repository root.
 
-The CLI is not published to npm. To install it globally from this checkout, run:
+To install the private CLI globally from this checkout without publishing it to npm, run:
 
 ```sh
 pnpm run setup
