@@ -1,22 +1,32 @@
 ---
-title: "Introduction"
-description: "Learn what TStack includes and where to start."
+title: "TStack"
+description: "Composable setup components and the current v2 workspace."
 ---
 
-## What is TStack?
+TStack brings together reusable setup for a brain/vault, engineering harness, assistant, server, and product boilerplate. Components are intended to work independently, with optional integration. Personal data, secrets, and live runtime state stay outside the source repository.
 
-TStack is a practical stack for agent-ready software delivery. It has two usable layers today:
+## Current status
 
-- **Engineering Harness** — reusable agent instructions, engineering doctrine, skills, ADR guidance, and project context files.
-- **TStack Agent-Ready Boilerplate** — a Next.js SaaS starter in `apps/boilerplate` with authentication, payments, content, email, analytics, file upload, testing, web3 wallet sign-in, and boilerplate-specific agent docs.
+V2 is a workspace shell, not a completed product setup.
 
-The repository also contains this buyer-facing documentation app.
+| Component | Status |
+| --- | --- |
+| Engineering harness | Existing generic instructions, skills, and doctrine |
+| TStack documentation | Existing Fumadocs app |
+| CLI | Retained; v2 scaffolding is not implemented yet |
+| Brain | README placeholder for vault setup and skills |
+| Assistant | README placeholder for Hermes-based coordination setup |
+| OS | README placeholder for server setup |
+| Boilerplate | README placeholders for website, application, and product documentation |
+
+The source uses one pnpm/Turborepo workspace. The planned boilerplate export is a separate product workspace containing three independently deployable apps; the exporter is not implemented yet.
 
 ## Start here
 
-- Use [Getting Started](/getting-started) to run the boilerplate from the monorepo or install the Engineering Harness in an existing project.
-- Use [Boilerplate Overview](/boilerplate/overview) to understand the SaaS starter.
-- Use [Environment Variables](/getting-started/environment-variables) before running auth, billing, email, analytics, or upload flows.
-- Use [Known Limitations](/reference/known-limitations) to understand what is manual today.
+- [Repository setup](/getting-started/quick-start)
+- [Engineering harness](/harness/overview)
+- [Boilerplate scope](/boilerplate/overview)
+- [CLI status](/reference/cli)
+- [Known limitations](/reference/known-limitations)
 
-
+For the previous starter, use the [preserved v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs).

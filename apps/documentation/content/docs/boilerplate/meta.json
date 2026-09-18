@@ -1,12 +1,4 @@
 {
   "title": "Boilerplate",
-  "pages": [
-    "overview",
-    "project-configuration",
-    "features",
-    "authentication",
-    "payments",
-    "guides",
-    "deployments"
-  ]
+  "pages": ["overview"]
 }

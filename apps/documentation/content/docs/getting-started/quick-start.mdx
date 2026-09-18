@@ -1,61 +1,34 @@
 ---
-title: "Quick Start"
-description: "Create a standalone TStack app and run it locally."
+title: "Repository Setup"
+description: "Install dependencies and run TStack's documentation app from the current checkout."
 ---
 
-## Create and run a standalone app
+From the root of the checkout containing the v2 shell:
 
 ```sh
-# Clone the TStack repository
-git clone https://github.com/bity-labs/tstack tstack
-cd tstack
-
-# Install dependencies
-pnpm install
-
-# Link the private CLI and scaffold a new standalone app
-pnpm run setup
-tstack init my-app
-
-# Enter your new app
-cd ../my-app
-
-# Start the database
-pnpm db:start
-pnpm db:push
-
-# Run the app
-pnpm dev
+pnpm install --frozen-lockfile
+pnpm dev:documentation
 ```
 
-Open `http://localhost:3000`.
+Open the local URL printed by the development server.
 
-## What these commands do
-
-| Command | Purpose |
-| --- | --- |
-| `pnpm install` | Installs TStack repository dependencies. |
-| `pnpm run setup` | Builds and globally links the private `tstack` CLI from this checkout. |
-| `tstack init my-app` | Scaffolds a new standalone app from `apps/boilerplate`. |
-| `pnpm db:start` | Starts the local PostgreSQL Docker service. |
-| `pnpm db:push` | Pushes the Prisma schema to the local database. |
-| `pnpm dev` | Starts Velite and the Next.js development server. |
-
-## Common next steps
-
-- Read [File Structure](/boilerplate/project-configuration/file-structure) before changing the app.
-- Read [Product Configuration](/boilerplate/payments/product-configuration) before changing pricing or checkout behavior.
-
-## Run from the monorepo instead
-
-To run the boilerplate directly from the TStack monorepo without creating a standalone app:
+## Validate the workspace
 
 ```sh
-git clone https://github.com/bity-labs/tstack my-app
-cd my-app
-pnpm install
-cp apps/boilerplate/.env.example apps/boilerplate/.env
-pnpm --filter @tstack/boilerplate db:start
-pnpm --filter @tstack/boilerplate db:push
-pnpm --filter @tstack/boilerplate dev
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm build
 ```
+
+Turbo runs scripts for implemented packages. The README-only placeholders are not runnable workspaces. Documentation test/lint scripts currently report that no checks are configured; its typecheck and build validate the app.
+
+## Inspect the CLI
+
+```sh
+pnpm tstack --help
+```
+
+V2 scaffolding is not implemented yet. `tstack init` reports this and does not create an app. No database or product environment setup is required for the shell.
+
+To adopt the existing generic harness, follow [harness installation](/harness/installation). For the previous application starter, see the [preserved v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs).

@@ -1,79 +1,49 @@
 ---
 title: "TStack CLI"
-description: "Link and run the private TStack CLI to scaffold apps and manage billing configuration."
+description: "Current CLI availability and retained legacy configuration commands."
 ---
 
-## Distribution model
+## Current status
 
-The TStack CLI is private and is not published to the public npm registry. Buyers with repository access build and globally link it from their TStack repository checkout. npm publish is out of scope unless a later issue changes it.
+The CLI is retained in `packages/cli`, but v2 scaffolding is not implemented yet. It does not install the new brain, assistant, OS, or three-app boilerplate.
 
-## Bootstrap flow
+| Command | Status |
+| --- | --- |
+| `tstack init` | Unavailable; exits with an explanatory message without creating a project |
+| `tstack ready` | Legacy production environment wizard for existing compatible projects |
+| `tstack products` | Legacy Polar product management and local billing generation for existing compatible projects |
 
-1. Clone or access the TStack repository:
-   ```sh
-   git clone https://github.com/bity-labs/tstack tstack
-   cd tstack
-   ```
-2. Install dependencies:
-   ```sh
-   pnpm install
-   ```
-3. Link the private CLI globally:
-   ```sh
-   pnpm run setup
-   ```
-4. Scaffold a new app from any directory:
-   ```sh
-   tstack init my-app
-   ```
-5. Enter the generated app directory and continue setup:
-   ```sh
-   cd ../my-app
-   ```
+The legacy commands are not a completed v2 setup workflow. Their presence does not establish provider choices for the new boilerplate.
 
-## Commands
+## Local use
 
-### `tstack init`
-
-Scaffold a new TStack app from `apps/boilerplate`:
+From the TStack repository root:
 
 ```sh
-tstack init <project-dir>
+pnpm tstack --help
+pnpm tstack init --help
 ```
 
-### `tstack ready`
+## Optional global link
 
-Run the production environment wizard for a scaffolded app:
+The CLI is private and is not published to public npm. Publishing is outside this documentation cleanup.
 
 ```sh
-tstack ready --project-dir <project-dir>
+pnpm run setup
+tstack --help
 ```
 
-### `tstack products`
+`setup` builds and globally links the CLI. It does not enable v2 scaffolding. The checkout must remain on disk while the linked binary is in use. To unlink it, run `pnpm tstack:unlink` from the repository root.
 
-Manage TStack product definitions and regenerate local billing exports from the repository:
+## Existing projects only
+
+The retained commands default to the current directory. Point them at an existing compatible project, not a v2 placeholder:
 
 ```sh
-tstack products
+tstack ready --project-dir /path/to/existing-project
+tstack products --project-dir /path/to/existing-project
 ```
 
-## Working directories
+`ready` writes `.env.production`; it does not deploy or provision infrastructure. `products` defaults to Polar sandbox and can modify remote products. Local billing generation still expects the previous starter's configuration layout. Meter synchronization remains manual.
 
-After `pnpm run setup`, the linked `tstack` command can run from any directory. The linked checkout must remain on disk because `tstack init` resolves `apps/boilerplate` from that checkout. If you run `tstack init my-app` from inside the TStack repository, the app is created as a sibling directory (`../my-app`). From other directories, bare project names are created under the current directory. Use `--project-dir` to point `tstack ready` and `tstack products` at the scaffolded app directory when it differs from the current directory.
-
-## Polar billing setup
-
-`tstack products` connects to Polar to manage products and regenerate billing exports. It defaults to the Polar sandbox environment. Use `--env production` to switch to production, or pass `--token` to authenticate with a Polar access token directly.
-
-For the current CLI product sync/cleanup flows, the Polar token needs only:
-
-```txt
-products:read
-products:write
-```
-
-`products:write` creates, updates, archives, and unarchives Polar products. `products:read` gets/lists products for sync status and cleanup/orphan detection.
-
-After product operations or the regenerate action, the CLI reads `polar/products.*.json` and `polar/meters.*.json`, then writes `products.generated.ts` and `meters.generated.ts` in the scaffolded app. Regeneration is local and does not require a Polar token.
-
-Meter sync with Polar is not implemented yet. Create or update meters manually in the matching Polar dashboard environment, copy the returned IDs into `polar/meters.sandbox.json` or `polar/meters.production.json`, and run `tstack products` → regenerate. No `meters:read` or `meters:write` token scopes are needed for local meter generation; a future Polar meter-sync command would need both scopes.
+For full legacy configuration instructions, see the [v1 CLI guide](https://github.com/bity-labs/tstack/blob/v1/apps/documentation/content/docs/reference/cli.mdx).

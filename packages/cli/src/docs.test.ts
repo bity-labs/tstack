@@ -1,118 +1,110 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
+const docsRoot = join(repoRoot, "apps/documentation/content/docs");
+const archiveUrl = "https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs";
 
 function readRepoFile(path: string): string {
-  return readFileSync(resolve(repoRoot, path), "utf8");
+  return readFileSync(join(repoRoot, path), "utf8");
 }
 
-describe("CLI documentation", () => {
-  it("packages/cli/README.md documents maintainer-oriented local development commands", () => {
-    const readme = readRepoFile("packages/cli/README.md");
+function filesUnder(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    return entry.isDirectory() ? filesUnder(path) : [path];
+  });
+}
 
-    expect(readme).toContain("pnpm tstack");
+const docFiles = filesUnder(docsRoot);
+const routes = new Set([
+  "/llms-full.txt",
+  ...docFiles.filter((path) => path.endsWith(".mdx")).map((path) => {
+    const slug = relative(docsRoot, path).replace(/\.mdx$/, "").replace(/(^|\/)index$/, "");
+    return `/${slug}`;
+  }),
+]);
+
+describe("v2 documentation", () => {
+  it("documents repository commands and the CLI's transitional status", () => {
+    const readme = readRepoFile("packages/cli/README.md");
+    expect(readme).toContain("pnpm tstack --help");
     expect(readme).toContain("pnpm build");
     expect(readme).toContain("pnpm test");
+    expect(readme).toContain("V2 scaffolding is not implemented yet");
+    expect(readme).toContain("legacy");
+    expect(readme).toContain("../../apps/documentation/content/docs/reference/cli.mdx");
   });
 
-  it("root README mentions packages/cli as the customer CLI package", () => {
-    const rootReadme = readRepoFile("README.md");
-
-    expect(rootReadme).toMatch(/customer(-facing)?/i);
-    expect(rootReadme).toContain("packages/cli");
+  it.each([
+    "README.md",
+    "apps/documentation/content/docs/index.mdx",
+    "apps/documentation/content/docs/getting-started/quick-start.mdx",
+    "apps/documentation/content/docs/boilerplate/overview.mdx",
+  ])("distinguishes v2 placeholders from the preserved starter in %s", (path) => {
+    const content = readRepoFile(path);
+    expect(content).toMatch(/v2 scaffolding is not implemented yet/i);
+    expect(content).toMatch(/placeholder/i);
+    expect(content).toContain(archiveUrl);
   });
 
-  it("apps/documentation includes a buyer-facing CLI guide", () => {
+  it("describes legacy commands without claiming they configure v2", () => {
     const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
-    expect(guide).toContain("TStack CLI");
-  });
-
-  it("CLI guide explains the repo-run distribution model", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
-    expect(guide).toContain("TStack repository");
-    expect(guide).toMatch(/npm publish(ing)? is out of scope/i);
-  });
-
-  it("CLI guide documents tstack init, tstack ready, and tstack products with copy-paste commands", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
     expect(guide).toContain("tstack init");
+    expect(guide).toContain("Unavailable");
     expect(guide).toContain("tstack ready");
     expect(guide).toContain("tstack products");
-    expect(guide).toContain("```sh");
+    expect(guide).toContain("not a completed v2 setup workflow");
+    expect(guide).toContain("--project-dir /path/to/existing-project");
+    expect(guide).toContain("https://github.com/bity-labs/tstack/blob/v1/apps/documentation/content/docs/reference/cli.mdx");
   });
 
-  it("CLI guide explains working directories and --project-dir usage", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
-    expect(guide).toContain("--project-dir");
-    expect(guide).toMatch(/working director(y|ies)/i);
+  it("documents only existing source paths in the workspace map", () => {
+    const readme = readRepoFile("README.md");
+    const context = readRepoFile("docs/context.md");
+    for (const path of [
+      "apps/documentation", "apps/boilerplate-website", "apps/boilerplate-application",
+      "apps/boilerplate-docs", "packages/brain", "packages/harness", "packages/assistant",
+      "packages/os", "packages/cli",
+    ]) {
+      expect(existsSync(join(repoRoot, path)), path).toBe(true);
+      expect(context).toContain(path);
+      expect(readme).toContain(path.split("/")[1]);
+    }
   });
 
-  it("CLI guide explains the full bootstrap flow", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
-    expect(guide).toMatch(/clone/i);
-    expect(guide).toContain("pnpm install");
-    expect(guide).toContain("tstack init");
-    expect(guide).toMatch(/(enter|cd|generated|scaffolded)/i);
+  it("does not present removed v1 paths or the quality branch as current guidance", () => {
+    const paths = [
+      "README.md", "AGENTS.md", "docs/context.md", "docs/coding-standards.md",
+      "packages/cli/README.md", "packages/harness/README.md",
+      ...docFiles.map((path) => relative(repoRoot, path)),
+    ];
+    for (const path of paths) {
+      const content = readRepoFile(path);
+      expect(content, path).not.toMatch(/apps\/boilerplate(?:\/|`|\s)|@tstack\/boilerplate|tstack-next|(?:tree|blob)\/quality/);
+    }
   });
 
-  it("CLI guide explains Polar product setup, sandbox vs production, --token, and generated billing exports", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-
-    expect(guide).toMatch(/polar/i);
-    expect(guide).toContain("sandbox");
-    expect(guide).toContain("production");
-    expect(guide).toContain("--token");
-    expect(guide).toMatch(/(bill|export|generated)/i);
+  it("resolves internal documentation links, including the LLM endpoint", () => {
+    for (const path of docFiles) {
+      const content = readFileSync(path, "utf8");
+      for (const match of content.matchAll(/\]\((\/[^)\s]*)\)/g)) {
+        const route = match[1].split(/[?#]/)[0];
+        expect(routes.has(route), `${relative(docsRoot, path)} -> ${route}`).toBe(true);
+      }
+    }
+    expect(existsSync(join(repoRoot, "apps/documentation/src/app/llms-full.txt/route.ts"))).toBe(true);
   });
 
-  it("CLI guide documents local meter generation and manual Polar meter setup", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-    const productConfig = readRepoFile("apps/documentation/content/docs/boilerplate/payments/product-configuration.mdx");
-
-    expect(guide).toContain("polar/meters.*.json");
-    expect(guide).toContain("meters.generated.ts");
-    expect(guide).toMatch(/Meter sync with Polar is not implemented yet/i);
-    expect(productConfig).toMatch(/Meter sync with Polar is manual for now/i);
-  });
-
-  it("packages/cli/README.md links to buyer-facing docs", () => {
-    const readme = readRepoFile("packages/cli/README.md");
-
-    expect(readme).toMatch(/buyer(-facing)? doc/i);
-  });
-
-  it("documentation avoids Eniem branding", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
-    const readme = readRepoFile("packages/cli/README.md");
-    const rootReadme = readRepoFile("README.md");
-
-    expect(guide).not.toMatch(/eniem/i);
-    expect(readme).not.toMatch(/eniem/i);
-    expect(rootReadme).not.toMatch(/eniem/i);
-  });
-
-  it("introduction no longer claims CLI does not exist", () => {
-    const intro = readRepoFile("apps/documentation/content/docs/index.mdx");
-
-    expect(intro).not.toContain("does not currently ship a CLI");
-  });
-
-  it("manual standalone extraction references tstack init", () => {
-    const extraction = readRepoFile("apps/documentation/content/docs/getting-started/manual-installation.mdx");
-
-    expect(extraction).toContain("tstack init");
-  });
-
-  it("product configuration no longer claims there is no product CLI", () => {
-    const productConfig = readRepoFile("apps/documentation/content/docs/boilerplate/payments/product-configuration.mdx");
-
-    expect(productConfig).not.toContain("There is no buyer-facing TStack command for syncing products");
+  it("resolves every explicit navigation entry to a page or section", () => {
+    for (const path of docFiles.filter((path) => path.endsWith("meta.json"))) {
+      const meta = JSON.parse(readFileSync(path, "utf8")) as { pages?: string[] };
+      for (const page of meta.pages ?? []) {
+        if (page.startsWith("[")) continue; // Links are validated above.
+        const target = join(dirname(path), page);
+        expect(existsSync(`${target}.mdx`) || existsSync(join(target, "meta.json")), `${path} -> ${page}`).toBe(true);
+      }
+    }
   });
 });
