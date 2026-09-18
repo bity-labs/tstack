@@ -117,7 +117,6 @@ export function initProject(options: InitProjectOptions): void {
 
   exportBoilerplate({ sourceDir, targetDir, excludedPaths: boilerplateDocPaths });
   overlayTemplate(join(templatesDir, "default"), targetDir);
-  overlayTemplate(join(templatesDir, "tstack-next"), targetDir);
 
   const replacements = buildReplacements({ slug, displayName });
   replaceInDirectory(targetDir, replacements);

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import React from "react";
 
-import { exportBoilerplate } from "./lib/export-boilerplate.js";
 import { initProject } from "./lib/init-project.js";
 import { resolveProjectDir } from "./lib/resolve-project-dir.js";
 
@@ -27,7 +26,7 @@ Run after linking the private CLI from the TStack repository:
   tstack <command> [options]
 
 Commands:
-  init       Scaffold a TStack app from apps/boilerplate.
+  init       Scaffold a TStack app (unavailable while the v2 starter is being built).
   ready      Prepare production environment configuration.
   products   Manage products and regenerate billing definitions.
 
@@ -75,7 +74,8 @@ Options:
 
 Usage: tstack init [project-dir] [--project-dir <path>] [--app-name <name>]
 
-Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
+Scaffold a new TStack app. V2 scaffolding is not implemented yet.
+Use the v1 branch for the previous starter.
 
 Options:
   --project-dir <path>   Target directory for the new app. Defaults to interactive prompt.
@@ -108,10 +108,8 @@ Options:
 `;
 }
 
-function resolveBoilerplateSourcePath(): string {
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  return resolve(__dirname, "../../../apps/boilerplate");
-}
+const initUnavailableMessage =
+  "V2 scaffolding is not implemented yet. Use the v1 branch for the previous starter.\n";
 
 function routeCommand(
   command: SupportedCommand,
@@ -163,6 +161,10 @@ function routeCommand(
 
     const projectDir = explicitProjectDir ?? remainingArgs[0];
 
+    if (!options?.boilerplateSourcePath) {
+      return { exitCode: 1, stdout: "", stderr: initUnavailableMessage };
+    }
+
     // Interactive mode if project dir or app name is missing
     if (!projectDir || !appName) {
       return {
@@ -178,7 +180,7 @@ function routeCommand(
 
     try {
       initProject({
-        sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+        sourceDir: options.boilerplateSourcePath,
         targetDir: targetPath,
         slug,
         displayName: appName,
@@ -344,11 +346,13 @@ export async function runCliAsync(
     // Check if this is the interactive-init signal
     if (
       args[0] === "init" &&
-      syncResult.interactive
+      syncResult.interactive &&
+      options?.boilerplateSourcePath
     ) {
       const projectDirIndex = args.indexOf("--project-dir");
       const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
 
+      const sourceDir = options.boilerplateSourcePath;
       const { render } = await import("ink");
       const { Wizard } = await import("./Wizard.js");
 
@@ -356,7 +360,7 @@ export async function runCliAsync(
         render(
           React.createElement(Wizard, {
             projectDir: projectDir ? resolveProjectDir(projectDir) : undefined,
-            sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+            sourceDir,
             onComplete: done,
           }),
         );
