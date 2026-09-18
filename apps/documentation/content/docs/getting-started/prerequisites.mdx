@@ -1,40 +1,14 @@
 ---
 title: "Prerequisites"
-description: "Accounts and local tools needed for the TStack Agent-Ready Boilerplate."
+description: "Tools for developing the current TStack source workspace."
 ---
 
-## Local tools
+Use:
 
-Install these before running the boilerplate locally:
+- Git and access to the TStack repository.
+- Node.js 24 LTS.
+- pnpm 10.28.1, as pinned in the root `package.json`.
 
-- Node.js 20 or newer.
-- pnpm 10, matching the repository package manager.
-- Docker, for the local PostgreSQL container started by `db:start`.
-- Git, for cloning and managing your own repository.
+Docker, a database, and application-provider credentials are not required to run the current documentation app or validate the shell.
 
-## Required for local development
-
-The default local path uses PostgreSQL through Docker:
-
-```sh
-pnpm --filter @tstack/boilerplate db:start
-pnpm --filter @tstack/boilerplate db:push
-```
-
-The database URL in `apps/boilerplate/.env.example` points at the bundled local Docker database.
-
-## Third-party accounts
-
-You can run many screens without every provider, but production use needs provider setup:
-
-| Provider | Used for | Required when |
-| --- | --- | --- |
-| Polar | Subscriptions, one-time payments, benefits, credit usage, customer portal | Testing or selling paid products |
-| Resend | Transactional auth and account emails | Sending real emails in production |
-| GitHub OAuth | Social login and GitHub-benefit flows | Offering GitHub login or code access benefits |
-| Twitter/X OAuth | Optional social login | Offering Twitter/X login |
-| WalletConnect | Wallet connection for SIWE | Offering web3 wallet sign-in |
-| Umami or PostHog | Analytics | Tracking product events or page views |
-| DigitalOcean Spaces | Production file storage | Serving uploaded files outside the database provider |
-
-The database file-upload provider works without DigitalOcean and is the default for local setup.
+The new component directories have no runtime requirements yet because they contain only README placeholders. Installing the generic harness into an existing project requires only the template files and a way to copy and merge them; see [harness installation](/harness/installation).

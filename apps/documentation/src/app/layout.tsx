@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import './global.css';
 
 const description =
-  'User documentation for the TStack Engineering Harness and its agent workflows.';
+  'Documentation for TStack’s composable setup components and current implementation status.';
 
 export const metadata: Metadata = {
   title: {

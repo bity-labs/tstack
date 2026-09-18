@@ -1,58 +1,24 @@
 ---
 title: "Troubleshooting"
-description: "Fix common setup, configuration, and deployment issues."
+description: "Understand expected behavior while working with the v2 shell."
 ---
 
-## I expected a TStack CLI command
+## `tstack init` reports that scaffolding is unavailable
 
-Use `tstack init` to scaffold a new standalone app from `apps/boilerplate`. Use `tstack products` to manage Polar product definitions. Use `tstack ready` to run the production environment wizard. Run `pnpm run setup` in the TStack checkout first to build and link the private CLI. See the [CLI reference](/reference/cli) for full usage. Manual standalone extraction remains documented for custom workflows outside the CLI.
+This is intentional: v2 scaffolding is not implemented yet. Linking or rebuilding the CLI does not create a missing starter. For the previous application, use the [preserved v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs).
 
-## The boilerplate cannot connect to the database
+## A new component has no development command
 
-- Confirm Docker is running for local development.
-- Run `pnpm --filter @tstack/boilerplate db:start`.
-- Confirm `DATABASE_URL` matches `apps/boilerplate/.env.example` locally or your managed database in production.
-- Run `db:push` locally or `db:migrate` in production.
+The new boilerplate apps, brain, assistant, and OS directories contain only README placeholders. There are no package manifests or runtime scripts to execute yet.
 
-## Auth callbacks fail
+## `tstack` is not found
 
-- Confirm `BETTER_AUTH_SECRET` is set.
-- Confirm `BETTER_AUTH_URL`, `PROJECT_URL`, and provider callback URLs use the same host.
-- Confirm `/api/auth/*` remains public in middleware.
+From the repository root, use `pnpm tstack --help` after installing dependencies. Global linking with `pnpm run setup` is optional; see [CLI status](/reference/cli). A globally linked command depends on its source checkout remaining on disk.
 
-## OAuth buttons do not appear
+## Documentation validation looks incomplete
 
-OAuth buttons are shown only when provider credentials are configured. Set both client ID and client secret for the provider.
+The documentation test and lint scripts currently print a placeholder message. Use `pnpm --filter @tstack/documentation typecheck` and `pnpm --filter @tstack/documentation build` for implemented validation.
 
-## Wallet sign-in does not open or connect
+## Harness links do not resolve
 
-- Confirm WalletConnect project ID is configured.
-- Keep the variable name aligned between `.env.example`, `src/config/env.ts`, and `src/config/wagmi.ts` in your current source.
-- Confirm the app runs on the same domain used in SIWE messages.
-
-## Checkout does not start
-
-- Confirm `POLAR_SERVER` matches the product IDs you configured.
-- Confirm the product has a non-null Polar product ID in generated checkout products.
-- Confirm the user is authenticated if checkout requires authenticated users.
-
-## Subscription status does not update
-
-- Confirm the success page ran after checkout.
-- Confirm Polar webhook URL and `POLAR_WEBHOOK_SECRET` are correct.
-- Confirm your app can reach the Polar API with `POLAR_ACCESS_TOKEN`.
-
-## File upload works locally but not in production
-
-- Database provider is intended for local/prototyping.
-- For DigitalOcean, confirm endpoint, region, bucket, keys, CDN URL, and CORS settings.
-- Do not include the bucket name in `DIGITALOCEAN_SPACES_ENDPOINT`.
-
-## A standalone app still points to monorepo symlinks
-
-Replace linked harness resources with real directories:
-
-- `.agents/`
-- `docs/engineering/`
-
-Standalone apps should not depend on a TStack checkout at runtime or during agent work.
+In this monorepo, root `.agents` and `docs/engineering` should resolve into `packages/harness/templates/default`. Keep those source assets intact. In an installed project, replace links back to TStack with real copied files and customize project-owned context; see [harness installation](/harness/installation).

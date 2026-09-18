@@ -8,7 +8,7 @@ vi.mock("node:child_process", () => ({
   execSync: vi.fn(),
 }));
 
-import { runCli } from "./cli.js";
+import { runCli, runCliAsync } from "./cli.js";
 
 function makeTempDir(prefix: string): string {
   return mkdtempSync(join(tmpdir(), prefix));
@@ -89,12 +89,19 @@ describe("runCli", () => {
     }
   });
 
-  it("init without args signals interactive mode", () => {
-    const result = runCli(["init"]);
+  it.each([
+    ["init"],
+    ["init", "my-app"],
+    ["init", "--project-dir", "my-app", "--app-name", "My App"],
+  ])("reports unavailable v2 scaffolding without opening the wizard: %j", async (...args) => {
+    const result = runCli(args);
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode).toBe(1);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain("Interactive mode required");
+    expect(result.stderr).toContain("V2 scaffolding is not implemented yet");
+    expect(result.stderr).toContain("v1 branch");
+    expect(result.interactive).toBeUndefined();
+    expect(await runCliAsync(args)).toEqual(result);
   });
 
   it("init shows command-specific help", () => {
@@ -115,7 +122,9 @@ describe("runCli", () => {
   });
 
   it("init requires --app-name for non-interactive mode", () => {
-    const result = runCli(["init", "--project-dir", "my-app"]);
+    const result = runCli(["init", "--project-dir", "my-app"], {
+      boilerplateSourcePath: "/test-fixture",
+    });
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");

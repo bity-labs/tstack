@@ -1,28 +1,28 @@
 ---
 title: "Known Limitations"
-description: "Current limitations buyers should understand before using TStack."
+description: "What is and is not implemented in the v2 shell."
 ---
 
-## Scaffold via CLI
+## No v2 scaffolding
 
-The TStack CLI includes `tstack init` to scaffold a standalone app from `apps/boilerplate`. Run `pnpm run setup` from the TStack checkout first to build and globally link the private CLI. It is the preferred path for new projects; manual extraction remains available for custom workflows.
+V2 scaffolding is not implemented yet. `tstack init` exits with an explanatory message. The website, application, and product documentation directories are README-only placeholders.
 
-## Product sync via CLI
+## New setup components are placeholders
 
-The TStack CLI includes `tstack products` to manage Polar products and regenerate local product/meter TypeScript files. Meter sync with Polar is not implemented yet; create or update meters manually in Polar, copy IDs into `polar/meters.*.json`, and regenerate. See the [CLI reference](/reference/cli) for usage. Keep Polar dashboard state, JSON config, and generated TypeScript aligned deliberately.
+Brain, assistant, and OS contain no installation tooling or runtime behavior yet. TStack does not currently provision servers or coordinate a live assistant through these components.
 
-## No deployment automation
+## Legacy commands are not v2 integrations
 
-Deployment recipes are documentation-only. TStack does not provision servers, managed databases, environment variables, domains, webhooks, or secrets.
+The CLI retains `ready` and `products` for existing compatible projects. They use the previous starter's environment and billing configuration model; they do not configure the new placeholders. See [CLI status](/reference/cli).
 
-## No repository-access automation outside Polar benefits
+## Generic harness installation is manual
 
-The boilerplate can display Polar GitHub benefits, but TStack does not automate repository creation, GitHub organization management, or custom access reconciliation.
+Copy and customize the existing harness as described in [installation](/harness/installation). There is no dedicated harness-install command.
 
-## Manual provider configuration
+## Symlinks are source-development assets
 
-OAuth, Resend, Polar, analytics, WalletConnect, and DigitalOcean Spaces require manual accounts, keys, callbacks, and production testing.
+Root `.agents` and `docs/engineering` link to the generic harness inside this repository. Installed projects must receive real copies so they do not depend on this checkout.
 
-## Monorepo symlinks are development-only
+## Validation coverage is limited
 
-Inside the TStack monorepo, `.agents` and `docs/engineering` are symlinked to the shared Engineering Harness. Standalone apps must use real copied files.
+The CLI has tests and TypeScript checks. The documentation app has build and typecheck validation but no dedicated test or lint implementation. Placeholder directories have no validation scripts.

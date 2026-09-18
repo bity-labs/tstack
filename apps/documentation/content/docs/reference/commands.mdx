@@ -1,73 +1,40 @@
 ---
 title: "Commands"
-description: "Common commands for the TStack docs, harness, and boilerplate."
+description: "Commands available in the current TStack source workspace."
 ---
 
-Run these from the TStack monorepo root unless noted.
+Run these from the repository root.
 
-## Documentation app
-
-```sh
-pnpm --filter @tstack/documentation dev
-pnpm --filter @tstack/documentation typecheck
-pnpm --filter @tstack/documentation build
-```
-
-## Boilerplate local development
+## Install and run documentation
 
 ```sh
-cp apps/boilerplate/.env.example apps/boilerplate/.env
-pnpm --filter @tstack/boilerplate db:start
-pnpm --filter @tstack/boilerplate db:push
-pnpm --filter @tstack/boilerplate dev
+pnpm install --frozen-lockfile
+pnpm dev:documentation
 ```
-
-## Boilerplate validation
-
-```sh
-pnpm --filter @tstack/boilerplate lint
-pnpm --filter @tstack/boilerplate typecheck
-pnpm --filter @tstack/boilerplate test
-pnpm --filter @tstack/boilerplate build
-```
-
-## Boilerplate database
-
-```sh
-pnpm --filter @tstack/boilerplate db:start
-pnpm --filter @tstack/boilerplate db:stop
-pnpm --filter @tstack/boilerplate db:push
-pnpm --filter @tstack/boilerplate db:migrate
-pnpm --filter @tstack/boilerplate db:studio
-pnpm --filter @tstack/boilerplate db:reset
-```
-
-Use `db:push` for local iteration and `db:migrate` for applying migrations in deployed environments.
-
-## Emails
-
-```sh
-pnpm --filter @tstack/boilerplate email:dev
-```
-
-This starts the React Email preview server for templates under `src/components/emails`.
-
-## Harness template copy
-
-```sh
-SOURCE=/path/to/tstack/packages/harness/templates/default
-TARGET=/path/to/your/project
-cp -R "$SOURCE"/. "$TARGET"/
-```
-
-Commit copied harness files after customizing project context.
 
 ## Whole workspace validation
 
 ```sh
-pnpm lint
-pnpm typecheck
 pnpm test
+pnpm typecheck
+pnpm lint
 pnpm build
 git diff --check
 ```
+
+Turbo runs matching scripts for packages with manifests. README-only placeholders have no tasks. The documentation app's test and lint scripts are placeholders, not coverage; its typecheck and build are implemented.
+
+## CLI development
+
+```sh
+pnpm tstack --help
+pnpm --filter @tstack/cli test
+pnpm --filter @tstack/cli typecheck
+pnpm --filter @tstack/cli build
+```
+
+V2 scaffolding is not implemented yet. See [CLI status](/reference/cli) before using retained legacy commands.
+
+## Harness installation
+
+The harness is copied and customized, not installed by a dedicated CLI command. Follow [harness installation](/harness/installation), including the merge instructions for existing project files.
