@@ -1,0 +1,16 @@
+---
+title: "Introduction"
+description: "Customer documentation for products built with the TStack v2 boilerplate."
+---
+
+Welcome to the product documentation app in the TStack v2 boilerplate: the customer-facing documentation shipped alongside a builder's product, separate from TStack's own documentation in `apps/documentation`. This site is the customer-facing documentation shipped alongside a builder's product, It is a minimal [Nimbus Docs](https://nimbus-docs.com) scaffold on Astro. The `@cloudflare/nimbus-docs` package provides content schemas, sidebar, table of contents, search, and Markdown versions of every page; everything under `src/` is project-owned and yours to edit.
+
+## Authoring
+
+Each page is an `.mdx` file under `src/content/docs/`. The directory structure is both the URL structure and the sidebar. Create a new page by adding a file; reference other pages with relative links.
+
+## Next steps
+
+- Replace the placeholder `site` value in `astro.config.ts` with the production docs URL.
+- Read `AGENT.md` for the full authoring and upgrade guide.
+- Run the dev server with `pnpm --filter @tstack/boilerplate-docs dev`.
