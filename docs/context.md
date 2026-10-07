@@ -11,9 +11,9 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 | `apps/documentation` | TStack's public Fumadocs documentation | Existing app |
 | `apps/boilerplate-website` | Product commercial/marketing website | Minimal runnable static Astro scaffold (welcome page) |
 | `apps/boilerplate-application` | Product web application | README placeholder |
-| `apps/boilerplate-api` | Shared backend for web and mobile applications | README placeholder |
+| `apps/boilerplate-api` | Shared backend for web and mobile applications | Minimal runnable Effect v4 scaffold (health endpoint) |
 | `apps/boilerplate-mobile-application` | Optional product mobile application | README placeholder |
-| `apps/boilerplate-docs` | Product customer documentation | README placeholder |
+| `apps/boilerplate-docs` | Product customer documentation | Minimal Nimbus Docs scaffold with introduction page |
 | `packages/brain` | Second-brain/vault folder setup and skills | README placeholder |
 | `packages/harness` | Generic engineering instructions, skills, and doctrine | Existing template assets |
 | `packages/assistant` | Hermes-based coordination setup | README placeholder |
@@ -34,7 +34,7 @@ The CLI's `ready` and `products` commands retain legacy configuration behavior f
 
 ## Documentation Ownership
 
-- `apps/documentation` documents TStack itself; `apps/boilerplate-docs` is the future documentation app shipped with a builder's product.
+- `apps/documentation` documents TStack itself; `apps/boilerplate-docs` is the documentation app shipped with a builder's product.
 - Root `docs/` contains internal project context, standards, and ADRs.
 - `packages/harness/templates/default` owns the platform-independent engineering harness.
 - Root `.agents` and `docs/engineering` link to that generic template. Editing them changes the shared source of truth.
