@@ -8,7 +8,7 @@ TStack is a composable collection of reusable setup assets for a brain/vault, en
 
 ## Current status
 
-V2 is an empty shell around the existing generic harness, Fumadocs documentation app, and customer-facing CLI package. The new component directories contain README placeholders only, not runnable packages. V2 scaffolding is not implemented yet.
+V2 is an empty shell around the existing generic harness, Fumadocs documentation app, and customer-facing CLI package. The new component directories are README placeholders, except for `apps/boilerplate-website`, which starts as a minimal runnable static Astro scaffold (welcome page). Further V2 scaffolding is not implemented yet.
 
 For the previous starter and its instructions, see the [preserved v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs).
 
@@ -17,7 +17,7 @@ For the previous starter and its instructions, see the [preserved v1 documentati
 ```text
 apps/
   documentation/             TStack's public Fumadocs documentation.
-  boilerplate-website/       Placeholder: product marketing website.
+  boilerplate-website/       Minimal runnable static Astro scaffold (welcome page).
   boilerplate-application/   Placeholder: product web application.
   boilerplate-api/           Placeholder: shared web/mobile backend.
   boilerplate-mobile-application/ Placeholder: optional mobile application.
