@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Local agent/worktree state
 .looper/
+.pi-subagents/
 .worktrees/
 
 # OS/editor files
