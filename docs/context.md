@@ -11,7 +11,7 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 | `apps/documentation` | TStack's public Fumadocs documentation | Existing app |
 | `apps/boilerplate-website` | Product commercial/marketing website | Minimal runnable static Astro scaffold (welcome page) |
 | `apps/boilerplate-application` | Product web application | README placeholder |
-| `apps/boilerplate-api` | Shared backend for web and mobile applications | README placeholder |
+| `apps/boilerplate-api` | Shared backend for web and mobile applications | Minimal runnable Effect v4 scaffold (health endpoint) |
 | `apps/boilerplate-mobile-application` | Optional product mobile application | README placeholder |
 | `apps/boilerplate-docs` | Product customer documentation | Minimal Nimbus Docs scaffold with introduction page |
 | `packages/brain` | Second-brain/vault folder setup and skills | README placeholder |
