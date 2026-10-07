@@ -18,7 +18,9 @@ For the previous starter and its instructions, see the [preserved v1 documentati
 apps/
   documentation/             TStack's public Fumadocs documentation.
   boilerplate-website/       Placeholder: product marketing website.
-  boilerplate-application/   Placeholder: product application.
+  boilerplate-application/   Placeholder: product web application.
+  boilerplate-api/           Placeholder: shared web/mobile backend.
+  boilerplate-mobile-application/ Placeholder: optional mobile application.
   boilerplate-docs/          Placeholder: product documentation.
 packages/
   brain/                    Placeholder: vault folder setup and skills.
@@ -29,7 +31,7 @@ packages/
 docs/                       Internal context, standards, and ADRs.
 ```
 
-The planned boilerplate export is a standalone pnpm/Turborepo workspace with three independently deployable apps. Its implementation and shared packages are not defined yet.
+The planned boilerplate export is a standalone pnpm/Turborepo workspace containing independently deployable website, web application, shared API, optional mobile application, and product documentation apps. Its implementation and shared packages are not defined yet.
 
 ## Repository development
 
@@ -50,6 +52,23 @@ pnpm build
 ```
 
 README-only placeholders do not participate in Turbo tasks. The documentation app currently has placeholder test and lint scripts; its typecheck and build are real checks.
+
+## Dependency maintenance
+
+Root `renovate.json` configures weekly updates on Mondays (UTC), exact direct dependency pins, one grouped minor/patch PR across the monorepo, separate major-upgrade PRs, and no automerge. It covers external dependencies in `apps/*` and `packages/*`, including associated lockfile changes; it does not bump workspace packages' own release versions. README-only placeholders become eligible when manifests are added.
+
+See [dependency update policy and activation instructions](docs/dependency-updates.md). The configuration alone does not activate Renovate or GitHub vulnerability notifications.
+
+### TODO after merging v2 into the default branch
+
+- [ ] Install/enable the Renovate GitHub App for this repository and complete onboarding with the committed configuration.
+- [ ] Remove `baseBranchPatterns: ["v2"]` from `renovate.json` to target the default branch after v2 development moves there; otherwise updates will continue targeting `v2`.
+- [ ] Enable GitHub's dependency graph and Dependabot alerts, and configure maintainer notification preferences.
+- [ ] Keep Dependabot routine version updates disabled to avoid duplicate Renovate PRs; choose one owner for security-fix PRs too.
+- [ ] Add PR validation for lint, typecheck, tests, build, and formatting, replacing placeholder checks with meaningful checks as packages are implemented.
+- [ ] Configure branch protection/rulesets requiring PR review and passing validation checks.
+- [ ] Review and merge Renovate's initial dependency-pinning PR, including lockfile changes; verify subsequent minor/patch updates are grouped and major upgrades remain separate.
+- [ ] Confirm vulnerability alerts and out-of-schedule security-fix PRs are enabled; enable secret scanning and push protection where available.
 
 ## CLI status
 
