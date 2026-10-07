@@ -51,7 +51,7 @@ pnpm lint
 pnpm build
 ```
 
-README-only placeholders do not participate in Turbo tasks. The documentation app currently has placeholder test scripts; its build, typecheck, and Nimbus authoring lint are real checks.
+README-only placeholders do not participate in Turbo tasks. The documentation app intentionally has no test script until the quality-tooling follow-up; its build, typecheck, and Nimbus authoring lint are real checks.
 
 ## Deferred decisions
 

@@ -8,7 +8,7 @@ import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
 const nimbusConfig = defineNimbusConfig({
   // Canonical origin (no trailing slash). Drives canonical URLs, absolute OG
   // image URLs, robots.txt, sitemap, and the /llms.txt links.
-  site: "https://docs.tstack.dev",
+  site: "https://docs.example.com",
   title: "TStack Documentation",
   description:
     "Documentation for TStack's composable setup components and current implementation status.",

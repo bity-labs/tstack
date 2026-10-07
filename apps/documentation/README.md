@@ -21,4 +21,5 @@ pnpm --filter @tstack/documentation lint:docs            # Nimbus authoring lint
 - The `@cloudflare/nimbus-docs` package provides content schemas, sidebar/TOC, Markdown/MDX alternates, `llms.txt`, OG cards, and the machine-readable agent endpoints.
 - Reader content lives in `src/content/docs/`; the directory structure is both the URL structure and the sidebar.
 - `AGENT.md` is the canonical authoring and upgrade guide; `CLAUDE.md` delegates to it.
+- The `site` origin in `astro.config.ts` is a placeholder (`https://docs.example.com`). Builders and the maintainer must configure the real production origin there before hosting or publishing any canonical URL, `llms.txt` index, `robots.txt` sitemap reference, or OG URL that depends on it.
 - Shared final lint/test/format configuration belongs to the quality-tooling follow-up; this app has no fake passing checks.
