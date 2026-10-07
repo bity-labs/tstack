@@ -10,7 +10,9 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 | --- | --- | --- |
 | `apps/documentation` | TStack's public Fumadocs documentation | Existing app |
 | `apps/boilerplate-website` | Product commercial/marketing website | README placeholder |
-| `apps/boilerplate-application` | Product application | README placeholder |
+| `apps/boilerplate-application` | Product web application | README placeholder |
+| `apps/boilerplate-api` | Shared backend for web and mobile applications | README placeholder |
+| `apps/boilerplate-mobile-application` | Optional product mobile application | README placeholder |
 | `apps/boilerplate-docs` | Product customer documentation | README placeholder |
 | `packages/brain` | Second-brain/vault folder setup and skills | README placeholder |
 | `packages/harness` | Generic engineering instructions, skills, and doctrine | Existing template assets |
@@ -24,8 +26,9 @@ The CLI's `ready` and `products` commands retain legacy configuration behavior f
 
 - Maintain one pnpm/Turborepo source workspace, with applications under `apps/*` and reusable components under `packages/*`.
 - Keep reusable components independently usable. Integration is optional.
-- Develop the three boilerplate apps in this root workspace, not in a nested monorepo.
-- The planned boilerplate export is one standalone pnpm/Turborepo project containing a website, application, and product documentation, deployable independently. Exporting required shared packages is future work.
+- Develop boilerplate apps in this root workspace, not in a nested monorepo.
+- The planned boilerplate includes a website, web application, shared API, optional mobile application, and product documentation. The API is the shared backend for the web and mobile applications; clients consume its API rather than importing server or database implementation.
+- The planned boilerplate export is one standalone pnpm/Turborepo project with independently deployable apps; mobile is optional. Exporting required shared packages is future work.
 - Asset packages need not be JavaScript libraries. README-only placeholders have no package manifests, scripts, or runtime behavior.
 - Keep personal installations, credentials, and runtime data outside TStack.
 

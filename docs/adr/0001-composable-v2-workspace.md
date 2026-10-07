@@ -14,7 +14,7 @@ Maintain one pnpm/Turborepo source workspace:
 
 - Runnable applications belong under `apps/*`.
 - Reusable components and setup tooling belong under `packages/*`.
-- The three boilerplate apps are developed directly in the root workspace. Their planned export is one standalone workspace with independently deployable apps and required shared packages.
+- Boilerplate apps are developed directly in the root workspace. Their planned export is one standalone workspace with independently deployable apps and required shared packages. The planned app set includes a website, web application, shared API, optional mobile application, and customer documentation.
 - Components are independently usable; cross-component integration is optional.
 - Personal data, secrets, and live runtime state stay outside the repository.
 - The engineering harness remains platform-independent. Project-owned context is separate from reusable doctrine.
