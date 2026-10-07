@@ -18,7 +18,7 @@ For the previous starter and its instructions, see the [preserved v1 documentati
 apps/
   documentation/             TStack's public Fumadocs documentation.
   boilerplate-website/       Minimal runnable static Astro scaffold (welcome page).
-  boilerplate-application/   Placeholder: product web application.
+  boilerplate-application/   Minimal runnable Next.js 16 welcome scaffold.
   boilerplate-api/           Placeholder: shared web/mobile backend.
   boilerplate-mobile-application/ Placeholder: optional mobile application.
   boilerplate-docs/          Placeholder: product documentation.
