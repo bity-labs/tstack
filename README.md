@@ -20,7 +20,7 @@ apps/
   boilerplate-website/       Minimal runnable static Astro scaffold (welcome page).
   boilerplate-application/   Minimal runnable Next.js 16 welcome scaffold.
   boilerplate-api/           Placeholder: shared web/mobile backend.
-  boilerplate-mobile-application/ Placeholder: optional mobile application.
+  boilerplate-mobile-application/ Minimal runnable Expo scaffold (single welcome screen).
   boilerplate-docs/          Placeholder: product documentation.
 packages/
   brain/                    Placeholder: vault folder setup and skills.
