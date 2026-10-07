@@ -53,6 +53,11 @@ pnpm build
 
 README-only placeholders do not participate in Turbo tasks. The documentation app currently has placeholder test and lint scripts; its typecheck and build are real checks.
 
+## Deferred decisions
+
+- [ ] Decide browser and mobile E2E testing tools, critical user journeys, and CI execution policy later. E2E implementation is deferred; no tool has been selected.
+- [ ] Configure Expo EAS native builds later, including build profiles, credentials, triggers, and CI integration. Initial mobile PR validation uses a production bundle/export check, not Android/iOS native compilation.
+
 ## Dependency maintenance
 
 Root `renovate.json` configures weekly updates on Mondays (UTC), exact direct dependency pins, one grouped minor/patch PR across the monorepo, separate major-upgrade PRs, and no automerge. It covers external dependencies in `apps/*` and `packages/*`, including associated lockfile changes; it does not bump workspace packages' own release versions. README-only placeholders become eligible when manifests are added.
