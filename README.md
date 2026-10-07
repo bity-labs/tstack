@@ -8,7 +8,7 @@ TStack is a composable collection of reusable setup assets for a brain/vault, en
 
 ## Current status
 
-V2 is an empty shell around the existing generic harness, Fumadocs documentation app, and customer-facing CLI package. The new component directories are README placeholders, except for `apps/boilerplate-website`, which starts as a minimal runnable static Astro scaffold (welcome page). Further V2 scaffolding is not implemented yet.
+V2 is an empty shell around the existing generic harness, the migrated Nimbus Docs documentation app, and customer-facing CLI package. The new component directories are README placeholders, except for `apps/boilerplate-website`, which starts as a minimal runnable static Astro scaffold (welcome page). Further V2 scaffolding is not implemented yet.
 
 For the previous starter and its instructions, see the [preserved v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs).
 
@@ -16,7 +16,7 @@ For the previous starter and its instructions, see the [preserved v1 documentati
 
 ```text
 apps/
-  documentation/             TStack's public Fumadocs documentation.
+  documentation/             TStack's public documentation, now on Nimbus Docs.
   boilerplate-website/       Minimal runnable static Astro scaffold (welcome page).
   boilerplate-application/   Minimal runnable Next.js 16 welcome scaffold.
   boilerplate-api/           Placeholder: shared web/mobile backend.
@@ -51,7 +51,7 @@ pnpm lint
 pnpm build
 ```
 
-README-only placeholders do not participate in Turbo tasks. The documentation app currently has placeholder test and lint scripts; its typecheck and build are real checks.
+README-only placeholders do not participate in Turbo tasks. The documentation app currently has placeholder test scripts; its build, typecheck, and Nimbus authoring lint are real checks.
 
 ## Deferred decisions
 
