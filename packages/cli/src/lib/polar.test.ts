@@ -13,8 +13,7 @@ import {
   unarchivePolarProduct,
   listActivePolarProducts,
   toBuyerMessage,
-  type SyncResult,
-  type TStackProduct,
+  type TStackProduct
 } from "./polar.js";
 
 const mockPolarConstructor = vi.fn();
@@ -24,7 +23,7 @@ vi.mock("@polar-sh/sdk", () => ({
     constructor(...args: unknown[]) {
       mockPolarConstructor(...args);
     }
-  },
+  }
 }));
 
 function makeTempDir(prefix: string): string {
@@ -89,7 +88,10 @@ describe("loadPolarCredentials", () => {
   it("ignores commented-out env lines", () => {
     const dir = makeTempDir("tstack-polar-commented-");
     try {
-      writeFileSync(join(dir, ".env"), "# POLAR_ACCESS_TOKEN=commented-token\nPOLAR_ACCESS_TOKEN=real-token\n");
+      writeFileSync(
+        join(dir, ".env"),
+        "# POLAR_ACCESS_TOKEN=commented-token\nPOLAR_ACCESS_TOKEN=real-token\n"
+      );
       const result = loadPolarCredentials(dir);
       expect(result).toEqual({ token: "real-token" });
     } finally {
@@ -103,7 +105,7 @@ describe("createPolarClient", () => {
     createPolarClient({ token: "test-token" }, "sandbox");
     expect(mockPolarConstructor).toHaveBeenCalledWith({
       accessToken: "test-token",
-      server: "sandbox",
+      server: "sandbox"
     });
   });
 
@@ -111,7 +113,7 @@ describe("createPolarClient", () => {
     createPolarClient({ token: "test-token" }, "production");
     expect(mockPolarConstructor).toHaveBeenCalledWith({
       accessToken: "test-token",
-      server: "production",
+      server: "production"
     });
   });
 });
@@ -131,9 +133,9 @@ describe("convertToPolarProduct", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: null,
+      polarProductId: null
     };
 
     const polar = convertToPolarProduct(product);
@@ -141,7 +143,11 @@ describe("convertToPolarProduct", () => {
     expect(polar.description).toBe("Full access");
     expect("recurringInterval" in polar ? polar.recurringInterval : undefined).toBe("month");
     expect(polar.prices).toHaveLength(1);
-    expect(polar.prices[0]).toMatchObject({ amountType: "fixed", priceAmount: 1900, priceCurrency: "usd" });
+    expect(polar.prices[0]).toMatchObject({
+      amountType: "fixed",
+      priceAmount: 1900,
+      priceCurrency: "usd"
+    });
     expect(polar.metadata).toMatchObject({ source: "tstack-cli" });
   });
 
@@ -156,9 +162,9 @@ describe("convertToPolarProduct", () => {
         features: ["Forever access"],
         badge: null,
         highlighted: false,
-        cta: "Buy Now",
+        cta: "Buy Now"
       },
-      polarProductId: null,
+      polarProductId: null
     };
 
     const polar = convertToPolarProduct(product);
@@ -179,9 +185,9 @@ describe("convertToPolarProduct", () => {
         features: ["Basic features"],
         badge: null,
         highlighted: false,
-        cta: "Start Free",
+        cta: "Start Free"
       },
-      polarProductId: null,
+      polarProductId: null
     };
 
     const polar = convertToPolarProduct(product);
@@ -197,8 +203,8 @@ describe("syncProductToPolar", () => {
     const client = {
       products: {
         create: createMock,
-        update: vi.fn(),
-      },
+        update: vi.fn()
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -212,9 +218,9 @@ describe("syncProductToPolar", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: null,
+      polarProductId: null
     };
 
     const result = await syncProductToPolar(client, product);
@@ -227,8 +233,8 @@ describe("syncProductToPolar", () => {
     const client = {
       products: {
         create: vi.fn(),
-        update: updateMock,
-      },
+        update: updateMock
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -242,26 +248,26 @@ describe("syncProductToPolar", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "existing-id",
+      polarProductId: "existing-id"
     };
 
     const result = await syncProductToPolar(client, product);
-    expect(updateMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "existing-id" }),
-    );
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ id: "existing-id" }));
     expect(result.polarProductId).toBe("existing-id");
   });
 
   it("creates a replacement product when the stored polarProductId no longer exists", async () => {
     const createMock = vi.fn().mockResolvedValue({ id: "replacement-id" });
-    const updateMock = vi.fn().mockRejectedValue({ name: "ResourceNotFound", message: "Not found" });
+    const updateMock = vi
+      .fn()
+      .mockRejectedValue({ name: "ResourceNotFound", message: "Not found" });
     const client = {
       products: {
         create: createMock,
-        update: updateMock,
-      },
+        update: updateMock
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -275,9 +281,9 @@ describe("syncProductToPolar", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "stale-id",
+      polarProductId: "stale-id"
     };
 
     const result = await syncProductToPolar(client, product);
@@ -292,8 +298,8 @@ describe("checkSyncStatus", () => {
   it("returns synced when product exists and is not archived", async () => {
     const client = {
       products: {
-        get: vi.fn().mockResolvedValue({ id: "p1", isArchived: false }),
-      },
+        get: vi.fn().mockResolvedValue({ id: "p1", isArchived: false })
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -307,9 +313,9 @@ describe("checkSyncStatus", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "p1",
+      polarProductId: "p1"
     };
 
     const status = await checkSyncStatus(client, product);
@@ -319,8 +325,8 @@ describe("checkSyncStatus", () => {
   it("returns archived when product is archived on Polar", async () => {
     const client = {
       products: {
-        get: vi.fn().mockResolvedValue({ id: "p1", isArchived: true }),
-      },
+        get: vi.fn().mockResolvedValue({ id: "p1", isArchived: true })
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -334,9 +340,9 @@ describe("checkSyncStatus", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "p1",
+      polarProductId: "p1"
     };
 
     const status = await checkSyncStatus(client, product);
@@ -344,8 +350,9 @@ describe("checkSyncStatus", () => {
   });
 
   it("returns not-synced when polarProductId is null", async () => {
+    const get = vi.fn();
     const client = {
-      products: { get: vi.fn() },
+      products: { get }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -359,21 +366,21 @@ describe("checkSyncStatus", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: null,
+      polarProductId: null
     };
 
     const status = await checkSyncStatus(client, product);
     expect(status).toBe("not-synced");
-    expect(client.products.get).not.toHaveBeenCalled();
+    expect(get).not.toHaveBeenCalled();
   });
 
   it("returns not-synced when the stored polarProductId no longer exists", async () => {
     const client = {
       products: {
-        get: vi.fn().mockRejectedValue({ name: "ResourceNotFound", message: "Not found" }),
-      },
+        get: vi.fn().mockRejectedValue({ name: "ResourceNotFound", message: "Not found" })
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -387,9 +394,9 @@ describe("checkSyncStatus", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "stale-id",
+      polarProductId: "stale-id"
     };
 
     const status = await checkSyncStatus(client, product);
@@ -399,8 +406,8 @@ describe("checkSyncStatus", () => {
   it("returns error when product lookup fails", async () => {
     const client = {
       products: {
-        get: vi.fn().mockRejectedValue(new Error("network error")),
-      },
+        get: vi.fn().mockRejectedValue(new Error("network error"))
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const product: TStackProduct = {
@@ -414,9 +421,9 @@ describe("checkSyncStatus", () => {
         features: ["Unlimited projects"],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: "p1",
+      polarProductId: "p1"
     };
 
     const status = await checkSyncStatus(client, product);
@@ -428,19 +435,19 @@ describe("archivePolarProduct", () => {
   it("archives a product on Polar", async () => {
     const updateMock = vi.fn().mockResolvedValue({ id: "p1" });
     const client = {
-      products: { update: updateMock },
+      products: { update: updateMock }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     await archivePolarProduct(client, "p1");
     expect(updateMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "p1", productUpdate: { isArchived: true } }),
+      expect.objectContaining({ id: "p1", productUpdate: { isArchived: true } })
     );
   });
 
   it("throws when archive fails", async () => {
     const updateMock = vi.fn().mockRejectedValue(new Error("network error"));
     const client = {
-      products: { update: updateMock },
+      products: { update: updateMock }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     await expect(archivePolarProduct(client, "p1")).rejects.toThrow("network error");
@@ -451,19 +458,19 @@ describe("unarchivePolarProduct", () => {
   it("unarchives a product on Polar", async () => {
     const updateMock = vi.fn().mockResolvedValue({ id: "p1" });
     const client = {
-      products: { update: updateMock },
+      products: { update: updateMock }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     await unarchivePolarProduct(client, "p1");
     expect(updateMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "p1", productUpdate: { isArchived: false } }),
+      expect.objectContaining({ id: "p1", productUpdate: { isArchived: false } })
     );
   });
 
   it("throws when unarchive fails", async () => {
     const updateMock = vi.fn().mockRejectedValue(new Error("network error"));
     const client = {
-      products: { update: updateMock },
+      products: { update: updateMock }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     await expect(unarchivePolarProduct(client, "p1")).rejects.toThrow("network error");
@@ -474,21 +481,21 @@ describe("listActivePolarProducts", () => {
   it("lists active Polar products with metadata", async () => {
     const items = [
       { id: "p1", name: "Pro", metadata: { source: "tstack-cli" } },
-      { id: "p2", name: "Basic", metadata: { source: "tstack-cli" } },
+      { id: "p2", name: "Basic", metadata: { source: "tstack-cli" } }
     ];
 
     const page = {
       result: { items, pagination: { totalCount: 2, maxPage: 1 } },
       next: vi.fn().mockResolvedValue(null),
-      [Symbol.asyncIterator]: async function* () {
+      [Symbol.asyncIterator]: function* () {
         yield { result: { items, pagination: { totalCount: 2, maxPage: 1 } } };
-      },
+      }
     };
 
     const client = {
       products: {
-        list: vi.fn().mockResolvedValue(page),
-      },
+        list: vi.fn().mockResolvedValue(page)
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const result = await listActivePolarProducts(client);
@@ -499,21 +506,21 @@ describe("listActivePolarProducts", () => {
   it("filters out products without tstack-cli metadata", async () => {
     const items = [
       { id: "p1", name: "Pro", metadata: { source: "tstack-cli" } },
-      { id: "p2", name: "Other", metadata: {} },
+      { id: "p2", name: "Other", metadata: {} }
     ];
 
     const page = {
       result: { items, pagination: { totalCount: 2, maxPage: 1 } },
       next: vi.fn().mockResolvedValue(null),
-      [Symbol.asyncIterator]: async function* () {
+      [Symbol.asyncIterator]: function* () {
         yield { result: { items, pagination: { totalCount: 2, maxPage: 1 } } };
-      },
+      }
     };
 
     const client = {
       products: {
-        list: vi.fn().mockResolvedValue(page),
-      },
+        list: vi.fn().mockResolvedValue(page)
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const result = await listActivePolarProducts(client);
@@ -534,23 +541,23 @@ describe("listActivePolarProducts", () => {
           return Promise.resolve({
             result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } },
             next: vi.fn().mockResolvedValue(null),
-            [Symbol.asyncIterator]: async function* () {
+            [Symbol.asyncIterator]: function* () {
               yield { result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } } };
-            },
+            }
           });
         }
         return Promise.resolve(null);
       }),
-      [Symbol.asyncIterator]: async function* () {
+      [Symbol.asyncIterator]: function* () {
         yield { result: { items: page1Items, pagination: { totalCount: 2, maxPage: 2 } } };
         yield { result: { items: page2Items, pagination: { totalCount: 2, maxPage: 2 } } };
-      },
+      }
     };
 
     const client = {
       products: {
-        list: vi.fn().mockResolvedValue(page),
-      },
+        list: vi.fn().mockResolvedValue(page)
+      }
     } as unknown as import("@polar-sh/sdk").Polar;
 
     const result = await listActivePolarProducts(client);

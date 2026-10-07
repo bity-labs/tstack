@@ -12,6 +12,6 @@ export const { getStaticPaths, GET } = await OGImageRoute({
   getImageOptions: (_path, page) => ({
     title: page.title,
     description: page.description ?? "",
-    ...ogCardConfig,
-  }),
+    ...ogCardConfig
+  })
 });

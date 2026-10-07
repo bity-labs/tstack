@@ -14,7 +14,7 @@ import type { OGImageOptions } from "astro-og-canvas";
 export const ogCardConfig = {
   bgGradient: [
     [11, 11, 12],
-    [26, 26, 28],
+    [26, 26, 28]
   ],
   border: { color: [39, 39, 42], width: 2, side: "inline-start" },
   padding: 96,
@@ -25,15 +25,15 @@ export const ogCardConfig = {
       size: 64,
       weight: "Bold",
       families: ["Inter"],
-      lineHeight: 1.1,
+      lineHeight: 1.1
     },
     description: {
       color: [161, 161, 170],
       size: 32,
       weight: "Bold",
       families: ["Inter"],
-      lineHeight: 1.3,
-    },
+      lineHeight: 1.3
+    }
   },
-  format: "PNG",
+  format: "PNG"
 } satisfies Partial<OGImageOptions>;

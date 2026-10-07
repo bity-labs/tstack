@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
-const docsRoot = join(repoRoot, "apps/documentation/content/docs");
+const docsRoot = join(repoRoot, "apps/documentation/src/content/docs");
 const archiveUrl = "https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs";
 
 function readRepoFile(path: string): string {
@@ -20,10 +20,14 @@ function filesUnder(dir: string): string[] {
 const docFiles = filesUnder(docsRoot);
 const routes = new Set([
   "/llms-full.txt",
-  ...docFiles.filter((path) => path.endsWith(".mdx")).map((path) => {
-    const slug = relative(docsRoot, path).replace(/\.mdx$/, "").replace(/(^|\/)index$/, "");
-    return `/${slug}`;
-  }),
+  ...docFiles
+    .filter((path) => path.endsWith(".mdx"))
+    .map((path) => {
+      const slug = relative(docsRoot, path)
+        .replace(/\.mdx$/, "")
+        .replace(/(^|\/)index$/, "");
+      return `/${slug}`;
+    })
 ]);
 
 describe("v2 documentation", () => {
@@ -39,9 +43,9 @@ describe("v2 documentation", () => {
 
   it.each([
     "README.md",
-    "apps/documentation/content/docs/index.mdx",
-    "apps/documentation/content/docs/getting-started/quick-start.mdx",
-    "apps/documentation/content/docs/boilerplate/overview.mdx",
+    "apps/documentation/src/content/docs/index.mdx",
+    "apps/documentation/src/content/docs/getting-started/quick-start.mdx",
+    "apps/documentation/src/content/docs/boilerplate/overview.mdx"
   ])("distinguishes v2 placeholders from the preserved starter in %s", (path) => {
     const content = readRepoFile(path);
     expect(content).toMatch(/v2 scaffolding is not implemented yet/i);
@@ -50,23 +54,31 @@ describe("v2 documentation", () => {
   });
 
   it("describes legacy commands without claiming they configure v2", () => {
-    const guide = readRepoFile("apps/documentation/content/docs/reference/cli.mdx");
+    const guide = readRepoFile("apps/documentation/src/content/docs/reference/cli.mdx");
     expect(guide).toContain("tstack init");
     expect(guide).toContain("Unavailable");
     expect(guide).toContain("tstack ready");
     expect(guide).toContain("tstack products");
     expect(guide).toContain("not a completed v2 setup workflow");
     expect(guide).toContain("--project-dir /path/to/existing-project");
-    expect(guide).toContain("https://github.com/bity-labs/tstack/blob/v1/apps/documentation/content/docs/reference/cli.mdx");
+    expect(guide).toContain(
+      "https://github.com/bity-labs/tstack/blob/v1/apps/documentation/content/docs/reference/cli.mdx"
+    );
   });
 
   it("documents only existing source paths in the workspace map", () => {
     const readme = readRepoFile("README.md");
     const context = readRepoFile("docs/context.md");
     for (const path of [
-      "apps/documentation", "apps/boilerplate-website", "apps/boilerplate-application",
-      "apps/boilerplate-docs", "packages/brain", "packages/harness", "packages/assistant",
-      "packages/os", "packages/cli",
+      "apps/documentation",
+      "apps/boilerplate-website",
+      "apps/boilerplate-application",
+      "apps/boilerplate-docs",
+      "packages/brain",
+      "packages/harness",
+      "packages/assistant",
+      "packages/os",
+      "packages/cli"
     ]) {
       expect(existsSync(join(repoRoot, path)), path).toBe(true);
       expect(context).toContain(path);
@@ -76,13 +88,19 @@ describe("v2 documentation", () => {
 
   it("does not present removed v1 paths or the quality branch as current guidance", () => {
     const paths = [
-      "README.md", "AGENTS.md", "docs/context.md", "docs/coding-standards.md",
-      "packages/cli/README.md", "packages/harness/README.md",
-      ...docFiles.map((path) => relative(repoRoot, path)),
+      "README.md",
+      "AGENTS.md",
+      "docs/context.md",
+      "docs/coding-standards.md",
+      "packages/cli/README.md",
+      "packages/harness/README.md",
+      ...docFiles.map((path) => relative(repoRoot, path))
     ];
     for (const path of paths) {
       const content = readRepoFile(path);
-      expect(content, path).not.toMatch(/apps\/boilerplate(?:\/|`|\s)|@tstack\/boilerplate|tstack-next|(?:tree|blob)\/quality/);
+      expect(content, path).not.toMatch(
+        /apps\/boilerplate(?:\/|`|\s)|@tstack\/boilerplate|tstack-next|(?:tree|blob)\/quality/
+      );
     }
   });
 
@@ -94,7 +112,7 @@ describe("v2 documentation", () => {
         expect(routes.has(route), `${relative(docsRoot, path)} -> ${route}`).toBe(true);
       }
     }
-    expect(existsSync(join(repoRoot, "apps/documentation/src/app/llms-full.txt/route.ts"))).toBe(true);
+    expect(existsSync(join(repoRoot, "apps/documentation/src/pages/llms-full.txt.ts"))).toBe(true);
   });
 
   it("resolves every explicit navigation entry to a page or section", () => {
@@ -103,7 +121,10 @@ describe("v2 documentation", () => {
       for (const page of meta.pages ?? []) {
         if (page.startsWith("[")) continue; // Links are validated above.
         const target = join(dirname(path), page);
-        expect(existsSync(`${target}.mdx`) || existsSync(join(target, "meta.json")), `${path} -> ${page}`).toBe(true);
+        expect(
+          existsSync(`${target}.mdx`) || existsSync(join(target, "meta.json")),
+          `${path} -> ${page}`
+        ).toBe(true);
       }
     }
   });

@@ -8,7 +8,7 @@ export function buildReplacements(options: {
     ["MyApp", displayName],
     ["@tstack/boilerplate", slug],
     [`myapp-dev-password`, `${slug}-dev-password`],
-    [`/myapp`, `/${slug}`],
+    [`/myapp`, `/${slug}`]
   ]);
 }
 

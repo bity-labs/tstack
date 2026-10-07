@@ -22,7 +22,10 @@ function readEnvValue(projectDir: string, fileName: string, key: string): string
   }
 }
 
-export function loadPolarCredentials(projectDir: string, tokenOverride?: string): PolarCredentials | null {
+export function loadPolarCredentials(
+  projectDir: string,
+  tokenOverride?: string
+): PolarCredentials | null {
   if (tokenOverride) {
     return { token: tokenOverride };
   }
@@ -41,10 +44,13 @@ export function loadPolarCredentials(projectDir: string, tokenOverride?: string)
 import { Polar } from "@polar-sh/sdk";
 import type { ProductCreate } from "@polar-sh/sdk/models/components/productcreate.js";
 
-export function createPolarClient(credentials: PolarCredentials, env: "sandbox" | "production"): Polar {
+export function createPolarClient(
+  credentials: PolarCredentials,
+  env: "sandbox" | "production"
+): Polar {
   return new Polar({
     accessToken: credentials.token,
-    server: env,
+    server: env
   });
 }
 
@@ -78,7 +84,7 @@ export function convertToPolarProduct(localProduct: TStackProduct): ProductCreat
   const base = {
     name: localProduct.name,
     description: localProduct.description ?? null,
-    metadata: { source: "tstack-cli" },
+    metadata: { source: "tstack-cli" }
   };
 
   const price = localProduct.prices[0];
@@ -86,35 +92,35 @@ export function convertToPolarProduct(localProduct: TStackProduct): ProductCreat
   if (localProduct.type === "free" || !price || price.amountType === "free") {
     return {
       ...base,
-      prices: [{ amountType: "free" }],
+      prices: [{ amountType: "free" }]
     };
   }
 
   if (price.amountType === "custom") {
     return {
       ...base,
-      prices: [{ amountType: "custom" }],
+      prices: [{ amountType: "custom" }]
     };
   }
 
   const polarPrice = {
     amountType: "fixed" as const,
     priceAmount: price.amount ?? 0,
-    priceCurrency: price.currency ?? "usd",
+    priceCurrency: price.currency ?? "usd"
   };
 
   if (localProduct.type === "subscription" && localProduct.recurringInterval) {
     return {
       ...base,
       recurringInterval: localProduct.recurringInterval,
-      prices: [polarPrice],
+      prices: [polarPrice]
     };
   }
 
   return {
     ...base,
     prices: [polarPrice],
-    recurringInterval: null,
+    recurringInterval: null
   };
 }
 
@@ -128,7 +134,10 @@ function isResourceNotFound(error: unknown): boolean {
       ? error.name
       : "";
   const message =
-    typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
       ? error.message
       : "";
 
@@ -137,7 +146,7 @@ function isResourceNotFound(error: unknown): boolean {
 
 export async function syncProductToPolar(
   client: Polar,
-  localProduct: TStackProduct,
+  localProduct: TStackProduct
 ): Promise<SyncResult> {
   const polarProduct = convertToPolarProduct(localProduct);
 
@@ -148,8 +157,8 @@ export async function syncProductToPolar(
         productUpdate: {
           name: polarProduct.name,
           description: polarProduct.description,
-          metadata: polarProduct.metadata,
-        },
+          metadata: polarProduct.metadata
+        }
       });
       return { polarProductId: updated.id };
     } catch (error) {
@@ -165,7 +174,7 @@ export async function syncProductToPolar(
 
 export async function checkSyncStatus(
   client: Polar,
-  localProduct: TStackProduct,
+  localProduct: TStackProduct
 ): Promise<"synced" | "not-synced" | "archived" | "error"> {
   if (!localProduct.polarProductId) {
     return "not-synced";
@@ -240,7 +249,10 @@ export function toBuyerMessage(error: unknown): string {
       ? error.name
       : "";
   const message =
-    typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
       ? error.message
       : "";
 

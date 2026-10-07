@@ -38,7 +38,7 @@ if (!partial) {
   throw new Error(
     `[Render] Partial "${file}" not found, included on "${page}".` +
       (hint ? ` Did you mean "${hint}"?` : "") +
-      ` Available: ${shortList}${tail}`,
+      ` Available: ${shortList}${tail}`
   );
 }
 
@@ -53,7 +53,7 @@ if (declaredParams) {
   if (missing.length > 0) {
     throw new Error(
       `[Render] Missing required params ${JSON.stringify(missing)} for "${file}" on "${page}". ` +
-        `Expected: ${JSON.stringify(declaredParams)}, received: ${JSON.stringify(received)}`,
+        `Expected: ${JSON.stringify(declaredParams)}, received: ${JSON.stringify(received)}`
     );
   }
 
@@ -67,7 +67,7 @@ if (declaredParams) {
       .join(", ");
     throw new Error(
       `[Render] Unexpected params ${unexpectedHints} for "${file}" on "${page}". ` +
-        `Declared: ${JSON.stringify(declaredParams)}`,
+        `Declared: ${JSON.stringify(declaredParams)}`
     );
   }
 }

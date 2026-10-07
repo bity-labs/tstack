@@ -1,5 +1,5 @@
-import { Schema } from "effect"
-import { HttpApi, HttpApiEndpoint, HttpApiGroup, OpenApi } from "effect/http-api"
+import { Schema } from "effect";
+import { HttpApi, HttpApiEndpoint, HttpApiGroup, OpenApi } from "effect/http-api";
 
 /**
  * The response shape of `GET /health`.
@@ -23,8 +23,9 @@ export class SystemApi extends HttpApiGroup.make("system", { topLevel: true }).a
  */
 export class Api extends HttpApi.make("boilerplate-api")
   .add(SystemApi)
-  .annotateMerge(OpenApi.annotations({
-    title: "Boilerplate API",
-    version: "0.0.0"
-  }))
-{}
+  .annotateMerge(
+    OpenApi.annotations({
+      title: "Boilerplate API",
+      version: "0.0.0"
+    })
+  ) {}

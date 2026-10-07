@@ -25,9 +25,7 @@ function initToc(root: HTMLElement): () => void {
     .map((slug, index) => ({ el: document.getElementById(slug), index }))
     .filter((o): o is { el: HTMLElement; index: number } => o.el !== null);
   if (observed.length === 0) return () => {};
-  const indexOfEl = new Map<HTMLElement, number>(
-    observed.map((o) => [o.el, o.index]),
-  );
+  const indexOfEl = new Map<HTMLElement, number>(observed.map((o) => [o.el, o.index]));
 
   let segments: { start: number; length: number }[] = [];
   let totalLength = 0;
@@ -45,7 +43,7 @@ function initToc(root: HTMLElement): () => void {
       return {
         x: r.left - navRect.left + 1,
         yTop: r.top - navRect.top,
-        yBot: r.top - navRect.top + r.height,
+        yBot: r.top - navRect.top + r.height
       };
     });
 
@@ -181,16 +179,14 @@ function initToc(root: HTMLElement): () => void {
       if (inBand.size > 0) observedIndex = Math.max(...inBand);
       resolve();
     },
-    { rootMargin: `0px 0px -${(1 - READING_BAND) * 100}% 0px`, threshold: 0 },
+    { rootMargin: `0px 0px -${(1 - READING_BAND) * 100}% 0px`, threshold: 0 }
   );
   observed.forEach((o) => spy.observe(o.el));
 
   function updateBottom() {
     const scrollEl = document.scrollingElement ?? document.documentElement;
     const maxScroll = scrollEl.scrollHeight - window.innerHeight;
-    const next =
-      maxScroll > BOTTOM_EPSILON &&
-      scrollEl.scrollTop >= maxScroll - BOTTOM_EPSILON;
+    const next = maxScroll > BOTTOM_EPSILON && scrollEl.scrollTop >= maxScroll - BOTTOM_EPSILON;
     if (next !== atBottom) {
       atBottom = next;
       resolve();
@@ -260,7 +256,8 @@ function initToc(root: HTMLElement): () => void {
   nav.addEventListener(
     "click",
     (e) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+        return;
       const link = (e.target as Element).closest<HTMLElement>("[data-nb-toc-link]");
       if (!link) return;
       const i = slugs.indexOf(link.dataset.nbSlug!);
@@ -271,7 +268,7 @@ function initToc(root: HTMLElement): () => void {
       pinnedEnteredViewport = !!rect && rect.bottom >= 0 && rect.top <= window.innerHeight;
       resolve();
     },
-    { signal: controller.signal },
+    { signal: controller.signal }
   );
 
   // Hand-driven scrolling releases the pin and resumes auto-tracking.
@@ -289,31 +286,31 @@ function initToc(root: HTMLElement): () => void {
     "Home",
     "End",
     " ",
-    "Spacebar",
+    "Spacebar"
   ]);
   window.addEventListener("wheel", releasePin, {
     passive: true,
-    signal: controller.signal,
+    signal: controller.signal
   });
   window.addEventListener("touchmove", releasePin, {
     passive: true,
-    signal: controller.signal,
+    signal: controller.signal
   });
   window.addEventListener(
     "keydown",
     (e) => {
       if (NAV_KEYS.has(e.key)) releasePin();
     },
-    { signal: controller.signal },
+    { signal: controller.signal }
   );
 
   window.addEventListener("scroll", onScroll, {
     passive: true,
-    signal: controller.signal,
+    signal: controller.signal
   });
   window.addEventListener("resize", onLayoutChange, {
     passive: true,
-    signal: controller.signal,
+    signal: controller.signal
   });
 
   const ro = new ResizeObserver(onLayoutChange);

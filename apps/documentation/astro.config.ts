@@ -1,8 +1,6 @@
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import nimbus, {
-  defineConfig as defineNimbusConfig,
-} from "@cloudflare/nimbus-docs";
+import nimbus, { defineConfig as defineNimbusConfig } from "@cloudflare/nimbus-docs";
 import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
 
 const nimbusConfig = defineNimbusConfig({
@@ -25,9 +23,9 @@ const nimbusConfig = defineNimbusConfig({
       { label: "Getting Started", autogenerate: { directory: "getting-started" } },
       { label: "Harness", autogenerate: { directory: "harness" } },
       { label: "Boilerplate", autogenerate: { directory: "boilerplate" } },
-      { label: "Reference", autogenerate: { directory: "reference" } },
-    ],
-  },
+      { label: "Reference", autogenerate: { directory: "reference" } }
+    ]
+  }
 });
 
 export default defineConfig({
@@ -36,23 +34,23 @@ export default defineConfig({
   // Tailwind v4 — replaces the PostCSS plugin, which doesn't build under
   // Astro 7's Vite 8 bundler).
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss()]
   },
   // Hover-prefetch link targets so full-page navigations feel instant without
   // a client-side router.
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: "hover",
+    defaultStrategy: "hover"
   },
   integrations: [
     nimbus(nimbusConfig, {
       rules: {
         "nimbus/frontmatter-shape": "error",
-        "nimbus/internal-link": "error",
+        "nimbus/internal-link": "error"
       },
       markdown: {
-        hastPlugins: [tableScroll()],
-      },
-    }),
-  ],
+        hastPlugins: [tableScroll()]
+      }
+    })
+  ]
 });

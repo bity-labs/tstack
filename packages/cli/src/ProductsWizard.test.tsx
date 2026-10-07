@@ -10,7 +10,9 @@ import * as polar from "./lib/polar.js";
 import * as productsOps from "./lib/products-operations.js";
 
 vi.mock("./lib/products-operations.js", async () => {
-  const actual = await vi.importActual<typeof import("./lib/products-operations.js")>("./lib/products-operations.js");
+  const actual = await vi.importActual<typeof import("./lib/products-operations.js")>(
+    "./lib/products-operations.js"
+  );
   return {
     ...actual,
     removeProducts: vi.fn(),
@@ -18,7 +20,7 @@ vi.mock("./lib/products-operations.js", async () => {
     findOrphanProducts: vi.fn(),
     archiveOrphanProducts: vi.fn(),
     importOrphanProducts: vi.fn(),
-    syncSandboxToProduction: vi.fn(),
+    syncSandboxToProduction: vi.fn()
   };
 });
 
@@ -34,7 +36,7 @@ vi.mock("./lib/polar.js", async () => {
     unarchivePolarProduct: vi.fn(),
     listActivePolarProducts: vi.fn(),
     listArchivedPolarProducts: vi.fn(),
-    toBuyerMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    toBuyerMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err)))
   };
 });
 
@@ -49,7 +51,7 @@ function delay(ms: number): Promise<void> {
 describe("ProductsWizard", () => {
   it("renders loading state initially", () => {
     const { lastFrame } = render(
-      <ProductsWizard projectDir="/tmp/test" env="sandbox" onComplete={() => {}} />,
+      <ProductsWizard projectDir="/tmp/test" env="sandbox" onComplete={() => {}} />
     );
     expect(lastFrame()).toContain("Loading products...");
   });
@@ -59,7 +61,7 @@ describe("ProductsWizard", () => {
 
     try {
       const { frames } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       const lastFrame = frames[frames.length - 1] ?? "";
@@ -94,15 +96,15 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
-              },
-            },
-          ],
-        }),
+                cta: "Get Started"
+              }
+            }
+          ]
+        })
       );
 
       const { lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       // Wait for useEffect to load products
@@ -124,7 +126,7 @@ describe("ProductsWizard", () => {
       mkdirSync(polarDir, { recursive: true });
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       // Wait for loading → menu
@@ -179,7 +181,9 @@ describe("ProductsWizard", () => {
 
       const productsFile = join(polarDir, "products.sandbox.json");
       expect(existsSync(productsFile)).toBe(true);
-      const content = JSON.parse(readFileSync(productsFile, "utf8"));
+      const content = JSON.parse(readFileSync(productsFile, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(content.products).toHaveLength(1);
       expect(content.products[0].slug).toBe("free-tier");
       expect(content.products[0].name).toBe("Free Tier");
@@ -197,7 +201,7 @@ describe("ProductsWizard", () => {
       mkdirSync(polarDir, { recursive: true });
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -269,7 +273,9 @@ describe("ProductsWizard", () => {
       expect(frame).toContain("Operation completed successfully");
 
       const productsFile = join(polarDir, "products.sandbox.json");
-      const content = JSON.parse(readFileSync(productsFile, "utf8"));
+      const content = JSON.parse(readFileSync(productsFile, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(content.products).toHaveLength(2);
       expect(content.products[0].slug).toBe("pro-monthly");
       expect(content.products[1].slug).toBe("pro-yearly");
@@ -287,7 +293,7 @@ describe("ProductsWizard", () => {
       mkdirSync(polarDir, { recursive: true });
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -351,16 +357,16 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
+                cta: "Get Started"
               },
-              polarProductId: "abc-123",
-            },
-          ],
-        }),
+              polarProductId: "abc-123"
+            }
+          ]
+        })
       );
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -384,7 +390,14 @@ describe("ProductsWizard", () => {
       const frame = lastFrame() ?? "";
       expect(frame).toContain("Operation completed successfully");
 
-      const generatedFile = join(dir, "src", "features", "billing", "generated", "products.generated.ts");
+      const generatedFile = join(
+        dir,
+        "src",
+        "features",
+        "billing",
+        "generated",
+        "products.generated.ts"
+      );
       expect(existsSync(generatedFile)).toBe(true);
       const content = readFileSync(generatedFile, "utf8");
       expect(content).toContain("Generated by tstack");
@@ -417,12 +430,12 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
+                cta: "Get Started"
               },
-              polarProductId: null,
-            },
-          ],
-        }),
+              polarProductId: null
+            }
+          ]
+        })
       );
 
       vi.mocked(polar.loadPolarCredentials).mockReturnValue({ token: "test-token" });
@@ -431,7 +444,7 @@ describe("ProductsWizard", () => {
       vi.mocked(polar.syncProductToPolar).mockResolvedValue({ polarProductId: "polar-new-id" });
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" token="test-token" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" token="test-token" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -448,7 +461,9 @@ describe("ProductsWizard", () => {
       expect(frame).toContain("Operation completed successfully");
       expect(polar.syncProductToPolar).toHaveBeenCalled();
 
-      const content = JSON.parse(readFileSync(productsFile, "utf8"));
+      const content = JSON.parse(readFileSync(productsFile, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(content.products[0].polarProductId).toBe("polar-new-id");
     } finally {
       rmSync(dir, { recursive: true, force: true });
@@ -478,18 +493,18 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
+                cta: "Get Started"
               },
-              polarProductId: null,
-            },
-          ],
-        }),
+              polarProductId: null
+            }
+          ]
+        })
       );
 
       vi.mocked(polar.loadPolarCredentials).mockReturnValue(null);
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -532,21 +547,21 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
+                cta: "Get Started"
               },
-              polarProductId: "p1",
-            },
-          ],
-        }),
+              polarProductId: "p1"
+            }
+          ]
+        })
       );
 
       vi.mocked(polar.loadPolarCredentials).mockReturnValue({ token: "test-token" });
       vi.mocked(productsOps.removeProducts).mockResolvedValue([
-        { slug: "pro-monthly", status: "success", message: "Removed" },
+        { slug: "pro-monthly", status: "success", message: "Removed" }
       ]);
 
       const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />,
+        <ProductsWizard projectDir={dir} env="sandbox" onComplete={() => {}} />
       );
 
       await delay(50);
@@ -575,7 +590,6 @@ describe("ProductsWizard", () => {
     const dir = makeTempDir("tstack-products-sandbox-sync-");
     const polarDir = join(dir, "polar");
     const sandboxFile = join(polarDir, "products.sandbox.json");
-    const productionFile = join(polarDir, "products.production.json");
 
     try {
       mkdirSync(polarDir, { recursive: true });
@@ -595,22 +609,20 @@ describe("ProductsWizard", () => {
                 features: ["Unlimited projects"],
                 badge: null,
                 highlighted: false,
-                cta: "Get Started",
+                cta: "Get Started"
               },
-              polarProductId: "sandbox-p1",
-            },
-          ],
-        }),
+              polarProductId: "sandbox-p1"
+            }
+          ]
+        })
       );
 
       vi.mocked(polar.loadPolarCredentials).mockReturnValue({ token: "test-token" });
       vi.mocked(productsOps.syncSandboxToProduction).mockResolvedValue([
-        { slug: "pro-monthly", status: "success", message: "Synced to production" },
+        { slug: "pro-monthly", status: "success", message: "Synced to production" }
       ]);
 
-      const { stdin, lastFrame } = render(
-        <ProductsWizard projectDir={dir} env="production" onComplete={() => {}} />,
-      );
+      const { stdin, lastFrame } = render(<ProductsWizard projectDir={dir} env="production" />);
 
       await delay(50);
 

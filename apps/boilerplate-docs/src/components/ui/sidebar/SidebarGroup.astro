@@ -46,7 +46,7 @@ function hasActiveDescendant(items: SidebarItem[]): boolean {
       ? Boolean(item.isCurrent)
       : item.type === "group"
         ? Boolean(item.indexIsCurrent) || hasActiveDescendant(item.children)
-        : false,
+        : false
   );
 }
 
@@ -54,7 +54,12 @@ const hasActive = Boolean(indexIsCurrent) || hasActiveDescendant(items);
 const isOpen = Boolean(hasActive || collapsed === false || collapsed === undefined);
 ---
 
-<Collapsible class={cn("group/accordion", className)} open={isOpen} data-nb-sidebar-group {...attrs}>
+<Collapsible
+  class={cn("group/accordion", className)}
+  open={isOpen}
+  data-nb-sidebar-group
+  {...attrs}
+>
   <SidebarGroupHeader
     label={label}
     isOpen={isOpen}
@@ -82,9 +87,20 @@ const isOpen = Boolean(hasActive || collapsed === false || collapsed === undefin
               indexIsExternal={item.indexIsExternal}
             />
           ) : item.type === "external" ? (
-            <SidebarLink label={item.label} href={item.href} badge={item.badge} target="_blank" rel="noopener" />
+            <SidebarLink
+              label={item.label}
+              href={item.href}
+              badge={item.badge}
+              target="_blank"
+              rel="noopener"
+            />
           ) : (
-            <SidebarLink label={item.label} href={item.href} isCurrent={item.isCurrent} badge={item.badge} />
+            <SidebarLink
+              label={item.label}
+              href={item.href}
+              isCurrent={item.isCurrent}
+              badge={item.badge}
+            />
           )}
         </li>
       ))}

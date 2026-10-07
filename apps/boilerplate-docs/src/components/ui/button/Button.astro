@@ -26,7 +26,7 @@ import {
   buttonIconSize,
   type ButtonVariant,
   type ButtonSize,
-  type ButtonShape,
+  type ButtonShape
 } from "./variants";
 
 interface Props extends Omit<HTMLAttributes<"button">, "size"> {
@@ -58,12 +58,10 @@ const {
   class={cn(buttonVariants({ variant, size, shape }), className)}
   {...attrs}
 >
-  {
-    loading ? (
-      <Icon name="ph:circle-notch" class={cn("animate-spin", buttonIconSize[size])} />
-    ) : (
-      icon && <Icon name={icon} class={buttonIconSize[size]} />
-    )
-  }
+  {loading ? (
+    <Icon name="ph:circle-notch" class={cn("animate-spin", buttonIconSize[size])} />
+  ) : (
+    icon && <Icon name={icon} class={buttonIconSize[size]} />
+  )}
   <slot />
 </button>

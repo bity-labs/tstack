@@ -48,7 +48,7 @@ export function writeProducts(filePath: string, products: Product[], schemaPath?
 
   const data = {
     $schema: existingSchema ?? schemaPath ?? "./products.schema.json",
-    products,
+    products
   };
 
   writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n");
@@ -78,7 +78,9 @@ function productToObjectLiteral(product: Product): string {
   const lines: string[] = [];
   lines.push(`  {`);
   lines.push(`    slug: "${escapeString(product.slug)}",`);
-  lines.push(`    productId: ${product.polarProductId != null ? `"${escapeString(product.polarProductId)}"` : "null"},`);
+  lines.push(
+    `    productId: ${product.polarProductId != null ? `"${escapeString(product.polarProductId)}"` : "null"},`
+  );
   lines.push(`    name: "${escapeString(product.name)}",`);
   lines.push(`    type: "${product.type}",`);
   lines.push(`    display: {`);
@@ -90,7 +92,9 @@ function productToObjectLiteral(product: Product): string {
   if (period !== undefined) {
     lines.push(`      period: "${escapeString(period)}",`);
   }
-  lines.push(`      badge: ${display.badge != null ? `"${escapeString(display.badge)}"` : "null"},`);
+  lines.push(
+    `      badge: ${display.badge != null ? `"${escapeString(display.badge)}"` : "null"},`
+  );
   lines.push(`      features: [${display.features.map((f) => `"${escapeString(f)}"`).join(",")}],`);
   lines.push(`      highlighted: ${display.highlighted},`);
   lines.push(`      cta: "${escapeString(display.cta)}",`);
@@ -141,14 +145,14 @@ export function generateProductsTypeScript(options: {
   parts.push("");
 
   parts.push('export function getProducts(env: "sandbox" | "production"): GeneratedProduct[] {');
-  parts.push("  return env === \"sandbox\" ? sandboxProducts : productionProducts;");
+  parts.push('  return env === "sandbox" ? sandboxProducts : productionProducts;');
   parts.push("}");
   parts.push("");
   parts.push("/**");
   parts.push(" * BetterAuth checkout products format");
   parts.push(" * Only includes products with a valid polarProductId");
   parts.push(" */");
-  parts.push("export function getCheckoutProducts(env: \"sandbox\" | \"production\") {");
+  parts.push('export function getCheckoutProducts(env: "sandbox" | "production") {');
   parts.push("  return getProducts(env)");
   parts.push("    .filter((p) => p.productId !== null)");
   parts.push("    .map((p) => ({");
@@ -161,7 +165,7 @@ export function generateProductsTypeScript(options: {
   parts.push(" * Get products formatted for pricing page display");
   parts.push(" * Only includes products intended for display (with valid features)");
   parts.push(" */");
-  parts.push("export function getDisplayProducts(env: \"sandbox\" | \"production\") {");
+  parts.push('export function getDisplayProducts(env: "sandbox" | "production") {');
   parts.push("  return getProducts(env).filter((p) => p.display.features.length > 0);");
   parts.push("}");
   parts.push("");
@@ -202,8 +206,8 @@ export function generateYearlyProduct(monthlyProduct: Product): Product {
       {
         amountType: "fixed",
         amount: yearlyAmount,
-        currency: monthlyProduct.prices[0]?.currency ?? "usd",
-      },
+        currency: monthlyProduct.prices[0]?.currency ?? "usd"
+      }
     ],
     display: {
       title: monthlyProduct.display.title,
@@ -211,9 +215,9 @@ export function generateYearlyProduct(monthlyProduct: Product): Product {
       badge: "2 months free",
       features: monthlyProduct.display.features,
       highlighted: monthlyProduct.display.highlighted,
-      cta: monthlyProduct.display.cta,
+      cta: monthlyProduct.display.cta
     },
-    polarProductId: null,
+    polarProductId: null
   };
 }
 

@@ -1,11 +1,11 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
+  execSync: vi.fn()
 }));
 
 import { runCli, runCliAsync } from "./cli.js";
@@ -29,17 +29,19 @@ describe("runCli", () => {
 
   it("is exposed through root scripts for local running and global setup", () => {
     const rootPackage = JSON.parse(
-      readFileSync(new URL("../../../package.json", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../package.json", import.meta.url), "utf8")
     ) as { scripts?: Record<string, string> };
 
     expect(rootPackage.scripts?.tstack).toBe("pnpm --filter @tstack/cli tstack");
-    expect(rootPackage.scripts?.setup).toBe("pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global");
+    expect(rootPackage.scripts?.setup).toBe(
+      "pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global"
+    );
     expect(rootPackage.scripts?.["tstack:unlink"]).toBe("pnpm --global remove @tstack/cli || true");
   });
 
   it("is a private @tstack/cli workspace package without publishing config", () => {
     const cliPackage = JSON.parse(
-      readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+      readFileSync(new URL("../package.json", import.meta.url), "utf8")
     ) as { name?: string; private?: boolean; publishConfig?: unknown };
 
     expect(cliPackage.name).toBe("@tstack/cli");
@@ -72,10 +74,12 @@ describe("runCli", () => {
       writeFileSync(join(sourceDir, "README.md"), "# MyApp");
       writeFileSync(
         join(sourceDir, ".env.example"),
-        "NEXT_PUBLIC_APP_NAME=MyApp\nBETTER_AUTH_SECRET=\n",
+        "NEXT_PUBLIC_APP_NAME=MyApp\nBETTER_AUTH_SECRET=\n"
       );
 
-      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
+      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], {
+        boilerplateSourcePath: sourceDir
+      });
 
       expect(result.exitCode).toBe(0);
       expect(result.stderr).toBe("");
@@ -92,7 +96,7 @@ describe("runCli", () => {
   it.each([
     ["init"],
     ["init", "my-app"],
-    ["init", "--project-dir", "my-app", "--app-name", "My App"],
+    ["init", "--project-dir", "my-app", "--app-name", "My App"]
   ])("reports unavailable v2 scaffolding without opening the wizard: %j", async (...args) => {
     const result = runCli(args);
 
@@ -123,7 +127,7 @@ describe("runCli", () => {
 
   it("init requires --app-name for non-interactive mode", () => {
     const result = runCli(["init", "--project-dir", "my-app"], {
-      boilerplateSourcePath: "/test-fixture",
+      boilerplateSourcePath: "/test-fixture"
     });
 
     expect(result.exitCode).toBe(0);
@@ -140,7 +144,7 @@ describe("runCli", () => {
       writeFileSync(join(sourceDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=MyApp\n");
 
       const result = runCli(["init", targetDir, "--app-name", "Positional App"], {
-        boilerplateSourcePath: sourceDir,
+        boilerplateSourcePath: sourceDir
       });
 
       expect(result.exitCode).toBe(0);
@@ -156,20 +160,22 @@ describe("runCli", () => {
   it("init accepts --app-name to scaffold with branding", () => {
     const sourceDir = makeTempDir("tstack-init-source-");
     const targetDir = join(tmpdir(), `branded-app-${Date.now()}`);
-    const expectedSlug = targetDir.split("/").pop()!;
+    const expectedSlug = basename(targetDir);
 
     try {
       writeFileSync(join(sourceDir, "package.json"), '{"name": "@tstack/boilerplate"}');
       writeFileSync(join(sourceDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=MyApp\n");
 
       const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Branded App"], {
-        boilerplateSourcePath: sourceDir,
+        boilerplateSourcePath: sourceDir
       });
 
       expect(result.exitCode).toBe(0);
       expect(result.stderr).toBe("");
       expect(result.stdout).toContain("Created TStack app");
-      const pkg = JSON.parse(readFileSync(join(targetDir, "package.json"), "utf8"));
+      const pkg = JSON.parse(readFileSync(join(targetDir, "package.json"), "utf8")) as {
+        name: unknown;
+      };
       expect(pkg.name).toBe(expectedSlug);
     } finally {
       rmSync(sourceDir, { recursive: true, force: true });
@@ -182,7 +188,9 @@ describe("runCli", () => {
     const targetDir = makeTempDir("tstack-init-target-");
 
     try {
-      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], { boilerplateSourcePath: sourceDir });
+      const result = runCli(["init", "--project-dir", targetDir, "--app-name", "Test App"], {
+        boilerplateSourcePath: sourceDir
+      });
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
@@ -362,7 +370,15 @@ describe("runCli", () => {
   });
 
   it("products combines --token, --env, and --project-dir", () => {
-    const result = runCli(["products", "--env", "production", "--project-dir", "/some/path", "--token", "polar_test_123"]);
+    const result = runCli([
+      "products",
+      "--env",
+      "production",
+      "--project-dir",
+      "/some/path",
+      "--token",
+      "polar_test_123"
+    ]);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("");

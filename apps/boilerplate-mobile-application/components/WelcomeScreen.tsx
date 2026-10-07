@@ -20,22 +20,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     justifyContent: "center",
-    padding: 24,
+    padding: 24
   },
   title: {
     fontSize: 24,
     fontWeight: "600",
-    textAlign: "center",
+    textAlign: "center"
   },
   button: {
     backgroundColor: "#0a7ea4",
     borderRadius: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 12
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
-  },
+    fontWeight: "600"
+  }
 });

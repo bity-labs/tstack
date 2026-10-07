@@ -9,5 +9,5 @@ export {
   type ButtonVariant,
   type ButtonSize,
   type ButtonShape,
-  type ButtonVariantsOptions,
+  type ButtonVariantsOptions
 } from "./variants";

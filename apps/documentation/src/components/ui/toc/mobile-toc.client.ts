@@ -29,9 +29,7 @@ function prefersReducedMotion(): boolean {
 }
 
 function initMobileToc(root: HTMLElement): () => void {
-  const select = root.querySelector<HTMLSelectElement>(
-    "[data-nb-mobile-toc-select]",
-  );
+  const select = root.querySelector<HTMLSelectElement>("[data-nb-mobile-toc-select]");
   if (!select) return () => {};
 
   // Paired so slug/element indices stay aligned; `inBand` indexes into this.
@@ -64,16 +62,14 @@ function initMobileToc(root: HTMLElement): () => void {
         suppress = false;
       }, SUPPRESS_MS);
 
-      const behavior: ScrollBehavior = prefersReducedMotion()
-        ? "auto"
-        : "smooth";
+      const behavior: ScrollBehavior = prefersReducedMotion() ? "auto" : "smooth";
       if (slug === "_top") {
         window.scrollTo({ top: 0, behavior });
         return;
       }
       document.getElementById(slug)?.scrollIntoView({ behavior });
     },
-    { signal: controller.signal },
+    { signal: controller.signal }
   );
 
   if (headings.length === 0) {
@@ -101,8 +97,7 @@ function initMobileToc(root: HTMLElement): () => void {
     // current value (we're mid-section between two headings).
     const bandTop = window.innerHeight * BAND_TOP;
     const firstTop = headings[0].el.getBoundingClientRect().top;
-    const lastTop =
-      headings[headings.length - 1].el.getBoundingClientRect().top;
+    const lastTop = headings[headings.length - 1].el.getBoundingClientRect().top;
     if (firstTop > bandTop) {
       setActive("_top");
     } else if (lastTop < bandTop) {
@@ -120,7 +115,7 @@ function initMobileToc(root: HTMLElement): () => void {
       }
       resolve();
     },
-    { rootMargin: ROOT_MARGIN, threshold: 0 },
+    { rootMargin: ROOT_MARGIN, threshold: 0 }
   );
 
   for (const { el } of headings) observer.observe(el);

@@ -2,5 +2,5 @@
  * pnpm layout + ESM-only deps (effect) require transforming node_modules too. */
 module.exports = {
   preset: "jest-expo",
-  transformIgnorePatterns: [],
+  transformIgnorePatterns: []
 };

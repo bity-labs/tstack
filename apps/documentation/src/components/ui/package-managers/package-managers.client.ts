@@ -18,7 +18,7 @@ function initPackageManager(container: HTMLElement): () => void {
     tabSelector: "[data-nb-pm-tab]",
     panelSelector: "[data-nb-pm-panel]",
     rovingTabindex: true,
-    sync: { key: "ui-pm-tab", storage: "session" },
+    sync: { key: "ui-pm-tab", storage: "session" }
   });
 
   const copyHandlers: Array<{ btn: HTMLButtonElement; handler: () => void; timer?: number }> = [];
@@ -37,7 +37,7 @@ function initPackageManager(container: HTMLElement): () => void {
         handlerInfo.timer = window.setTimeout(() => {
           btn.replaceChildren(cloneIcon(copyTpl));
         }, 1500);
-      },
+      }
     };
     btn.addEventListener("click", handlerInfo.handler);
     copyHandlers.push(handlerInfo);

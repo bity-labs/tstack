@@ -6,19 +6,19 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 
 ## Current Workspace
 
-| Path | Responsibility | Status |
-| --- | --- | --- |
-| `apps/documentation` | TStack's public documentation | Migrated to Nimbus Docs (Astro); URLs and `/llms-full.txt` preserved |
-| `apps/boilerplate-website` | Product commercial/marketing website | Minimal runnable static Astro scaffold (welcome page) |
-| `apps/boilerplate-application` | Product web application | Minimal runnable Next.js 16 welcome scaffold (Effect v4, shadcn/ui) |
-| `apps/boilerplate-api` | Shared backend for web and mobile applications | Minimal runnable Effect v4 scaffold (health endpoint) |
-| `apps/boilerplate-mobile-application` | Optional product mobile application | Minimal runnable Expo scaffold (single welcome screen) |
-| `apps/boilerplate-docs` | Product customer documentation | Minimal Nimbus Docs scaffold with introduction page |
-| `packages/brain` | Second-brain/vault folder setup and skills | README placeholder |
-| `packages/harness` | Generic engineering instructions, skills, and doctrine | Existing template assets |
-| `packages/assistant` | Hermes-based coordination setup | README placeholder |
-| `packages/os` | Server setup assets | README placeholder |
-| `packages/cli` | Shared setup entry point | Retained CLI; v2 scaffolding unavailable |
+| Path                                  | Responsibility                                         | Status                                                               |
+| ------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------- |
+| `apps/documentation`                  | TStack's public documentation                          | Migrated to Nimbus Docs (Astro); URLs and `/llms-full.txt` preserved |
+| `apps/boilerplate-website`            | Product commercial/marketing website                   | Minimal runnable static Astro scaffold (welcome page)                |
+| `apps/boilerplate-application`        | Product web application                                | Minimal runnable Next.js 16 welcome scaffold (Effect v4, shadcn/ui)  |
+| `apps/boilerplate-api`                | Shared backend for web and mobile applications         | Minimal runnable Effect v4 scaffold (health endpoint)                |
+| `apps/boilerplate-mobile-application` | Optional product mobile application                    | Minimal runnable Expo scaffold (single welcome screen)               |
+| `apps/boilerplate-docs`               | Product customer documentation                         | Minimal Nimbus Docs scaffold with introduction page                  |
+| `packages/brain`                      | Second-brain/vault folder setup and skills             | README placeholder                                                   |
+| `packages/harness`                    | Generic engineering instructions, skills, and doctrine | Existing template assets                                             |
+| `packages/assistant`                  | Hermes-based coordination setup                        | README placeholder                                                   |
+| `packages/os`                         | Server setup assets                                    | README placeholder                                                   |
+| `packages/cli`                        | Shared setup entry point                               | Retained CLI; v2 scaffolding unavailable                             |
 
 The CLI's `ready` and `products` commands retain legacy configuration behavior for existing compatible projects. They do not implement the new component setup. `init` reports that v2 scaffolding is not implemented yet.
 
@@ -45,14 +45,14 @@ The CLI's `ready` and `products` commands retain legacy configuration behavior f
 
 These are target stack decisions, not implemented boilerplate applications or completed migrations:
 
-| Application | Target stack |
-| --- | --- |
-| `apps/boilerplate-website` | Astro |
-| `apps/boilerplate-application` | Next.js 16 App Router with Effect v4 and shadcn/ui |
-| `apps/boilerplate-api` | Effect v4 with its compatible platform/HTTP API tooling and OpenAPI |
-| `apps/boilerplate-mobile-application` | React Native with the latest stable Expo SDK and Effect v4 |
-| `apps/boilerplate-docs` | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro |
-| `apps/documentation` | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro |
+| Application                           | Target stack                                                        |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| `apps/boilerplate-website`            | Astro                                                               |
+| `apps/boilerplate-application`        | Next.js 16 App Router with Effect v4 and shadcn/ui                  |
+| `apps/boilerplate-api`                | Effect v4 with its compatible platform/HTTP API tooling and OpenAPI |
+| `apps/boilerplate-mobile-application` | React Native with the latest stable Expo SDK and Effect v4          |
+| `apps/boilerplate-docs`               | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro             |
+| `apps/documentation`                  | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro             |
 
 The shared API targets Node.js. Application code should use TypeScript. Use framework-native build tooling: Vite through Astro, Next.js tooling for the web application, and Metro through Expo for mobile. The API uses `tsc` to compile TypeScript to JavaScript without bundling; its development runner is `tsx watch`. Vitest is the default test runner for non-mobile apps and platform-independent shared TypeScript logic. Use Jest with `jest-expo` and React Native Testing Library for Expo/React Native component tests; do not force Vitest onto native mobile tests. Device/E2E testing is a separate decision.
 
@@ -90,7 +90,13 @@ Nimbus refers to [Nimbus Docs](https://nimbus-docs.com/get-started/). Its scaffo
 - Use ESLint for code-quality checks, with TypeScript's recommended type-aware rules and framework-specific configurations for Astro, Next.js, and Expo. Prevent unhandled promises; require explicit justification for `any` and rule-disable comments. Treat lint warnings as CI failures. Keep formatting rules with Prettier rather than duplicating them in ESLint.
 - Test-runner choices are recorded under Agreed Application Stacks. Documentation link checking is excluded from the initial quality-tooling scope. Device/E2E testing is deferred.
 - Collect test coverage for visibility without an initial enforced percentage threshold. Affected workspace tests must pass; an established test suite unexpectedly running zero tests must fail validation. README-only placeholders remain exempt. Coverage thresholds can be revisited once meaningful suites exist.
-- These are tooling decisions only; configuration and dependencies have not yet been added.
+
+### Implemented quality tooling
+
+- Root `.prettierrc.json` (with `prettier-plugin-astro`) plus `.prettierignore`; run `pnpm format` / `pnpm format:check` from the root.
+- Each runnable workspace has an `eslint.config.mjs` and a `lint` script using `eslint . --max-warnings=0`: type-aware TypeScript rules in the CLI, API and Next.js app (`no-floating-promises`, `no-misused-promises`, documented `ts-expect-error` descriptions, `no-explicit-any` errors); the Astro plugin for the Astro apps and `eslint-config-expo` for the Expo app.
+- Workspace `test` scripts collect coverage (`vitest run --coverage` for the CLI, API and web app; `jest --coverage` for the mobile app). Suites without a test file fail instead of silently passing.
+- Run the whole pipeline from the root with `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build`. README-only placeholders and the documentation app's intentionally absent test script remain exempt.
 
 ## Agreed PR Validation Scope
 
