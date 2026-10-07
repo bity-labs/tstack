@@ -1,15 +1,25 @@
 # TStack Documentation
 
-Fumadocs documentation app for TStack's composable setup components and their current implementation status. This is TStack's own site, not the product documentation placeholder at `apps/boilerplate-docs`.
+TStack's own documentation site, separate from the product documentation placeholder at `apps/boilerplate-docs`. Migrated from Fumadocs to [Nimbus Docs](https://nimbus-docs.com) (`@cloudflare/nimbus-docs`, Astro-based static output).
 
-Run from the repository root:
+**Status:** Migrated to Nimbus Docs. Reader-facing content, public URLs, and the `/llms-full.txt` machine-readable endpoint are preserved; see [docs/migration-inventory.md](docs/migration-inventory.md) for the pre-migration inventory and URL mapping.
 
-```sh
-pnpm dev:documentation
-```
+## Commands
 
-Or run the workspace directly:
+From the repository root:
 
 ```sh
-pnpm --filter @tstack/documentation dev
+pnpm install                                             # installs workspace dependencies
+pnpm --filter @tstack/documentation dev                  # dev server
+pnpm --filter @tstack/documentation build                # production build (static output in dist/)
+pnpm --filter @tstack/documentation typecheck            # astro check
+pnpm --filter @tstack/documentation lint:docs            # Nimbus authoring lint
 ```
+
+## Ownership and configuration
+
+- The `@cloudflare/nimbus-docs` package provides content schemas, sidebar/TOC, Markdown/MDX alternates, `llms.txt`, OG cards, and the machine-readable agent endpoints.
+- Reader content lives in `src/content/docs/`; the directory structure is both the URL structure and the sidebar.
+- `AGENT.md` is the canonical authoring and upgrade guide; `CLAUDE.md` delegates to it.
+- The `site` origin in `astro.config.ts` is a placeholder (`https://docs.example.com`). Builders and the maintainer must configure the real production origin there before hosting or publishing any canonical URL, `llms.txt` index, `robots.txt` sitemap reference, or OG URL that depends on it.
+- Shared final lint/test/format configuration belongs to the quality-tooling follow-up; this app has no fake passing checks.

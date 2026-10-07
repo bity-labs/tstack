@@ -1,9 +1,22 @@
-# generated
-.source
-next-env.d.ts
-*.tsbuildinfo
+node_modules/
+dist/
+.astro/
+.wrangler/
+.nimbus/
 
-# app build output
-.next/
-out/
-build/
+.env
+.env.local
+.env.*.local
+.env.production
+.dev.vars
+.dev.vars.*
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

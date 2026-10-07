@@ -8,7 +8,7 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 
 | Path | Responsibility | Status |
 | --- | --- | --- |
-| `apps/documentation` | TStack's public Fumadocs documentation | Existing app |
+| `apps/documentation` | TStack's public documentation | Migrated to Nimbus Docs (Astro); URLs and `/llms-full.txt` preserved |
 | `apps/boilerplate-website` | Product commercial/marketing website | Minimal runnable static Astro scaffold (welcome page) |
 | `apps/boilerplate-application` | Product web application | Minimal runnable Next.js 16 welcome scaffold (Effect v4, shadcn/ui) |
 | `apps/boilerplate-api` | Shared backend for web and mobile applications | Minimal runnable Effect v4 scaffold (health endpoint) |
@@ -52,17 +52,17 @@ These are target stack decisions, not implemented boilerplate applications or co
 | `apps/boilerplate-api` | Effect v4 with its compatible platform/HTTP API tooling and OpenAPI |
 | `apps/boilerplate-mobile-application` | React Native with the latest stable Expo SDK and Effect v4 |
 | `apps/boilerplate-docs` | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro |
-| `apps/documentation` | Planned rewrite from Fumadocs to Nimbus Docs |
+| `apps/documentation` | Nimbus Docs (`@cloudflare/nimbus-docs`), built on Astro |
 
 The shared API targets Node.js. Application code should use TypeScript. Use framework-native build tooling: Vite through Astro, Next.js tooling for the web application, and Metro through Expo for mobile. The API uses `tsc` to compile TypeScript to JavaScript without bundling; its development runner is `tsx watch`. Vitest is the default test runner for non-mobile apps and platform-independent shared TypeScript logic. Use Jest with `jest-expo` and React Native Testing Library for Expo/React Native component tests; do not force Vitest onto native mobile tests. Device/E2E testing is a separate decision.
 
-Nimbus refers to [Nimbus Docs](https://nimbus-docs.com/get-started/). Its scaffold provides project-owned layouts, components, styles, and content alongside package-provided infrastructure. The existing TStack documentation app still uses Fumadocs until the rewrite is implemented.
+Nimbus refers to [Nimbus Docs](https://nimbus-docs.com/get-started/). Its scaffold provides project-owned layouts, components, styles, and content alongside package-provided infrastructure. The TStack documentation app has been migrated from Fumadocs to Nimbus Docs (`apps/documentation`), preserving content, public URLs, and the `/llms-full.txt` endpoint (see its `docs/migration-inventory.md`).
 
 ### Initial Scaffolding Scope
 
 - Create minimal runnable scaffolds for the five boilerplate applications using their agreed stacks: a welcome page/screen for frontend and documentation apps, and a health endpoint for the API.
 - Do not add authentication, databases, product features, or cross-app integration in this initial scope. Effect remains part of the agreed web/mobile/API stacks, but scaffolding does not require a shared client or end-to-end feature.
-- Keep the existing TStack documentation migration from Fumadocs to Nimbus as separately scoped work. Preserve existing content and public URLs wherever possible; provide redirects for unavoidable URL changes.
+- The TStack documentation migration from Fumadocs to Nimbus is separate, reviewable work. Preserve existing content and public URLs wherever possible; provide redirects for unavoidable URL changes.
 - The Next.js web application uses App Router under `src/app/`, Tailwind CSS, and shadcn/ui. Keep UI scaffolding minimal: initialize shadcn/ui and add only what the welcome page needs; do not add a dashboard template or full component catalog.
 - The Expo mobile application uses Expo Router with a single welcome screen. Do not scaffold tabs, an authentication flow, or additional product screens.
 - The Astro website starts as a static site with one welcome page and plain CSS, without React integration or an additional UI library.
