@@ -6,7 +6,7 @@ The mobile application for the TStack v2 boilerplate, using the shared boilerpla
 
 ## Stack
 
-- Expo SDK 57 (latest stable at implementation time) with React 19.3.0 and React Native 0.87.1
+- Expo SDK 57 (latest stable at implementation time) with React 19.3.0 and React Native 0.86.3 (the Expo SDK 57-supported pin; 0.87.x exists upstream but is not the SDK-supported version)
 - Expo Router 57 with a single welcome screen (no tabs, no auth flow)
 - Effect v4 (`effect` 4.0.2) exercised minimally in a runtime-agnostic helper; no Node-only adapters
 - Metro bundler via Expo's native configuration; TypeScript strict without Node-specific module settings

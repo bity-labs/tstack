@@ -25,7 +25,6 @@
     "react-native-web": "0.21.3"
   },
   "devDependencies": {
-    "@react-native/assets-registry": "0.87.1",
     "@testing-library/react-native": "14.0.1",
     "@types/jest": "29.5.14",
     "@types/react": "19.3.0",
