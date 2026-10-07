@@ -16,12 +16,14 @@ POLAR_ACCESS_TOKEN=xxxxx
       values: {
         NEXT_PUBLIC_APP_NAME: "Acme",
         DATABASE_URL: "postgresql://acme:acme-dev-password@localhost:5432/acme",
-        BETTER_AUTH_SECRET: "secret123",
-      },
+        BETTER_AUTH_SECRET: "secret123"
+      }
     });
 
     expect(result).toContain("NEXT_PUBLIC_APP_NAME=Acme");
-    expect(result).toContain("DATABASE_URL=postgresql://acme:acme-dev-password@localhost:5432/acme");
+    expect(result).toContain(
+      "DATABASE_URL=postgresql://acme:acme-dev-password@localhost:5432/acme"
+    );
     expect(result).toContain("BETTER_AUTH_SECRET=secret123");
     expect(result).toContain("POLAR_ACCESS_TOKEN=xxxxx");
   });
@@ -31,7 +33,7 @@ POLAR_ACCESS_TOKEN=xxxxx
 
     const result = generateEnv({
       exampleContent: example,
-      values: {},
+      values: {}
     });
 
     expect(result).toContain("# Project Configuration");
@@ -43,7 +45,7 @@ POLAR_ACCESS_TOKEN=xxxxx
     const example = `FOO=bar\nBAZ=qux`;
     const result = generateEnv({
       exampleContent: example,
-      values: { FOO: "updated" },
+      values: { FOO: "updated" }
     });
     expect(result).toContain("FOO=updated");
     expect(result).toContain("BAZ=qux");
@@ -53,7 +55,7 @@ POLAR_ACCESS_TOKEN=xxxxx
     const example = `EMPTY=\nFILLED=value`;
     const result = generateEnv({
       exampleContent: example,
-      values: { EMPTY: "now-filled" },
+      values: { EMPTY: "now-filled" }
     });
     expect(result).toContain("EMPTY=now-filled");
     expect(result).toContain("FILLED=value");

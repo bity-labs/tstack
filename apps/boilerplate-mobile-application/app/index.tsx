@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 
-
 import { WelcomeScreen } from "../components/WelcomeScreen";
 import { useWelcomeMessage } from "../src/useWelcomeMessage";
 

@@ -13,7 +13,7 @@ function initCollapsible(root: HTMLElement): () => void {
   const disclosure = makeDisclosure({
     trigger,
     content,
-    defaultOpen,
+    defaultOpen
   });
 
   return () => disclosure.destroy();

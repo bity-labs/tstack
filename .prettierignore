@@ -1,0 +1,20 @@
+# Build outputs
+dist
+.next
+.turbo
+.astro
+.expo
+out
+
+# Dependencies and generated lockfile
+node_modules
+pnpm-lock.yaml
+
+# Generated/c sourced artifacts
+apps/documentation/.source
+apps/*/expo-env.d.ts
+packages/cli/dist
+packages/cli/tstcli
+
+# Vendored template assets
+packages/harness

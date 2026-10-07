@@ -35,6 +35,7 @@ pnpm build
 pnpm lint
 pnpm test
 pnpm typecheck
+pnpm format  # or pnpm format:check
 ```
 
-These commands route through Turbo for packages with manifests and matching scripts. README-only placeholders are not included. The CLI has tests and TypeScript checks; the documentation app has real typecheck/build commands but placeholder test/lint scripts. Do not describe those placeholders as test or lint coverage.
+`lint`, `test`, `typecheck`, and `build` route through Turbo for packages with manifests and matching scripts. README-only placeholders are not included. Workspace lint uses ESLint with `--max-warnings=0`, and coverage is collected from the workspace test scripts. The documentation app intentionally has no test script; do not invent placeholder tests for it.

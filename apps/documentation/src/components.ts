@@ -21,5 +21,5 @@ export const components = {
   Step,
   Steps,
   TabItem,
-  Tabs,
+  Tabs
 };

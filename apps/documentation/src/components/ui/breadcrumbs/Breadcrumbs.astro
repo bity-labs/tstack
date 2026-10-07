@@ -39,7 +39,10 @@ const tailItems = shouldCollapse ? items.slice(items.length - tailCount) : [];
           {isCurrent(!shouldCollapse && i === items.length - 1) || !crumb.href ? (
             <span class="text-foreground truncate max-w-[12rem]">{crumb.label}</span>
           ) : (
-            <a href={resolveHref(crumb.href)} class="hover:text-foreground transition-colors truncate max-w-[12rem]">
+            <a
+              href={resolveHref(crumb.href)}
+              class="hover:text-foreground transition-colors truncate max-w-[12rem]"
+            >
               {crumb.label}
             </a>
           )}
@@ -57,7 +60,7 @@ const tailItems = shouldCollapse ? items.slice(items.length - tailCount) : [];
               <span class="tracking-widest">&hellip;</span>
             </summary>
             <div class="absolute left-0 top-full z-40 mt-1 min-w-[10rem] max-w-[16rem] rounded-lg border border-border bg-card p-1 shadow-lg">
-              {collapsedItems.map((crumb) => (
+              {collapsedItems.map((crumb) =>
                 crumb.href ? (
                   <a
                     href={resolveHref(crumb.href)}
@@ -70,24 +73,28 @@ const tailItems = shouldCollapse ? items.slice(items.length - tailCount) : [];
                     {crumb.label}
                   </span>
                 )
-              ))}
+              )}
             </div>
           </details>
         </li>
       )}
 
-      {shouldCollapse && tailItems.map((crumb, i) => (
-        <li class="flex items-center">
-          <span class="mx-1.5 text-muted-foreground/50">/</span>
-          {isCurrent(i === tailItems.length - 1) || !crumb.href ? (
-            <span class="text-foreground truncate max-w-[12rem]">{crumb.label}</span>
-          ) : (
-            <a href={resolveHref(crumb.href)} class="hover:text-foreground transition-colors truncate max-w-[12rem]">
-              {crumb.label}
-            </a>
-          )}
-        </li>
-      ))}
+      {shouldCollapse &&
+        tailItems.map((crumb, i) => (
+          <li class="flex items-center">
+            <span class="mx-1.5 text-muted-foreground/50">/</span>
+            {isCurrent(i === tailItems.length - 1) || !crumb.href ? (
+              <span class="text-foreground truncate max-w-[12rem]">{crumb.label}</span>
+            ) : (
+              <a
+                href={resolveHref(crumb.href)}
+                class="hover:text-foreground transition-colors truncate max-w-[12rem]"
+              >
+                {crumb.label}
+              </a>
+            )}
+          </li>
+        ))}
     </ol>
   </nav>
 )}

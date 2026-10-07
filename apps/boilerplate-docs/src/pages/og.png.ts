@@ -8,10 +8,10 @@ export async function GET() {
   const body = await generateOpenGraphImage({
     title: config.title,
     description: config.description,
-    ...ogCardConfig,
+    ...ogCardConfig
   });
 
   return new Response(body, {
-    headers: { "Content-Type": "image/png" },
+    headers: { "Content-Type": "image/png" }
   });
 }

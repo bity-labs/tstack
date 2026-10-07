@@ -15,13 +15,13 @@ The mobile application for the TStack v2 boilerplate, using the shared boilerpla
 
 Run from `apps/boilerplate-mobile-application`:
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Start the Expo dev server (Turbo routes `dev` to `expo start`) |
-| `pnpm start` | Expo dev server directly (`android`/`ios`/`web` variants available) |
-| `pnpm lint` | ESLint with the Expo flat config |
-| `pnpm typecheck` | `tsc --noEmit` strict TypeScript check |
-| `pnpm test` | Jest with `jest-expo` preset and React Native Testing Library |
-| `pnpm build` | Production web bundle/export via `expo export --platform web` |
+| Command          | Purpose                                                             |
+| ---------------- | ------------------------------------------------------------------- |
+| `pnpm dev`       | Start the Expo dev server (Turbo routes `dev` to `expo start`)      |
+| `pnpm start`     | Expo dev server directly (`android`/`ios`/`web` variants available) |
+| `pnpm lint`      | ESLint with the Expo flat config                                    |
+| `pnpm typecheck` | `tsc --noEmit` strict TypeScript check                              |
+| `pnpm test`      | Jest with `jest-expo` preset and React Native Testing Library       |
+| `pnpm build`     | Production web bundle/export via `expo export --platform web`       |
 
 Native Android/iOS compilation and EAS builds are intentionally out of scope; `expo export` validates the production bundle target only. Device/E2E testing is deferred.

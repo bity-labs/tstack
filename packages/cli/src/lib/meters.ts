@@ -57,7 +57,7 @@ export function readMeters(filePath: string): Meter[] {
   }
 
   const errors = data.meters.flatMap((meter, index) =>
-    validateMeter(meter).map((error) => `meters[${index}]: ${error}`),
+    validateMeter(meter).map((error) => `meters[${index}]: ${error}`)
   );
 
   if (errors.length > 0) {
@@ -72,8 +72,12 @@ function meterToObjectLiteral(meter: Meter): string {
   lines.push("  {");
   lines.push(`    slug: "${escapeString(meter.slug)}",`);
   lines.push(`    name: "${escapeString(meter.name)}",`);
-  lines.push(`    polarMeterId: ${meter.polarMeterId != null ? `"${escapeString(meter.polarMeterId)}"` : "null"},`);
-  lines.push(`    eventNames: [${meter.eventNames.map((eventName) => `"${escapeString(eventName)}"`).join(",")}],`);
+  lines.push(
+    `    polarMeterId: ${meter.polarMeterId != null ? `"${escapeString(meter.polarMeterId)}"` : "null"},`
+  );
+  lines.push(
+    `    eventNames: [${meter.eventNames.map((eventName) => `"${escapeString(eventName)}"`).join(",")}],`
+  );
   lines.push("  }");
   return lines.join("\n");
 }
@@ -105,20 +109,22 @@ export function generateMetersTypeScript(options: {
   parts.push("] as const satisfies readonly GeneratedMeter[];");
   parts.push("");
   parts.push("export type MeterSlug =");
-  parts.push("  | (typeof sandboxMeters)[number][\"slug\"]");
-  parts.push("  | (typeof productionMeters)[number][\"slug\"];");
+  parts.push('  | (typeof sandboxMeters)[number]["slug"]');
+  parts.push('  | (typeof productionMeters)[number]["slug"];');
   parts.push("");
   parts.push("export type MeterEventNames<S extends MeterSlug> = Extract<");
   parts.push("  (typeof sandboxMeters)[number] | (typeof productionMeters)[number],");
   parts.push("  { slug: S }");
-  parts.push(">[\"eventNames\"][number];");
+  parts.push('>["eventNames"][number];');
   parts.push("");
-  parts.push("export function getMeters(env: \"sandbox\" | \"production\"): readonly GeneratedMeter[] {");
-  parts.push("  return env === \"sandbox\" ? sandboxMeters : productionMeters;");
+  parts.push(
+    'export function getMeters(env: "sandbox" | "production"): readonly GeneratedMeter[] {'
+  );
+  parts.push('  return env === "sandbox" ? sandboxMeters : productionMeters;');
   parts.push("}");
   parts.push("");
   parts.push("export function getMeter(");
-  parts.push("  env: \"sandbox\" | \"production\",");
+  parts.push('  env: "sandbox" | "production",');
   parts.push("  slug: MeterSlug,");
   parts.push("): GeneratedMeter | undefined {");
   parts.push("  return getMeters(env).find((m) => m.slug === slug);");
@@ -129,7 +135,7 @@ export function generateMetersTypeScript(options: {
   parts.push(" * Falls back to the raw event name if no matching meter is found.");
   parts.push(" */");
   parts.push("export function resolveEventDisplayName(");
-  parts.push("  env: \"sandbox\" | \"production\",");
+  parts.push('  env: "sandbox" | "production",');
   parts.push("  eventName: string,");
   parts.push("): string {");
   parts.push("  const meters = getMeters(env);");

@@ -16,24 +16,24 @@ that must survive the Fumadocs → Nimbus Docs migration.
 
 Fumadocs collection root: `content/docs/`, `baseUrl: "/"`. Each entry lists title/description from frontmatter; body files are the migrated content.
 
-| Source file | Public URL | Notes |
-| --- | --- | --- |
-| `content/docs/index.mdx` | `/` | Landing page with component status table + start-here links |
-| `content/docs/getting-started/index.mdx` | `/getting-started` | Getting-started index |
-| `content/docs/getting-started/prerequisites.mdx` | `/getting-started/prerequisites` | |
-| `content/docs/getting-started/quick-start.mdx` | `/getting-started/quick-start` | |
-| `content/docs/harness/overview.mdx` | `/harness/overview` | |
-| `content/docs/harness/installation.mdx` | `/harness/installation` | |
-| `content/docs/harness/template-structure.mdx` | `/harness/template-structure` | |
-| `content/docs/harness/skills.mdx` | `/harness/skills` | |
-| `content/docs/harness/workflows.mdx` | `/harness/workflows` | |
-| `content/docs/harness/supported-agents.mdx` | `/harness/supported-agents` | |
-| `content/docs/harness/known-limitations.mdx` | `/harness/known-limitations` | |
-| `content/docs/boilerplate/overview.mdx` | `/boilerplate/overview` | |
-| `content/docs/reference/commands.mdx` | `/reference/commands` | |
-| `content/docs/reference/cli.mdx` | `/reference/cli` | |
-| `content/docs/reference/troubleshooting.mdx` | `/reference/troubleshooting` | |
-| `content/docs/reference/known-limitations.mdx` | `/reference/known-limitations` | |
+| Source file                                      | Public URL                       | Notes                                                       |
+| ------------------------------------------------ | -------------------------------- | ----------------------------------------------------------- |
+| `content/docs/index.mdx`                         | `/`                              | Landing page with component status table + start-here links |
+| `content/docs/getting-started/index.mdx`         | `/getting-started`               | Getting-started index                                       |
+| `content/docs/getting-started/prerequisites.mdx` | `/getting-started/prerequisites` |                                                             |
+| `content/docs/getting-started/quick-start.mdx`   | `/getting-started/quick-start`   |                                                             |
+| `content/docs/harness/overview.mdx`              | `/harness/overview`              |                                                             |
+| `content/docs/harness/installation.mdx`          | `/harness/installation`          |                                                             |
+| `content/docs/harness/template-structure.mdx`    | `/harness/template-structure`    |                                                             |
+| `content/docs/harness/skills.mdx`                | `/harness/skills`                |                                                             |
+| `content/docs/harness/workflows.mdx`             | `/harness/workflows`             |                                                             |
+| `content/docs/harness/supported-agents.mdx`      | `/harness/supported-agents`      |                                                             |
+| `content/docs/harness/known-limitations.mdx`     | `/harness/known-limitations`     |                                                             |
+| `content/docs/boilerplate/overview.mdx`          | `/boilerplate/overview`          |                                                             |
+| `content/docs/reference/commands.mdx`            | `/reference/commands`            |                                                             |
+| `content/docs/reference/cli.mdx`                 | `/reference/cli`                 |                                                             |
+| `content/docs/reference/troubleshooting.mdx`     | `/reference/troubleshooting`     |                                                             |
+| `content/docs/reference/known-limitations.mdx`   | `/reference/known-limitations`   |                                                             |
 
 No content pages use a Fumadocs UI metadata shell (`full`, components, or icons imported from `fumadocs-ui`); pages are plain Markdown/MDX besides frontmatter, so content migrates without component rewrites.
 
@@ -60,8 +60,8 @@ No other static assets are referenced by content (grep confirmed: no `![` images
 
 ## Machine-readable endpoints inventory
 
-| Route file | URL | Behavior |
-| --- | --- | --- |
+| Route file                       | URL                  | Behavior                                                                                                                                                           |
+| -------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `src/app/llms-full.txt/route.ts` | `GET /llms-full.txt` | Aggregates every docs page via `getLLMText(page)` (page title + processed markdown body) into a single `text/plain; charset=utf-8` document. `revalidate = false`. |
 
 There is no `/llms.txt` index route, no sitemap, no per-page markdown endpoints, and no OpenAPI/JSON endpoints. The `/llms-full.txt` endpoint is the only machine-readable behavior and must be retained or mapped (issue wording: "including the existing llms endpoint").
@@ -79,7 +79,7 @@ Content uses absolute internal links, e.g. `/getting-started/quick-start`, `/har
 - Serving stays in-repo on Astro static output (`astro build` → `dist/`); no new hosting provider was selected, and no URL changed, so no redirect rules are required. The 16 pre-migration URLs are byte-for-byte identical slugs (verified against `dist/` directory output and `astro preview` HTTP responses).
 - Navigation order preservation: Fumadocs `meta.json` order (root + per-section) is reproduced via the Nimbus `sidebar.items` config in `astro.config.ts` plus per-page `sidebar.order` frontmatter migrated from each `meta.json` entry.
 - Assets: `public/logo.png` (referenced by the repository root README) and a favicon are retained. The Fumadocs header logo image (`/logo.png` in top nav) is replaced by Nimbus's text title in the header (`config.title` = "TStack Documentation") with a header GitHub icon replacing the Fumadocs "GitHub" links (`github: https://github.com/bity-labs/tstack`). `public/og.png` is replaced by Nimbus's generated per-page/site OG cards (`/og.png`, `/og/<slug>`); the static file itself is not carried over.
-- Machine-readable endpoints: `GET /llms-full.txt` is retained (Nimbus `llmsFullRoute`), and the migration makes it the *index* of the agent docs (`llms.txt` links to it) instead of the Fumadocs processed-markdown concatenation; page markdown alternates (`/<path>.md`, `/<path>.mdx`), `/llms.txt` (root + per-section), `/nimbus-api/coordinates.json`, and `robots.txt`/`sitemap-index.xml` are additive.
+- Machine-readable endpoints: `GET /llms-full.txt` is retained (Nimbus `llmsFullRoute`), and the migration makes it the _index_ of the agent docs (`llms.txt` links to it) instead of the Fumadocs processed-markdown concatenation; page markdown alternates (`/<path>.md`, `/<path>.mdx`), `/llms.txt` (root + per-section), `/nimbus-api/coordinates.json`, and `robots.txt`/`sitemap-index.xml` are additive.
 - Sidebar pseudo-entry `[LLM Documentation](/llms-full.txt)`: intentionally not re-created as a fake page in the content tree; the same audience is served by the persistent `AgentDirective` (pointing at `/llms.txt`) and this mapping statement.
 
 ## Migration URL mapping statement

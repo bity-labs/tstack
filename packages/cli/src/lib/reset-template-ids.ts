@@ -1,15 +1,15 @@
-export function resetTemplateIds<T extends Record<string, unknown>>(
-  data: T,
-  arrayKey: string,
-): T {
+export function resetTemplateIds<T extends Record<string, unknown>>(data: T, arrayKey: string): T {
   if (!(arrayKey in data)) {
     return data;
   }
 
-  const array = data[arrayKey];
-  if (!Array.isArray(array)) {
+  const value = data[arrayKey];
+  if (!Array.isArray(value)) {
     return data;
   }
+  // Array.isArray narrows `unknown` to `any[]`; keep elements explicit so the
+  // items are handled as untrusted data.
+  const array: unknown[] = value;
 
   const idKey = arrayKey === "meters" ? "polarMeterId" : "polarProductId";
 
@@ -20,6 +20,6 @@ export function resetTemplateIds<T extends Record<string, unknown>>(
         return { ...item, [idKey]: null };
       }
       return item;
-    }),
+    })
   };
 }

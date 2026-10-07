@@ -13,7 +13,7 @@ export async function GET() {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       // Adapter-dependent for static output; set CDN cache policy at the host.
-      "Cache-Control": "public, max-age=3600",
-    },
+      "Cache-Control": "public, max-age=3600"
+    }
   });
 }

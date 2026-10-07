@@ -15,16 +15,16 @@ function initTabContainer(container: HTMLElement): () => void {
 
   // Scope to this container so a nested <Tabs>'s triggers don't flip the
   // parent into manual mode (or vice-versa), independent of mount order.
-  const existingTriggers = Array.from(
-    container.querySelectorAll("[data-nb-tabs-trigger]"),
-  ).filter((t) => (t as HTMLElement).closest("[data-nb-tabs]") === container);
+  const existingTriggers = Array.from(container.querySelectorAll("[data-nb-tabs-trigger]")).filter(
+    (t) => (t as HTMLElement).closest("[data-nb-tabs]") === container
+  );
   const synthesize = existingTriggers.length === 0;
 
   if (synthesize && tablist) {
     // Only this container's own panels — exclude a nested <Tabs>'s panels,
     // whose nearest [data-nb-tabs] ancestor is the inner container.
     const panels = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-nb-tabs-content]"),
+      container.querySelectorAll<HTMLElement>("[data-nb-tabs-content]")
     ).filter((p) => p.closest("[data-nb-tabs]") === container);
 
     panels.forEach((panel, i) => {
@@ -65,8 +65,7 @@ function initTabContainer(container: HTMLElement): () => void {
     // scrollIntoView, which would also scroll the page vertically).
     onActivate: (index) => {
       if (!tablist) return;
-      const trigger =
-        tablist.querySelectorAll<HTMLElement>("[data-nb-tabs-trigger]")[index];
+      const trigger = tablist.querySelectorAll<HTMLElement>("[data-nb-tabs-trigger]")[index];
       if (!trigger) return;
       const left = trigger.offsetLeft;
       const right = left + trigger.offsetWidth;
@@ -75,15 +74,13 @@ function initTabContainer(container: HTMLElement): () => void {
       } else if (right > tablist.scrollLeft + tablist.clientWidth) {
         tablist.scrollLeft = right - tablist.clientWidth;
       }
-    },
+    }
   });
 
   // Cross-instance sync is keyed by trigger label; duplicate labels in a group
   // resolve by first-match and activate the wrong panel. Surface it in dev.
   if (import.meta.env.DEV && syncKey && tablist) {
-    const labels = Array.from(
-      tablist.querySelectorAll<HTMLElement>("[data-nb-tabs-trigger]"),
-    )
+    const labels = Array.from(tablist.querySelectorAll<HTMLElement>("[data-nb-tabs-trigger]"))
       .filter((t) => t.closest("[data-nb-tabs]") === container)
       .map((t) => (t.textContent ?? "").trim());
     const dupes = [...new Set(labels.filter((l, i) => labels.indexOf(l) !== i))];
@@ -92,7 +89,7 @@ function initTabContainer(container: HTMLElement): () => void {
         `[nimbus] <Tabs syncKey="${syncKey}"> has duplicate tab labels (${dupes
           .map((d) => `"${d}"`)
           .join(", ")}). Sync is keyed by label, so a duplicate activates the ` +
-          `first match. Give each tab a unique label.`,
+          `first match. Give each tab a unique label.`
       );
     }
   }

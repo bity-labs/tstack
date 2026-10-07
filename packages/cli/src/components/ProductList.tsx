@@ -27,7 +27,7 @@ export interface ProductListProps {
 function formatPrice(product: ProductListProduct): string {
   const price = product.prices[0];
   if (!price) return "Free";
-  const base = formatLibPrice(price as import("../lib/products.js").ProductPrice);
+  const base = formatLibPrice(price);
   if (product.type === "subscription" && product.recurringInterval) {
     return `${base}/${product.recurringInterval}`;
   }

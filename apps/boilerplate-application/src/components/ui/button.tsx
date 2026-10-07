@@ -10,19 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:opacity-90",
-        outline:
-          "border border-foreground/20 bg-transparent hover:bg-muted",
+        outline: "border border-foreground/20 bg-transparent hover:bg-muted"
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-      },
+        lg: "h-10 rounded-md px-8"
+      }
     },
     defaultVariants: {
       variant: "default",
-      size: "default",
-    },
+      size: "default"
+    }
   }
 );
 

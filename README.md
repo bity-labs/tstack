@@ -45,13 +45,14 @@ pnpm dev:documentation
 Validate the implemented workspaces from the repository root:
 
 ```sh
-pnpm test
-pnpm typecheck
+pnpm format:check
 pnpm lint
+pnpm typecheck
+pnpm test
 pnpm build
 ```
 
-README-only placeholders do not participate in Turbo tasks. The documentation app intentionally has no test script until the quality-tooling follow-up; its build, typecheck, and Nimbus authoring lint are real checks.
+README-only placeholders do not participate in Turbo tasks. The documentation app intentionally has no test script; its build, typecheck, ESLint lint, and Nimbus authoring lint are real checks. Workspace test scripts collect coverage, and existing suites fail when they collect zero tests.
 
 ## Deferred decisions
 

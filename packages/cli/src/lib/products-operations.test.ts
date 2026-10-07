@@ -10,7 +10,7 @@ import {
   archiveOrphanProducts,
   importOrphanProducts,
   syncSandboxToProduction,
-  type OperationResult,
+  type OperationResult
 } from "./products-operations.js";
 
 vi.mock("./polar.js", async () => {
@@ -20,7 +20,7 @@ vi.mock("./polar.js", async () => {
     archivePolarProduct: vi.fn(),
     unarchivePolarProduct: vi.fn(),
     listActivePolarProducts: vi.fn(),
-    toBuyerMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    toBuyerMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err)))
   };
 });
 
@@ -51,19 +51,31 @@ describe("removeProducts", () => {
               type: "subscription",
               recurringInterval: "month",
               prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
-              display: { title: "Pro", features: ["A"], badge: null, highlighted: false, cta: "Go" },
-              polarProductId: "p1",
+              display: {
+                title: "Pro",
+                features: ["A"],
+                badge: null,
+                highlighted: false,
+                cta: "Go"
+              },
+              polarProductId: "p1"
             },
             {
               slug: "free-tier",
               name: "Free Tier",
               type: "free",
               prices: [{ amountType: "free" }],
-              display: { title: "Free", features: ["B"], badge: null, highlighted: false, cta: "Go" },
-              polarProductId: null,
-            },
-          ],
-        }),
+              display: {
+                title: "Free",
+                features: ["B"],
+                badge: null,
+                highlighted: false,
+                cta: "Go"
+              },
+              polarProductId: null
+            }
+          ]
+        })
       );
 
       const client = {} as import("@polar-sh/sdk").Polar;
@@ -73,15 +85,19 @@ describe("removeProducts", () => {
         productsFilePath,
         slugsToRemove: ["pro-monthly"],
         client,
-        regenerate,
+        regenerate
       });
 
       expect(vi.mocked(polar.archivePolarProduct)).toHaveBeenCalledWith(client, "p1");
       expect(results).toEqual<OperationResult[]>([
-        { slug: "pro-monthly", status: "success", message: "Removed" },
+        { slug: "pro-monthly", status: "success", message: "Removed" }
       ]);
 
-      const remaining = JSON.parse(readFileSync(productsFilePath, "utf8")).products;
+      const remaining = (
+        JSON.parse(readFileSync(productsFilePath, "utf8")) as {
+          products: Array<Record<string, unknown>>;
+        }
+      ).products;
       expect(remaining).toHaveLength(1);
       expect(remaining[0].slug).toBe("free-tier");
       expect(regenerate).toHaveBeenCalled();
@@ -106,10 +122,10 @@ describe("removeProducts", () => {
               type: "free",
               prices: [{ amountType: "free" }],
               display: { title: "Local", features: [], badge: null, highlighted: false, cta: "Go" },
-              polarProductId: null,
-            },
-          ],
-        }),
+              polarProductId: null
+            }
+          ]
+        })
       );
 
       const client = {} as import("@polar-sh/sdk").Polar;
@@ -119,13 +135,15 @@ describe("removeProducts", () => {
         productsFilePath,
         slugsToRemove: ["local-only"],
         client,
-        regenerate,
+        regenerate
       });
 
       expect(vi.mocked(polar.archivePolarProduct)).not.toHaveBeenCalled();
       expect(results[0]).toMatchObject({ slug: "local-only", status: "success" });
       expect(existsSync(productsFilePath)).toBe(true);
-      expect(JSON.parse(readFileSync(productsFilePath, "utf8")).products).toHaveLength(0);
+      expect(
+        (JSON.parse(readFileSync(productsFilePath, "utf8")) as { products: unknown[] }).products
+      ).toHaveLength(0);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -147,11 +165,17 @@ describe("removeProducts", () => {
               type: "subscription",
               recurringInterval: "month",
               prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
-              display: { title: "Pro", features: ["A"], badge: null, highlighted: false, cta: "Go" },
-              polarProductId: "p1",
-            },
-          ],
-        }),
+              display: {
+                title: "Pro",
+                features: ["A"],
+                badge: null,
+                highlighted: false,
+                cta: "Go"
+              },
+              polarProductId: "p1"
+            }
+          ]
+        })
       );
 
       vi.mocked(polar.archivePolarProduct).mockRejectedValue(new Error("Polar error"));
@@ -163,14 +187,18 @@ describe("removeProducts", () => {
         productsFilePath,
         slugsToRemove: ["pro-monthly"],
         client,
-        regenerate,
+        regenerate
       });
 
       expect(results).toEqual<OperationResult[]>([
-        { slug: "pro-monthly", status: "failure", message: "Polar error" },
+        { slug: "pro-monthly", status: "failure", message: "Polar error" }
       ]);
 
-      const remaining = JSON.parse(readFileSync(productsFilePath, "utf8")).products;
+      const remaining = (
+        JSON.parse(readFileSync(productsFilePath, "utf8")) as {
+          products: Array<Record<string, unknown>>;
+        }
+      ).products;
       expect(remaining).toHaveLength(1);
       expect(remaining[0].slug).toBe("pro-monthly");
       expect(regenerate).not.toHaveBeenCalled();
@@ -186,14 +214,14 @@ describe("unarchiveProducts", () => {
 
     const results = await unarchiveProducts({
       idsToUnarchive: ["p1", "p2"],
-      client,
+      client
     });
 
     expect(vi.mocked(polar.unarchivePolarProduct)).toHaveBeenCalledWith(client, "p1");
     expect(vi.mocked(polar.unarchivePolarProduct)).toHaveBeenCalledWith(client, "p2");
     expect(results).toEqual<OperationResult[]>([
       { slug: "p1", status: "success", message: "Unarchived" },
-      { slug: "p2", status: "success", message: "Unarchived" },
+      { slug: "p2", status: "success", message: "Unarchived" }
     ]);
   });
 
@@ -206,12 +234,12 @@ describe("unarchiveProducts", () => {
 
     const results = await unarchiveProducts({
       idsToUnarchive: ["p1", "p2"],
-      client,
+      client
     });
 
     expect(results).toEqual<OperationResult[]>([
       { slug: "p1", status: "success", message: "Unarchived" },
-      { slug: "p2", status: "failure", message: "Polar error" },
+      { slug: "p2", status: "failure", message: "Polar error" }
     ]);
   });
 });
@@ -221,12 +249,12 @@ describe("findOrphanProducts", () => {
     vi.mocked(polar.listActivePolarProducts).mockResolvedValue([
       { id: "p1", name: "Orphan A" },
       { id: "p2", name: "Orphan B" },
-      { id: "p3", name: "Existing" },
+      { id: "p3", name: "Existing" }
     ]);
 
     const client = {} as import("@polar-sh/sdk").Polar;
     const localProducts = [
-      { slug: "existing", name: "Existing", polarProductId: "p3" },
+      { slug: "existing", name: "Existing", polarProductId: "p3" }
     ] as import("./products.js").Product[];
 
     const orphans = await findOrphanProducts({ client, localProducts });
@@ -237,13 +265,11 @@ describe("findOrphanProducts", () => {
   });
 
   it("returns empty array when no orphans exist", async () => {
-    vi.mocked(polar.listActivePolarProducts).mockResolvedValue([
-      { id: "p1", name: "Existing" },
-    ]);
+    vi.mocked(polar.listActivePolarProducts).mockResolvedValue([{ id: "p1", name: "Existing" }]);
 
     const client = {} as import("@polar-sh/sdk").Polar;
     const localProducts = [
-      { slug: "existing", name: "Existing", polarProductId: "p1" },
+      { slug: "existing", name: "Existing", polarProductId: "p1" }
     ] as import("./products.js").Product[];
 
     const orphans = await findOrphanProducts({ client, localProducts });
@@ -257,14 +283,14 @@ describe("archiveOrphanProducts", () => {
 
     const results = await archiveOrphanProducts({
       orphanIds: ["o1", "o2"],
-      client,
+      client
     });
 
     expect(vi.mocked(polar.archivePolarProduct)).toHaveBeenCalledWith(client, "o1");
     expect(vi.mocked(polar.archivePolarProduct)).toHaveBeenCalledWith(client, "o2");
     expect(results).toEqual<OperationResult[]>([
       { slug: "o1", status: "success", message: "Archived" },
-      { slug: "o2", status: "success", message: "Archived" },
+      { slug: "o2", status: "success", message: "Archived" }
     ]);
   });
 
@@ -277,12 +303,12 @@ describe("archiveOrphanProducts", () => {
 
     const results = await archiveOrphanProducts({
       orphanIds: ["o1", "o2"],
-      client,
+      client
     });
 
     expect(results).toEqual<OperationResult[]>([
       { slug: "o1", status: "success", message: "Archived" },
-      { slug: "o2", status: "failure", message: "Polar error" },
+      { slug: "o2", status: "failure", message: "Polar error" }
     ]);
   });
 });
@@ -297,8 +323,8 @@ describe("importOrphanProducts", () => {
         productsFilePath,
         JSON.stringify({
           $schema: "./products.schema.json",
-          products: [],
-        }),
+          products: []
+        })
       );
 
       const regenerate = vi.fn();
@@ -306,12 +332,14 @@ describe("importOrphanProducts", () => {
       const results = importOrphanProducts({
         productsFilePath,
         orphans: [{ id: "p1", name: "Orphan Product" }],
-        regenerate,
+        regenerate
       });
 
       expect(results[0]).toMatchObject({ slug: "orphan-product", status: "success" });
 
-      const data = JSON.parse(readFileSync(productsFilePath, "utf8"));
+      const data = JSON.parse(readFileSync(productsFilePath, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(data.products).toHaveLength(1);
       expect(data.products[0].slug).toBe("orphan-product");
       expect(data.products[0].polarProductId).toBe("p1");
@@ -336,10 +364,10 @@ describe("importOrphanProducts", () => {
               name: "Orphan Product",
               type: "free",
               prices: [{ amountType: "free" }],
-              display: { title: "Orphan", features: [], badge: null, highlighted: false, cta: "Go" },
-            },
-          ],
-        }),
+              display: { title: "Orphan", features: [], badge: null, highlighted: false, cta: "Go" }
+            }
+          ]
+        })
       );
 
       const regenerate = vi.fn();
@@ -347,12 +375,14 @@ describe("importOrphanProducts", () => {
       const results = importOrphanProducts({
         productsFilePath,
         orphans: [{ id: "p1", name: "Orphan Product" }],
-        regenerate,
+        regenerate
       });
 
       expect(results[0].slug).toBe("orphan-product-1");
 
-      const data = JSON.parse(readFileSync(productsFilePath, "utf8"));
+      const data = JSON.parse(readFileSync(productsFilePath, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(data.products).toHaveLength(2);
       expect(data.products[1].slug).toBe("orphan-product-1");
     } finally {
@@ -369,7 +399,7 @@ describe("syncSandboxToProduction", () => {
     try {
       const createMock = vi.fn().mockResolvedValue({ id: "prod-p1" });
       const client = {
-        products: { create: createMock },
+        products: { create: createMock }
       } as unknown as import("@polar-sh/sdk").Polar;
 
       const regenerate = vi.fn();
@@ -386,10 +416,10 @@ describe("syncSandboxToProduction", () => {
             features: ["A"],
             badge: null,
             highlighted: false,
-            cta: "Go",
+            cta: "Go"
           },
-          polarProductId: "sandbox-p1",
-        },
+          polarProductId: "sandbox-p1"
+        }
       ];
 
       const results = await syncSandboxToProduction({
@@ -397,13 +427,15 @@ describe("syncSandboxToProduction", () => {
         slugsToSync: ["pro-monthly"],
         productionClient: client,
         productionProductsFilePath,
-        regenerate,
+        regenerate
       });
 
       expect(createMock).toHaveBeenCalled();
       expect(results[0]).toMatchObject({ slug: "pro-monthly", status: "success" });
 
-      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8"));
+      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(data.products).toHaveLength(1);
       expect(data.products[0].polarProductId).toBe("prod-p1");
       expect(regenerate).toHaveBeenCalled();
@@ -429,15 +461,15 @@ describe("syncSandboxToProduction", () => {
               recurringInterval: "month",
               prices: [{ amountType: "fixed", amount: 1900, currency: "usd" }],
               display: { title: "Old", features: [], badge: null, highlighted: false, cta: "Go" },
-              polarProductId: "old-id",
-            },
-          ],
-        }),
+              polarProductId: "old-id"
+            }
+          ]
+        })
       );
 
       const createMock = vi.fn().mockResolvedValue({ id: "prod-p1" });
       const client = {
-        products: { create: createMock },
+        products: { create: createMock }
       } as unknown as import("@polar-sh/sdk").Polar;
 
       const regenerate = vi.fn();
@@ -454,10 +486,10 @@ describe("syncSandboxToProduction", () => {
             features: ["A"],
             badge: null,
             highlighted: false,
-            cta: "Go",
+            cta: "Go"
           },
-          polarProductId: "sandbox-p1",
-        },
+          polarProductId: "sandbox-p1"
+        }
       ];
 
       await syncSandboxToProduction({
@@ -465,10 +497,12 @@ describe("syncSandboxToProduction", () => {
         slugsToSync: ["pro-monthly"],
         productionClient: client,
         productionProductsFilePath,
-        regenerate,
+        regenerate
       });
 
-      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8"));
+      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(data.products).toHaveLength(1);
       expect(data.products[0].name).toBe("Pro Monthly");
       expect(data.products[0].polarProductId).toBe("prod-p1");
@@ -487,7 +521,7 @@ describe("syncSandboxToProduction", () => {
         .mockResolvedValueOnce({ id: "prod-p1" })
         .mockRejectedValueOnce(new Error("Polar error"));
       const client = {
-        products: { create: createMock },
+        products: { create: createMock }
       } as unknown as import("@polar-sh/sdk").Polar;
 
       const regenerate = vi.fn();
@@ -504,9 +538,9 @@ describe("syncSandboxToProduction", () => {
             features: ["A"],
             badge: null,
             highlighted: false,
-            cta: "Go",
+            cta: "Go"
           },
-          polarProductId: "sandbox-p1",
+          polarProductId: "sandbox-p1"
         },
         {
           slug: "pro-yearly",
@@ -519,10 +553,10 @@ describe("syncSandboxToProduction", () => {
             features: ["A"],
             badge: null,
             highlighted: false,
-            cta: "Go",
+            cta: "Go"
           },
-          polarProductId: "sandbox-p2",
-        },
+          polarProductId: "sandbox-p2"
+        }
       ];
 
       const results = await syncSandboxToProduction({
@@ -530,15 +564,17 @@ describe("syncSandboxToProduction", () => {
         slugsToSync: ["pro-monthly", "pro-yearly"],
         productionClient: client,
         productionProductsFilePath,
-        regenerate,
+        regenerate
       });
 
       expect(results).toEqual<OperationResult[]>([
         { slug: "pro-monthly", status: "success", message: "Synced to production" },
-        { slug: "pro-yearly", status: "failure", message: "Polar error" },
+        { slug: "pro-yearly", status: "failure", message: "Polar error" }
       ]);
 
-      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8"));
+      const data = JSON.parse(readFileSync(productionProductsFilePath, "utf8")) as {
+        products: Array<Record<string, unknown>>;
+      };
       expect(data.products).toHaveLength(1);
       expect(data.products[0].slug).toBe("pro-monthly");
     } finally {
