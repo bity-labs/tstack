@@ -9,7 +9,7 @@ TStack provides composable, reusable setup components. Builders can adopt them i
 | Path | Responsibility | Status |
 | --- | --- | --- |
 | `apps/documentation` | TStack's public Fumadocs documentation | Existing app |
-| `apps/boilerplate-website` | Product commercial/marketing website | README placeholder |
+| `apps/boilerplate-website` | Product commercial/marketing website | Minimal runnable static Astro scaffold (welcome page) |
 | `apps/boilerplate-application` | Product web application | README placeholder |
 | `apps/boilerplate-api` | Shared backend for web and mobile applications | README placeholder |
 | `apps/boilerplate-mobile-application` | Optional product mobile application | README placeholder |
