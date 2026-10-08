@@ -65,14 +65,14 @@ Root `renovate.json` configures weekly updates on Mondays (UTC), exact direct de
 
 See [dependency update policy and activation instructions](docs/dependency-updates.md). The configuration alone does not activate Renovate or GitHub vulnerability notifications.
 
-### TODO after merging v2 into the default branch
+### TODO after the integration branch merges into the default branch
 
 - [ ] Install/enable the Renovate GitHub App for this repository and complete onboarding with the committed configuration.
-- [ ] Remove `baseBranchPatterns: ["v2"]` from `renovate.json` to target the default branch after v2 development moves there; otherwise updates will continue targeting `v2`.
+- [ ] Remove the integration-branch `baseBranchPatterns` entry from `renovate.json` once dependency updates target the default branch; otherwise updates continue targeting the temporary integration branch.
 - [ ] Enable GitHub's dependency graph and Dependabot alerts, and configure maintainer notification preferences.
 - [ ] Keep Dependabot routine version updates disabled to avoid duplicate Renovate PRs; choose one owner for security-fix PRs too.
 - The `PR validation` GitHub Actions workflow ([docs/pr-validation.md](docs/pr-validation.md)) already validates affected workspaces with lint, typecheck, tests, build, and formatting against each PR's actual target branch; the following owner actions remain pending.
-- [ ] Configure branch protection/rulesets that require the `PR validation` status check (plus PR review) before merging so the gate is enforced.
+- [x] Branch protection on the default branch and the temporary integration branch requires the `PR validation` status check plus one approving review before merging (implemented in issue #65; repository-admin level, admins retain the pre-existing merge exemption).
 - [ ] Verify Renovate and security-fix PRs run the same gate once the Renovate GitHub App is activated; keep security Fix/patch PRs covered by `pull_request` triggers (no secrets, no `pull_request_target`).
 - [ ] Review and merge Renovate's initial dependency-pinning PR, including lockfile changes; verify subsequent minor/patch updates are grouped and major upgrades remain separate.
 - [ ] Confirm vulnerability alerts and out-of-schedule security-fix PRs are enabled; enable secret scanning and push protection where available.
