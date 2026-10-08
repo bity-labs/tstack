@@ -71,8 +71,9 @@ See [dependency update policy and activation instructions](docs/dependency-updat
 - [ ] Remove `baseBranchPatterns: ["v2"]` from `renovate.json` to target the default branch after v2 development moves there; otherwise updates will continue targeting `v2`.
 - [ ] Enable GitHub's dependency graph and Dependabot alerts, and configure maintainer notification preferences.
 - [ ] Keep Dependabot routine version updates disabled to avoid duplicate Renovate PRs; choose one owner for security-fix PRs too.
-- [ ] Add PR validation for lint, typecheck, tests, build, and formatting, replacing placeholder checks with meaningful checks as packages are implemented.
-- [ ] Configure branch protection/rulesets requiring PR review and passing validation checks.
+- The `PR validation` GitHub Actions workflow ([docs/pr-validation.md](docs/pr-validation.md)) already validates affected workspaces with lint, typecheck, tests, build, and formatting against each PR's actual target branch; the following owner actions remain pending.
+- [ ] Configure branch protection/rulesets that require the `PR validation` status check (plus PR review) before merging so the gate is enforced.
+- [ ] Verify Renovate and security-fix PRs run the same gate once the Renovate GitHub App is activated; keep security Fix/patch PRs covered by `pull_request` triggers (no secrets, no `pull_request_target`).
 - [ ] Review and merge Renovate's initial dependency-pinning PR, including lockfile changes; verify subsequent minor/patch updates are grouped and major upgrades remain separate.
 - [ ] Confirm vulnerability alerts and out-of-schedule security-fix PRs are enabled; enable secret scanning and push protection where available.
 
