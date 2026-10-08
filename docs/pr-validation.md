@@ -2,9 +2,12 @@
 
 Every pull request in this repository is validated by the `PR validation`
 workflow (`.github/workflows/pr-validation.yml`). Its aggregate `PR validation`
-check is intended to be a required merge check; enforcement requires branch
-protection or a ruleset that the repository owner still has to enable (see the
-README checklist).
+check is a required merge check: branch protection on `main` and `v2` requires
+it (together with one approving review) before merging, with the same settings
+the repository already used on `main`. Repository administrators can still
+merge without the check (`enforce_admins` stays disabled, matching the
+pre-existing protection), so treat the exemption as a known owner exemption
+rather than a hard failure boundary.
 
 ## What runs on a pull request
 
@@ -102,8 +105,10 @@ without installing workspace packages.
 
 ## Not covered by this workflow
 
-- Branch protection or rulesets requiring `PR validation` before merge remain
-  an owner action (see the README checklist).
+-- Branch protection requiring `PR validation` (plus one approving review)
+before merge is configured on `main` and `v2`; see the README checklist for
+the remaining owner actions.
+
 - Renovate activation, GitHub vulnerability-notification setup, and the
   default-branch transition from `v2` are documented manual steps.
 - Documentation link checking, browser/mobile E2E testing, Expo EAS native
