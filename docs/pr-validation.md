@@ -2,7 +2,8 @@
 
 Every pull request in this repository is validated by the `PR validation`
 workflow (`.github/workflows/pr-validation.yml`). Its aggregate `PR validation`
-check is a required merge check: branch protection on `main` and `v2` requires
+check is a required merge check: branch protection on the default branch and
+the temporary integration branch requires
 it (together with one approving review) before merging, with the same settings
 the repository already used on `main`. Repository administrators can still
 merge without the check (`enforce_admins` stays disabled, matching the
@@ -106,11 +107,13 @@ without installing workspace packages.
 ## Not covered by this workflow
 
 - Branch protection requiring `PR validation` (plus one approving review)
-  before merge is configured on `main` and `v2`; see the README checklist for
+  before merge is configured on the default branch and the temporary
+  integration branch; see the README checklist for
   the remaining owner actions.
 
 - Renovate activation, GitHub vulnerability-notification setup, and the
-  default-branch transition from `v2` are documented manual steps.
+  the default-branch transition away from the temporary integration branch
+  are documented manual steps.
 - Documentation link checking, browser/mobile E2E testing, Expo EAS native
   builds and device tests, and deployment/publishing are intentionally out of
   scope.
