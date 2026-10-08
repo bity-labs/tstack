@@ -24,6 +24,11 @@ jobs:
     timeout-minutes: 10
     outputs:
       selection: ${{ steps.detect.outputs.selection }}
+      selection_matrix: ${{ steps.detect.outputs.selection_matrix }}
+      formatting_only: ${{ steps.detect.outputs.formatting_only }}
+      evaluate_all: ${{ steps.detect.outputs.evaluate_all }}
+      lockfile_ambiguous: ${{ steps.detect.outputs.lockfile_ambiguous }}
+      machinery: ${{ steps.detect.outputs.machinery }}
       head_sha: ${{ steps.refs.outputs.head_sha }}
       base_sha: ${{ steps.refs.outputs.base_sha }}
     steps:
