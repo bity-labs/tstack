@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "lint": "eslint . --max-warnings=0",
-    "test": "astro build && vitest run --coverage"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "astro": "7.3.6"

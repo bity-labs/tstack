@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-// Runs after `astro build` in the workspace `test` script: asserts that the
+// Turbo runs this workspace's `test` task after its `build` task (see the
+// package-local turbo.json): asserts that the
 // production standalone output actually serves the welcome behavior, not
 // just that a page exists in src/.
 describe("production build output", () => {
