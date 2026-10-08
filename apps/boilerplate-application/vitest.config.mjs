@@ -6,7 +6,10 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
-    environment: "node"
+    // happy-dom serves component tests; the Effect welcome tests are
+    // environment-agnostic and pass under the same DOM environment.
+    environment: "happy-dom",
+    setupFiles: [path.resolve(rootDir, "tests/setup.ts")]
   },
   resolve: {
     alias: {
