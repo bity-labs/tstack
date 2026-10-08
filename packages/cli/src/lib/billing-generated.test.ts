@@ -31,26 +31,44 @@ describe("writeBillingGenerated", () => {
           features: ["Unlimited projects"],
           badge: null,
           highlighted: false,
-          cta: "Get Started",
+          cta: "Get Started"
         },
-        polarProductId: null,
+        polarProductId: null
       };
       const meter = {
         slug: "llm-tokens",
         name: "LLM Tokens",
         polarMeterId: null,
-        eventNames: ["use-credit"],
+        eventNames: ["use-credit"]
       };
 
-      writeJson(join(polarDir, "products.sandbox.json"), { products: [{ ...product, polarProductId: "prod-sandbox" }] });
+      writeJson(join(polarDir, "products.sandbox.json"), {
+        products: [{ ...product, polarProductId: "prod-sandbox" }]
+      });
       writeJson(join(polarDir, "products.production.json"), { products: [product] });
-      writeJson(join(polarDir, "meters.sandbox.json"), { meters: [{ ...meter, polarMeterId: "meter-sandbox" }] });
+      writeJson(join(polarDir, "meters.sandbox.json"), {
+        meters: [{ ...meter, polarMeterId: "meter-sandbox" }]
+      });
       writeJson(join(polarDir, "meters.production.json"), { meters: [meter] });
 
       writeBillingGenerated({ projectDir: dir });
 
-      const productsPath = join(dir, "src", "features", "billing", "generated", "products.generated.ts");
-      const metersPath = join(dir, "src", "features", "billing", "generated", "meters.generated.ts");
+      const productsPath = join(
+        dir,
+        "src",
+        "features",
+        "billing",
+        "generated",
+        "products.generated.ts"
+      );
+      const metersPath = join(
+        dir,
+        "src",
+        "features",
+        "billing",
+        "generated",
+        "meters.generated.ts"
+      );
       expect(existsSync(productsPath)).toBe(true);
       expect(existsSync(metersPath)).toBe(true);
       expect(readFileSync(productsPath, "utf8")).toContain('productId: "prod-sandbox"');

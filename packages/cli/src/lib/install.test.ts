@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
+  execSync: vi.fn()
 }));
 
 import { execSync } from "node:child_process";

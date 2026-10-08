@@ -1,0 +1,22 @@
+---
+title: "Boilerplate Overview"
+description: "The planned three-app product starter and its current placeholder status."
+sidebar:
+  order: 1
+---
+
+The v2 boilerplate separates three concerns:
+
+| Source directory               | Purpose                               |
+| ------------------------------ | ------------------------------------- |
+| `apps/boilerplate-website`     | Commercial and marketing website      |
+| `apps/boilerplate-application` | Product application                   |
+| `apps/boilerplate-docs`        | Customer-facing product documentation |
+
+All three directories currently contain only a README. There is no runnable v2 boilerplate yet, and `tstack init` reports that v2 scaffolding is not implemented yet.
+
+The planned export is one standalone pnpm/Turborepo workspace with independently deployable apps and any required shared packages. Stack choices, provider integrations, and the export implementation remain undefined.
+
+`apps/documentation` is different: it is the existing documentation site for TStack itself, not a boilerplate app.
+
+The previous starter and its guides are preserved in the [v1 documentation](https://github.com/bity-labs/tstack/tree/v1/apps/documentation/content/docs). Those guides do not describe the v2 placeholders.

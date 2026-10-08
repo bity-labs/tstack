@@ -33,7 +33,7 @@ const stepOrder = [
   "git",
   "install",
   "brand",
-  "complete",
+  "complete"
 ] as const;
 
 export function CompletedSteps({ config, currentStep }: CompletedStepsProps) {

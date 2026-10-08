@@ -1,0 +1,182 @@
+name: PR validation
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    description: Simulation entry point used to validate_detection behavior on a real pull request.
+    inputs:
+      pr_number:
+        description: Pull request number to validate (optional when run from a pull request event).
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number || github.event.workflow_dispatch.inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Detect affected workspaces
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      selection: ${{ steps.detect.outputs.selection }}
+      selection_matrix: ${{ steps.detect.outputs.selection_matrix }}
+      formatting_only: ${{ steps.detect.outputs.formatting_only }}
+      evaluate_all: ${{ steps.detect.outputs.evaluate_all }}
+      lockfile_ambiguous: ${{ steps.detect.outputs.lockfile_ambiguous }}
+      machinery: ${{ steps.detect.outputs.machinery }}
+      head_sha: ${{ steps.refs.outputs.head_sha }}
+      base_sha: ${{ steps.refs.outputs.base_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve pull request refs
+        id: refs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.sha }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != pull_request ]; then
+            base_sha=$(
+              gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq .base.sha
+            )
+            head_sha=$(
+              gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq .head.sha
+            )
+          else
+            base_sha=$PR_BASE_SHA
+            head_sha=$PR_HEAD_SHA
+          fi
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+      - name: Compute affected workspaces against the actual target branch
+        id: detect
+        env:
+          BASE_SHA: ${{ steps.refs.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.refs.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          # Detection errors exit non-zero and fail the gate.
+          json=$(node scripts/pr-validation/detect.mjs --base "$BASE_SHA" --head "$HEAD_SHA")
+          echo "selection=$(echo "$json" | jq -c .selection)" >> "$GITHUB_OUTPUT"
+          echo "selection_matrix=$(echo "$json" | jq -c .selection_matrix)" >> "$GITHUB_OUTPUT"
+          echo "PR validation detected $(echo "$json" | jq -r .selection | tr -d '[]' | tr ',' ' ')" \
+            | tee "$GITHUB_STEP_SUMMARY"
+          echo "formatting_only=$(echo "$json" | jq .formattingOnly)" >> "$GITHUB_OUTPUT"
+          echo "evaluate_all=$(echo "$json" | jq .evaluateAll)" >> "$GITHUB_OUTPUT"
+          echo "lockfile_ambiguous=$(echo "$json" | jq .lockfileAmbiguous)" >> "$GITHUB_OUTPUT"
+          echo "machinery=$(echo "$json" | jq .machinery)" >> "$GITHUB_OUTPUT"
+
+  workspace-checks:
+    name: Validate / ${{ matrix.entry.slug }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: detect
+    if: ${{ needs.detect.outputs.selection != '[]' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        entry: ${{ fromJSON(needs.detect.outputs.selection_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.detect.outputs.head_sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install workspace dependencies
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+      - name: Workspace lint/typecheck/test/build
+        run: |
+          set -euo pipefail
+          pnpm exec turbo run ${{ matrix.entry.tasks }} --filter=${{ matrix.entry.pkg }}
+      - name: Upload coverage package artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.entry.slug }}
+          path: ${{ matrix.entry.workspace }}/coverage/
+          if-no-files-found: warn
+          retention-days: 5
+
+  machinery-tests:
+    name: Validate / PR-validation machinery
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: detect
+    if: ${{ needs.detect.outputs.machinery == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.detect.outputs.head_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run the PR-validation machinery test suites
+        run: |
+          set -euo pipefail
+          node --test scripts/pr-validation/*.test.mjs
+
+  repository-formatting:
+    name: Formatting check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install workspace dependencies
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+      - name: Repository formatting (Prettier)
+        run: |
+          set -euo pipefail
+          pnpm format:check
+
+  pr-validation:
+    name: PR validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    needs: [detect, workspace-checks, machinery-tests, repository-formatting]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.detect.outputs.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Aggregate the PR validation status
+        env:
+          GPR_DETECT_RESULT: ${{ needs.detect.result }}
+          GPR_VALIDATE_RESULT: ${{ needs.workspace-checks.result }}
+          GPR_FORMAT_RESULT: ${{ needs.repository-formatting.result }}
+          GPR_SELECTION: ${{ needs.detect.outputs.selection }}
+          GPR_MACHINERY_APPLICABLE: ${{ needs.detect.outputs.machinery }}
+          GPR_MACHINERY_RESULT: ${{ needs.machinery-tests.result }}
+        run: |
+          set -uo pipefail
+          node scripts/pr-validation/gate.mjs 2>&1 | tee "$GITHUB_STEP_SUMMARY"
+          exit "${PIPESTATUS[0]}"

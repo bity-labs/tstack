@@ -15,7 +15,8 @@
 - Do not implement CLI, installer, scaffold, release, payment, deployment, or repository automation behavior without a dedicated issue.
 - Do not add large boilerplate features, providers, or product-specific behavior without a dedicated issue.
 - Preserve `.gitkeep` files only for directories that must remain tracked while empty.
-- Keep root documentation about maintaining this repository. Buyer-facing documentation belongs in `apps/documentation`.
+- Keep root documentation about maintaining this repository. Public TStack documentation belongs in `apps/documentation`; `apps/boilerplate-docs` is the future product documentation template.
+- README-only component directories are intentional placeholders, not runnable workspace packages. Do not add manifests, dependencies, or speculative implementation just to populate them.
 
 ## Harness Dogfooding
 
@@ -23,7 +24,6 @@
 - Editing files under root `.agents/skills` changes the harness template source of truth.
 - Root `docs/engineering` is a symlink to `packages/harness/templates/default/docs/engineering` so shared engineering doctrine is not duplicated.
 - Root `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` are real monorepo-specific working documents, not symlinks to the harness template.
-- `apps/boilerplate` follows the same rule: `.agents` and `docs/engineering` are symlinked harness assets; `AGENTS.md`, context, standards, ADRs, and stack docs are real boilerplate-specific files.
 - Any standalone install or boilerplate scaffold must copy every harness file as a real file so the target project works in isolation.
 
 ## Validation Commands
@@ -35,6 +35,7 @@ pnpm build
 pnpm lint
 pnpm test
 pnpm typecheck
+pnpm format  # or pnpm format:check
 ```
 
-These commands currently route through Turbo and should pass or no-op cleanly for workspaces without matching scripts.
+`lint`, `test`, `typecheck`, and `build` route through Turbo for packages with manifests and matching scripts. README-only placeholders are not included. Workspace lint uses ESLint with `--max-warnings=0`, and coverage is collected from the workspace test scripts. The documentation app intentionally has no test script; do not invent placeholder tests for it.

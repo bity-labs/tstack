@@ -1,0 +1,26 @@
+{
+  "name": "@tstack/boilerplate-website",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "astro": "7.3.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "eslint": "10.12.0",
+    "eslint-plugin-astro": "3.2.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "5.0.3",
+    "@vitest/coverage-v8": "5.0.3"
+  }
+}

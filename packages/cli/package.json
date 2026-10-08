@@ -9,17 +9,21 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "lint": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run --bail 1",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run --bail 1 --coverage",
     "tstack": "tsx src/cli.ts",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "^20.19.17",
     "@types/react": "^19.2.17",
+    "@vitest/coverage-v8": "4.1.9",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "6.1.1",
     "ink-testing-library": "^4.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5",
+    "typescript-eslint": "8.71.1",
     "vitest": "^4.0.17"
   },
   "dependencies": {

@@ -9,6 +9,7 @@ build/
 out/
 coverage/
 .turbo/
+.astro/
 
 # Logs
 *.log
@@ -24,6 +25,7 @@ yarn-error.log*
 
 # Local agent/worktree state
 .looper/
+.pi-subagents/
 .worktrees/
 
 # OS/editor files
