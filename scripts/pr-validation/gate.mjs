@@ -19,7 +19,6 @@
 
 const JOB_LABELS = {
   GPR_DETECT_RESULT: "detection",
-  GPR_VALIDATE_RESULT: "application checks",
   GPR_FORMAT_RESULT: "repository formatting"
 };
 
@@ -42,10 +41,24 @@ export function runGate(env) {
     };
   }
   if (selection.length === 0) {
+    // No application checks were required; the checks job skips by design.
+    const checksResult = env.GPR_VALIDATE_RESULT;
+    if (checksResult === undefined || checksResult === "skipped" || checksResult === "success") {
+      return {
+        ok: true,
+        message:
+          "PR validation passed — no application checks were applicable; repository formatting verified"
+      };
+    }
     return {
-      ok: true,
-      message:
-        "PR validation passed — no application checks were applicable; repository formatting verified"
+      ok: false,
+      message: `PR validation failed — no application checks were applicable but the checks job reported ${checksResult}`
+    };
+  }
+  if (env.GPR_VALIDATE_RESULT !== undefined && env.GPR_VALIDATE_RESULT !== "success") {
+    return {
+      ok: false,
+      message: `PR validation failed — application checks were required but reported ${env.GPR_VALIDATE_RESULT}`
     };
   }
   return {

@@ -35,6 +35,17 @@ describe("runGate", () => {
     }
   });
 
+  it("accepts an expected skip of the checks job when no application checks apply", () => {
+    const outcome = runGate({
+      GPR_DETECT_RESULT: "success",
+      GPR_VALIDATE_RESULT: "skipped",
+      GPR_FORMAT_RESULT: "success",
+      GPR_SELECTION: "[]"
+    });
+    assert.equal(outcome.ok, true);
+    assert.match(outcome.message, /no application checks/i);
+  });
+
   it("fails when a required job was cancelled or skipped", () => {
     for (const result of ["cancelled", "skipped"]) {
       const outcome = runGate({ ...SUCCESS, GPR_SELECTION: "[]", GPR_FORMAT_RESULT: result });
