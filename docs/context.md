@@ -95,7 +95,7 @@ Nimbus refers to [Nimbus Docs](https://nimbus-docs.com/get-started/). Its scaffo
 
 - Root `.prettierrc.json` (with `prettier-plugin-astro`) plus `.prettierignore`; run `pnpm format` / `pnpm format:check` from the root.
 - Each runnable workspace has an `eslint.config.mjs` and a `lint` script using `eslint . --max-warnings=0`: type-aware TypeScript rules in the CLI, API and Next.js app (`no-floating-promises`, `no-misused-promises`, documented `ts-expect-error` descriptions, `no-explicit-any` errors); the Astro plugin for the Astro apps and `eslint-config-expo` for the Expo app.
-- Workspace `test` scripts collect coverage (`vitest run --coverage` for the CLI, API, web app and both Nimbus documentation apps' content tests; `jest --coverage` for the mobile app). Suites without a test file fail instead of silently passing.
+- Workspace `test` scripts collect coverage (Vitest with `--coverage` for the CLI, API, web app and the boilerplate-docs content tests, whose pages collect no JS coverage units — see that app's README; `jest --coverage` for the mobile app). Suites without a test file fail instead of silently passing.
 - Run the whole pipeline from the root with `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build`. README-only placeholders and the documentation app's intentionally absent test script remain exempt.
 
 ## Agreed PR Validation Scope

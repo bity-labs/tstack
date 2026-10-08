@@ -24,4 +24,4 @@ pnpm --filter @tstack/boilerplate-docs test              # Vitest content tests 
 - `AGENT.md` is the canonical authoring and upgrade guide; `CLAUDE.md` delegates to it.
 - `nimbus.json` records the scaffold provenance; keep it committed and manage it only through the Nimbus CLI.
 - Replace the placeholder `site` value in `astro.config.ts` with the production docs URL.
-- Vitest tests validate the introduction-page content and the Nimbus wiring (`tests/`); coverage is collected without a percentage gate. No placeholder or unconditional-success checks.
+- Vitest tests validate the introduction-page content and the Nimbus wiring (`tests/`); coverage is collected without a percentage gate — the content tests collect no JS coverage units (0/0) because page coverage needs a browser/E2E harness, which is out of scope. No placeholder or unconditional-success checks.
