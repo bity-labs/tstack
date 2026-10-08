@@ -111,7 +111,8 @@ Nimbus refers to [Nimbus Docs](https://nimbus-docs.com/get-started/). Its scaffo
 - Branch protection must require `PR validation` to pass before merging; a failed workflow alone does not enforce this restriction.
 - PR validation uses read-only repository permissions and does not expose deployment credentials or release secrets. Fork PRs must be validated without access to secrets; publishing and deployment remain separate workflows. These restrictions also apply to automated dependency-update PRs.
 - New commits to a PR cancel superseded validation runs for that same PR. The latest commit must complete validation; cancellation must not affect other PRs or separate release/deployment workflows.
-- These are agreed validation rules, not an implemented PR workflow or configured branch protection.
+- These rules are implemented in the `PR validation` workflow (`.github/workflows/pr-validation.yml`) with the detection/gate logic and tests under `scripts/pr-validation/`; see [PR validation](pr-validation.md). Branch protection/rulesets requiring the check are still a manual owner action. Renovate and security-update PRs use the same `pull_request` trigger; activation of Renovate and the transition to the default branch remain documented manual steps.
+- Deferred scope stays deferred: documentation link checking, browser/mobile E2E testing, Expo EAS native builds and device tests, deployment automation, and publishing remain outside the validation workflow.
 
 ## Open Decisions
 
