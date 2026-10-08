@@ -166,6 +166,17 @@ it("validates the topic branch against the actual target branch head", () => {
   assert.deepEqual(result.selection, ["apps/boilerplate-website"]);
 });
 
+it("flags machinery changes as an applicable validation of the machinery itself", () => {
+  repo.commitFile("scripts/pr-validation/detect.mjs", "baseline", "machinery baseline on main");
+  repo.checkoutNewBranch("topic");
+  repo.commitFile("scripts/pr-validation/analysis.mjs", "changed", "machinery change on topic");
+  const result = detectFn("main");
+  assert.deepEqual(result.selection, []);
+  assert.equal(result.formattingOnly, false);
+  assert.equal(result.machinery, true);
+  assert.equal(result.evaluateAll, false);
+});
+
 it("fails loudly when the base ref is unknown", () => {
   repo.checkoutNewBranch("topic");
   repo.commitFile("README.md", "readme", "commit a readme");

@@ -62,6 +62,52 @@ describe("runGate", () => {
     assert.equal(outcome.ok, false);
   });
 
+  it("passes when the machinery self-tests ran successfully", () => {
+    const outcome = runGate({
+      ...SUCCESS,
+      GPR_SELECTION: "[]",
+      GPR_MACHINERY_APPLICABLE: "true",
+      GPR_MACHINERY_RESULT: "success"
+    });
+    assert.equal(outcome.ok, true);
+    assert.match(outcome.message, /machinery/i);
+  });
+
+  it("fails when the machinery self-tests were skipped, failed or cancelled", () => {
+    for (const result of ["skipped", "failure", "cancelled", undefined]) {
+      const outcome = runGate({
+        ...SUCCESS,
+        GPR_SELECTION: "[]",
+        GPR_MACHINERY_APPLICABLE: "true",
+        GPR_MACHINERY_RESULT: result
+      });
+      assert.equal(outcome.ok, false, String(result));
+    }
+  });
+
+  it("ignores the machinery result when the machinery was not touched", () => {
+    const outcome = runGate({
+      ...SUCCESS,
+      GPR_SELECTION: "[]",
+      GPR_MACHINERY_APPLICABLE: "false",
+      GPR_MACHINERY_RESULT: "skipped"
+    });
+    assert.equal(outcome.ok, true);
+    assert.match(outcome.message, /no application checks/i);
+  });
+
+  it("names the machinery self-tests when they accompany workspace checks", () => {
+    const outcome = runGate({
+      ...SUCCESS,
+      GPR_SELECTION: JSON.stringify(["apps/boilerplate-website"]),
+      GPR_MACHINERY_APPLICABLE: "true",
+      GPR_MACHINERY_RESULT: "success"
+    });
+    assert.equal(outcome.ok, true);
+    assert.match(outcome.message, /machinery/i);
+    assert.match(outcome.message, /apps\/boilerplate-website/);
+  });
+
   it("fails when the selection is not parsable", () => {
     const outcome = runGate({ ...SUCCESS, GPR_SELECTION: "not-json" });
     assert.equal(outcome.ok, false);

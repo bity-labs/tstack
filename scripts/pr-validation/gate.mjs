@@ -11,6 +11,10 @@
  * - GPR_VALIDATE_RESULT: result of the application-checks job (may be skipped).
  * - GPR_FORMAT_RESULT: result of the repository formatting job.
  * - GPR_SELECTION: JSON array of runnable workspaces selected for checks.
+ * - GPR_MACHINERY_APPLICABLE: "true" when the validation machinery changed and
+ *   its own test suites became an applicable check (GPR_MACHINERY_RESULT).
+ * - GPR_MACHINERY_RESULT: result of the machinery self-tests job (skipped when
+ *   not applicable).
  *
  * A gate result other than success, a selection with expected-but-skipped
  * checks, and empty unexpected results all fail the gate. An explicit
@@ -33,6 +37,14 @@ export function runGate(env) {
     return { ok: false, message: lines[0] };
   }
 
+  const machineryApplicable = env.GPR_MACHINERY_APPLICABLE === "true";
+  if (machineryApplicable && env.GPR_MACHINERY_RESULT !== "success") {
+    return {
+      ok: false,
+      message: `PR validation failed — validation machinery checks reported ${env.GPR_MACHINERY_RESULT ?? "unknown"}`
+    };
+  }
+
   const selection = parseSelection(env.GPR_SELECTION);
   if (selection === undefined) {
     return {
@@ -41,9 +53,16 @@ export function runGate(env) {
     };
   }
   if (selection.length === 0) {
-    // No application checks were required; the checks job skips by design.
+    // No workspace checks were required; the checks job skips by design.
     const checksResult = env.GPR_VALIDATE_RESULT;
     if (checksResult === undefined || checksResult === "skipped" || checksResult === "success") {
+      if (machineryApplicable) {
+        return {
+          ok: true,
+          message:
+            "PR validation passed — validation machinery self-tests verified; no workspace application checks were applicable and repository formatting passed"
+        };
+      }
       return {
         ok: true,
         message:
@@ -63,7 +82,9 @@ export function runGate(env) {
   }
   return {
     ok: true,
-    message: `PR validation passed — application checks verified for: ${selection.join(", ")}`
+    message: `PR validation passed — application checks verified for: ${selection.join(", ")}${
+      machineryApplicable ? ", plus validation machinery self-tests" : ""
+    }`
   };
 }
 

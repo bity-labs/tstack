@@ -73,6 +73,7 @@ jobs:
           echo "formatting_only=$(echo "$json" | jq .formattingOnly)" >> "$GITHUB_OUTPUT"
           echo "evaluate_all=$(echo "$json" | jq .evaluateAll)" >> "$GITHUB_OUTPUT"
           echo "lockfile_ambiguous=$(echo "$json" | jq .lockfileAmbiguous)" >> "$GITHUB_OUTPUT"
+          echo "machinery=$(echo "$json" | jq .machinery)" >> "$GITHUB_OUTPUT"
 
   workspace-checks:
     name: Validate / ${{ matrix.entry.slug }}
@@ -111,6 +112,24 @@ jobs:
           if-no-files-found: warn
           retention-days: 5
 
+  machinery-tests:
+    name: Validate / PR-validation machinery
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: detect
+    if: ${{ needs.detect.outputs.machinery == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.detect.outputs.head_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run the PR-validation machinery test suites
+        run: |
+          set -euo pipefail
+          node --test scripts/pr-validation/*.test.mjs
+
   repository-formatting:
     name: Formatting check
     runs-on: ubuntu-24.04
@@ -135,7 +154,7 @@ jobs:
     name: PR validation
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    needs: [detect, workspace-checks, repository-formatting]
+    needs: [detect, workspace-checks, machinery-tests, repository-formatting]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -150,6 +169,8 @@ jobs:
           GPR_VALIDATE_RESULT: ${{ needs.workspace-checks.result }}
           GPR_FORMAT_RESULT: ${{ needs.repository-formatting.result }}
           GPR_SELECTION: ${{ needs.detect.outputs.selection }}
+          GPR_MACHINERY_APPLICABLE: ${{ needs.detect.outputs.machinery }}
+          GPR_MACHINERY_RESULT: ${{ needs.machinery-tests.result }}
         run: |
           set -uo pipefail
           node scripts/pr-validation/gate.mjs 2>&1 | tee "$GITHUB_STEP_SUMMARY"

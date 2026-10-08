@@ -9,6 +9,15 @@ export const GLOBAL_TOOLING_FILES = [
   ".prettierignore"
 ];
 
+/**
+ * Files implementing the validation machinery itself. Their diff makes the
+ * machinery's own test suites an applicable merge-gate check (see
+ * docs/pr-validation.md): future classifier regressions must fail CI even
+ * when no workspace needs application checks.
+ */
+const MACHINERY_WORKFLOW_FILE = ".github/workflows/pr-validation.yml";
+const MACHINERY_PREFIX = "scripts/pr-validation/";
+
 /** Documentation-app content consumed by Astro builds at these prefixes. */
 const DOC_CONTENT_PREFIXES = [
   "apps/documentation/src/content/",
@@ -39,6 +48,10 @@ function isInternalDocFile(path) {
   const segments = path.split("/");
   if (segments.slice(0, -1).includes("docs")) return true;
   return INTERNAL_DOC_BASENAMES.has(segments[segments.length - 1].toLowerCase());
+}
+
+function isMachineryFile(path) {
+  return path === MACHINERY_WORKFLOW_FILE || path.startsWith(MACHINERY_PREFIX);
 }
 
 function workspaceOf(path) {
@@ -90,6 +103,8 @@ function attributeLockfileDiff(lockfileDiff) {
  *   (global tooling change or ambiguous lockfile change).
  * - `formattingOnly`: true when no application checks apply.
  * - `lockfileAmbiguous`: true when a lockfile change could not be attributed.
+ * - `machinery`: true when the validation machinery's own files changed and
+ *   the machinery self-tests became an applicable check.
  */
 export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
   const { dependentsByName } = graph;
@@ -97,9 +112,14 @@ export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
   const lockfileSeeds = new Set();
   let globalChange = false;
   let lockfileChange = false;
+  let machinery = false;
   for (const path of changedFiles) {
     if (path === "pnpm-lock.yaml") {
       lockfileChange = true;
+      continue;
+    }
+    if (isMachineryFile(path)) {
+      machinery = true;
       continue;
     }
     if (GLOBAL_TOOLING_FILES.includes(path)) {
@@ -122,7 +142,8 @@ export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
       selection: [...allRunnable],
       evaluateAll: true,
       formattingOnly: false,
-      lockfileAmbiguous: false
+      lockfileAmbiguous: false,
+      machinery
     };
   }
 
@@ -133,7 +154,8 @@ export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
         selection: [...allRunnable],
         evaluateAll: true,
         formattingOnly: false,
-        lockfileAmbiguous: true
+        lockfileAmbiguous: true,
+        machinery
       };
     }
     const { attributed, ambiguous } = attributeLockfileDiff(lockfileDiff);
@@ -142,7 +164,8 @@ export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
         selection: [...allRunnable],
         evaluateAll: true,
         formattingOnly: false,
-        lockfileAmbiguous: true
+        lockfileAmbiguous: true,
+        machinery
       };
     }
     for (const importer of attributed) lockfileSeeds.add(importer);
@@ -162,14 +185,16 @@ export function analyze({ changedFiles, lockfileDiff, graph, allRunnable }) {
     return {
       selection: [],
       evaluateAll: false,
-      formattingOnly: true,
-      lockfileAmbiguous: false
+      formattingOnly: !machinery,
+      lockfileAmbiguous: false,
+      machinery
     };
   }
   return {
     selection: [...selection].sort(),
     evaluateAll: false,
     formattingOnly: false,
-    lockfileAmbiguous: false
+    lockfileAmbiguous: false,
+    machinery
   };
 }

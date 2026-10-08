@@ -101,11 +101,41 @@ it("selects a workspace-specific eslint config change and its dependents", () =>
   ]);
 });
 
+it("flags validation-machinery changes as an applicable machinery self-test", () => {
+  for (const file of [
+    "scripts/pr-validation/detect.mjs",
+    "scripts/pr-validation/detect.test.mjs",
+    "scripts/pr-validation/gate.mjs",
+    ".github/workflows/pr-validation.yml"
+  ]) {
+    const res = analyzeWith([file]);
+    assert.deepEqual(res.selection, [], file);
+    assert.equal(res.machinery, true, file);
+    assert.equal(res.formattingOnly, false, file);
+  }
+});
+
+it("combines machinery and workspace changes in one diff", () => {
+  const res = analyzeWith([
+    "apps/boilerplate-website/src/pages/index.astro",
+    "scripts/pr-validation/analysis.mjs"
+  ]);
+  assert.deepEqual(res.selection, ["apps/boilerplate-website"]);
+  assert.equal(res.machinery, true);
+});
+
+it("machinery stays an applicable check alongside global tooling changes", () => {
+  const res = analyzeWith(["turbo.json", ".github/workflows/pr-validation.yml"]);
+  assert.deepEqual([...res.selection].sort(), [...ALL_RUNNABLE].sort());
+  assert.equal(res.evaluateAll, true);
+  assert.equal(res.machinery, true);
+});
+
 it("runs no application checks for internal README/docs-only changes", () => {
   for (const file of [
     "README.md",
     "docs/context.md",
-    ".github/workflows/pr-validation.yml",
+    ".github/workflows/release.yml",
     "apps/boilerplate-website/README.md",
     "packages/harness/templates/default/docs/engineering/tdd.md"
   ]) {

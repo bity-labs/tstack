@@ -17,15 +17,23 @@ README checklist).
    workspace's available tasks (`lint`, `typecheck`, `test`, `build`) via
    Turbo. The Expo app's only build task is its production bundle/export
    check; there is no Android/iOS native compilation or device coverage.
-3. **Repository formatting** (`pnpm format:check`) always runs, even when no
+3. **Machinery self-tests** run when detection reports a change under
+   `scripts/pr-validation/` or to `.github/workflows/pr-validation.yml`:
+   the PR-validation machinery validates itself in the gate via
+   `node --test scripts/pr-validation/*.test.mjs`, so future regressions of
+   the classifier or gate never ship with an empty selection and a green
+   "nothing to do" conclusion.
+4. **Repository formatting** (`pnpm format:check`) always runs, even when no
    workspace needs application checks.
-4. **Aggregate gate** (`PR validation` job) combines the three results:
+5. **Aggregate gate** (`PR validation` job) combines the job results:
    - Success requires the detection, workspace-checks (when any job was
-     scheduled) and formatting results to be exactly `success`. A `failed`,
-     `cancelled` or unexpectedly `skipped` job fails the gate.
+     scheduled), machinery self-tests (when applicable) and formatting
+     results to be exactly `success`. A `failed`, `cancelled` or
+     unexpectedly `skipped` job fails the gate.
    - When the selection is empty the gate explicitly reports
      "no application checks were applicable" and still requires the
-     formatting check to pass.
+     formatting check to pass; a machinery change additionally requires
+     the machinery self-tests to pass.
    - A missing or unparsable detection result fails the gate.
 
 ## Workspace selection rules
@@ -35,6 +43,10 @@ README checklist).
   (resolved through `workspace:` package manifest references).
 - Global tooling files (`package.json`, `turbo.json`, `pnpm-workspace.yaml`,
   `.prettierrc.json`, `.prettierignore`) select every runnable workspace.
+- Changes to the validation machinery itself (`scripts/pr-validation/**` and
+  `.github/workflows/pr-validation.yml`) make the machinery self-tests an
+  applicable merge-gate check (`machinery: true` in the detection output);
+  they never silently reduce the pull request to a formatting-only run.
 - Lockfile changes narrow validation **only** when every changed lockfile hunk
   can be attributed to a workspace importer in the diff; otherwise
   (`lockfileAmbiguous`) every runnable workspace is validated. Unattributable
@@ -75,15 +87,16 @@ test PR.
 ## Testing the detection and gate logic
 
 ```sh
-node --test scripts/pr-validation/
+node --test scripts/pr-validation/*.test.mjs
 ```
 
 The tests cover, among others: website-only selection, shared-package
 transitive consumers, global tooling changes, workspace config + dependents,
 README/docs-only exclusions, documentation content builds, template-consumed
-markdown, ambiguous and attributable lockfile diffs, new-importer lockfile
-hunks, unknown base refs, empty selections, and gate semantics for
-failed/cancelled/skipped jobs and unparsable selection output. The suites run
+markdown, machinery self-test applicability, ambiguous and attributable
+lockfile diffs, new-importer lockfile hunks, unknown base refs, empty
+selections, and gate semantics for failed/cancelled/skipped jobs,
+machinery results and unparsable selection output. The suites run
 on Node's built-in test runner with no additional dependencies, so they run
 without installing workspace packages.
 
