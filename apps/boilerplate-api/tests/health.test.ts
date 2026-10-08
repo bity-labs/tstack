@@ -22,9 +22,23 @@ layer(Layer.mergeAll(HealthHandlers, HttpServer.layerServices))("boilerplate-api
 
 it("openapi describes GET /health", () => {
   const spec = OpenApi.fromApi(Api);
-  const healthPath = spec.paths["/health"];
-  assert.isDefined(healthPath);
-  assert.isDefined(healthPath?.get);
-  const responses = healthPath?.get?.responses;
-  assert.isNotEmpty(responses);
+  const healthOp = spec.paths["/health"]?.get;
+  assert.isDefined(healthOp);
+  assert.isTrue(healthOp?.operationId === "health");
+
+  const schema = spec.components.schemas["HealthEncoded"] as {
+    properties: { status: { type: string; enum: string[] } };
+    required: string[];
+    additionalProperties: boolean;
+  };
+  assert.deepStrictEqual(schema.properties.status, { type: "string", enum: ["ok"] });
+  assert.deepStrictEqual(schema.required, ["status"]);
+  assert.strictEqual(schema.additionalProperties, false);
+});
+
+it("openapi advertises no authentication", () => {
+  const spec = OpenApi.fromApi(Api);
+  assert.isFalse(
+    "securitySchemes" in spec.components && Object.keys(spec.components.securitySchemes).length > 0
+  );
 });
