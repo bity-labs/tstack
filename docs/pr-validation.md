@@ -105,9 +105,9 @@ without installing workspace packages.
 
 ## Not covered by this workflow
 
--- Branch protection requiring `PR validation` (plus one approving review)
-before merge is configured on `main` and `v2`; see the README checklist for
-the remaining owner actions.
+- Branch protection requiring `PR validation` (plus one approving review)
+  before merge is configured on `main` and `v2`; see the README checklist for
+  the remaining owner actions.
 
 - Renovate activation, GitHub vulnerability-notification setup, and the
   default-branch transition from `v2` are documented manual steps.
