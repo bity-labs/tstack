@@ -112,7 +112,7 @@ without installing workspace packages.
   the remaining owner actions.
 
 - Renovate activation, GitHub vulnerability-notification setup, and the
-  the default-branch transition away from the temporary integration branch
+  default-branch transition away from the temporary integration branch
   are documented manual steps.
 - Documentation link checking, browser/mobile E2E testing, Expo EAS native
   builds and device tests, and deployment/publishing are intentionally out of
