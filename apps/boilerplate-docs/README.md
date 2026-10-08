@@ -14,6 +14,7 @@ pnpm --filter @tstack/boilerplate-docs dev               # dev server (renders t
 pnpm --filter @tstack/boilerplate-docs build             # production build (static output in dist/)
 pnpm --filter @tstack/boilerplate-docs typecheck         # astro check
 pnpm --filter @tstack/boilerplate-docs lint:docs         # Nimbus authoring lint
+pnpm --filter @tstack/boilerplate-docs test              # Vitest content tests with coverage
 ```
 
 ## Ownership and configuration
@@ -23,4 +24,4 @@ pnpm --filter @tstack/boilerplate-docs lint:docs         # Nimbus authoring lint
 - `AGENT.md` is the canonical authoring and upgrade guide; `CLAUDE.md` delegates to it.
 - `nimbus.json` records the scaffold provenance; keep it committed and manage it only through the Nimbus CLI.
 - Replace the placeholder `site` value in `astro.config.ts` with the production docs URL.
-- Shared final lint/test/format configuration belongs to the quality-tooling follow-up; this app has no fake passing checks.
+- Vitest tests validate the introduction-page content and the Nimbus wiring (`tests/`); coverage is collected without a percentage gate — the content tests collect no JS coverage units (0/0) because page coverage needs a browser/E2E harness, which is out of scope. No placeholder or unconditional-success checks.
