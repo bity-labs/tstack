@@ -9,10 +9,10 @@ required).
 
 | Agent | Model | Thinking | Role |
 |---|---|---|---|
-| `orchestrator` | gpt-6.1-sol | high | Splits PRDs into tiered tasks, dispatches to devs |
+| `orchestrator` | gpt-6.1-sol | high | Returns tiered task drafts to the parent for approval and dispatch |
 | `dev-t1` | gpt-6-luna | off | Mechanical/spec-faithful work (CRUD on documented codebase) |
 | `dev-t2` | gpt-6.1-sol | medium | Standard feature dev (Next.js, API wiring) |
-| `dev-t3` | gpt-6.1-sol | xhigh | Ambiguous/native dev (Expo/RN, migrations, auth, offline) |
+| `dev-t3` | gpt-6.1-sol | xhigh | Hard-surface dev within approved decisions (Expo/RN, migrations, auth, offline) |
 | `reviewer` | gpt-6-astra | xhigh | Final review gate (correctness, security) |
 | `scout` | gpt-6-luna | low | Read-only recon, cheap |
 | `scribe` | gpt-6-luna | off | Session notes, changelog, ADR upkeep |
@@ -36,16 +36,62 @@ resolve from the harness's `.agents/skills/` layout (Pi-standard `<name>/SKILL.m
 - `reviewer` → `code-review`
 - `re-synthesis` → `write-prd`
 
-The RE pipeline's output (from `re-synthesis`) is written in the `write-prd`
-format so it flows straight back into `break-into-issues` and the tiered
-dispatch loop.
+The RE pipeline's output (from `re-synthesis`) is a draft in the `write-prd`
+format. The parent resolves product decisions and obtains approval before
+publication and task breakdown; inferred behavior is not an approved spec.
+
+## Autonomous child contract
+
+All ten agents run unattended within a bounded parent-assigned task. Autonomy
+means executing that task without routine user interaction, not inventing
+requirements, bypassing approval, or launching more agents.
+
+The parent supplies the goal, source inputs (including PRD/issue content),
+allowed scope, acceptance criteria, output destination, and already-approved
+decisions. Children resolve routine details from repository evidence and return:
+
+- `DONE` or `BLOCKED` (completion status, separate from a review verdict)
+- results and artifact paths, including useful partial work
+- validation commands/results or why validation was not possible
+- residual risks and, when blocked, the exact missing decision/input/access
+
+A missing required decision, permission, or access causes a `BLOCKED` handoff,
+not a user interview or a waiting approval loop. The parent owns human
+interaction, approvals, GitHub publication/labels, dispatch, and escalation.
+
+### Skill execution boundaries
+
+Skills remain reusable harness guidance; this roster does not alter them.
+Each agent prompt defines which stages belong in its unattended task:
+
+- `dev-t*`: use `implement-with-tdd` in AFK mode. t2 does not use
+  `clarify-with-context`; contradictory requirements return to the parent.
+- `dev-t3`: use the unattended paths of `debug` and `refactor-safely`. Missing
+  reproduction access or unclear refactor scope returns `BLOCKED`.
+- `orchestrator`: use task-drafting and readiness guidance only. Return proposed
+  AFK/HITL slices, dependencies, and tiers; do not ask for approval, publish
+  issues, or dispatch. The parent gets approval of the breakdown before acting.
+- `re-synthesis`: use the PRD template/drafting guidance only; return artifacts,
+  not a published issue. Unresolved decisions remain explicit blockers.
+- `reviewer`: use inspection and review-format guidance only; return findings
+  and `APPROVE`/`CHANGES` to the parent. Do not publish, change labels, or fix code.
+- `scout`: investigate the assigned area without a clarification interview.
 
 ## Escalation rule
 
-`dev-t1 (luna) → dev-t2 (sol/medium) → dev-t3 (sol/xhigh) → reviewer (astra)`.
-A dev agent escalates after two failures with its accumulated notes; it never
-retries silently and never lowers effort on its own. Tier is assigned per task
-by the orchestrator, tagged in the task spec.
+The parent may route ready implementation tasks through
+`dev-t1 (luna) → dev-t2 (sol/medium) → dev-t3 (sol/xhigh)`.
+After two unsuccessful corrective attempts at the same acceptance criterion,
+the dev returns `BLOCKED` with accumulated notes, attempted fixes, and validation
+output. An expected TDD RED is not a failed attempt. Missing access or runtime
+infrastructure failure blocks immediately rather than consuming code retries.
+No child launches its successor or changes its own effort.
+
+The planner recommends tiers; the parent assigns them at dispatch. Unresolved
+product or architecture decisions are HITL blockers, not a reason to send an
+underspecified task to t3. Unresolved t3 work returns to the parent for a decision.
+The reviewer is an independent gate after implementation, not a fourth dev tier.
+The parent routes review fixes to a writer and requests review of the updated diff.
 
 ## Model assumptions
 
