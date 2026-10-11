@@ -9,7 +9,7 @@ required).
 
 | Agent | Model | Thinking | Role |
 |---|---|---|---|
-| `planner` | gpt-6.1-sol | high | Returns tiered task drafts to the parent for approval and dispatch |
+| `planner` | gpt-6.1-sol | high | Plans execution order, tiers, and safe batches across existing PRD tasks |
 | `dev-t1` | gpt-6-luna | off | Mechanical/spec-faithful work (CRUD on documented codebase) |
 | `dev-t2` | gpt-6.1-sol | medium | Standard feature dev (Next.js, API wiring) |
 | `dev-t3` | gpt-6.1-sol | xhigh | Hard-surface dev within approved decisions (Expo/RN, migrations, auth, offline) |
@@ -25,12 +25,61 @@ Reverse-engineering pipeline (understand an existing app from user flow to DB):
 | `re-traffic` | gpt-6.1-sol | high | 2 — infer API surface from traffic captures |
 | `re-synthesis` | gpt-6-astra | xhigh | 3 — merge into clone PRD + OpenAPI + schema |
 
+## Workflow: preparation first, delegation at implementation
+
+The normal product workflow has two separate phases:
+
+1. **Interactive preparation — user + main agent, no subagents:** clarify the
+   feature, write the PRD, split it into task issues, and approve the scope.
+2. **Implementation — /nightshift or /autoshift:** the main agent may invoke
+   `planner` to inspect the existing approved tasks and current code, check
+   readiness/dependencies, recommend dev tiers, and propose execution batches.
+   The main agent then dispatches workers and reviewers and owns integration
+   and escalation. Routine execution planning inside approved scope does not
+   require another approval round; new product decisions return to the user.
+
+For one clear, independent task, the main agent can dispatch directly. Use
+`planner` when dependency ordering, parallel batches, or competing work need
+coordination. The planner never authors PRDs, re-splits tasks, or creates issues.
+These are workflow conventions, not implementations of either slash command.
+The RE pipeline is separate, explicitly requested research—not an automatic
+step during interactive product preparation.
+
+### Multi-PRD execution note
+
+The user may start implementation across **multiple PRDs at once**. This is the
+planner's main coordination use case: return one execution plan covering every
+existing task in the selected PRDs, not unrelated per-PRD queues.
+
+The main agent supplies PRD/task content and stable references, priorities,
+acceptance criteria, dependency/completion state, active assignments/worktrees,
+and worker capacity. The planner then:
+
+- Tracks each task back to its source PRD/repository, including ready, dependent,
+  active, complete, and blocked work.
+- Checks cross-PRD dependencies, shared prerequisites, cycles, and duplicate or
+  overlapping tasks without silently changing the approved task breakdown.
+- Recommends dev tiers and bounded parallel batches; serializes shared-file,
+  contract, migration, or resource conflicts. Separate worktrees alone do not
+  make those conflicts safe.
+- Preserves active assignments and keeps independent work runnable when another
+  PRD is blocked. Replanning uses fresh parent-supplied state and changes only
+  pending work, not tasks already in flight.
+- Includes review/integration checkpoints before dependents start; worker DONE
+  is not proof that a prerequisite is accepted and present in their baseline.
+
+**Planning is centralized; dispatch stays flat.** The planner returns the plan
+and blockers to the main agent, which owns launches, worktree isolation, review,
+integration, and escalation. It does not spawn workers or become a second
+orchestrator. No claim is made that these prompts implement a runtime scheduler.
+
 ## TStack integration
 
-Agents pin TStack harness skills by name in `skills:` frontmatter — the skills
-resolve from the harness's `.agents/skills/` layout (Pi-standard `<name>/SKILL.md`).
+Specialists pin TStack harness skills by name in `skills:` frontmatter — the
+skills resolve from the harness's `.agents/skills/` layout (Pi-standard
+`<name>/SKILL.md`). The execution planner uses its own read-only planning
+contract, not the `break-into-issues` or `issues-triage` authoring workflows.
 
-- `planner` → `break-into-issues`, `issues-triage`
 - `scout` → `understand-codebase`
 - `dev-t*` → `implement-with-tdd` (+ `debug`, `refactor-safely` on t3)
 - `reviewer` → `code-review`
@@ -68,9 +117,9 @@ Each agent prompt defines which stages belong in its unattended task:
   `clarify-with-context`; contradictory requirements return to the parent.
 - `dev-t3`: use the unattended paths of `debug` and `refactor-safely`. Missing
   reproduction access or unclear refactor scope returns `BLOCKED`.
-- `planner`: use task-drafting and readiness guidance only. Return proposed
-  AFK/HITL slices, dependencies, and tiers; do not ask for approval, publish
-  issues, or dispatch. The parent gets approval of the breakdown before acting.
+- `planner`: inspect existing approved tasks across the selected PRDs and return
+  execution order, readiness, dependencies, tiers, and safe batches. Do not
+  re-split the PRDs, create issues, ask for routine approval, or dispatch.
 - `re-synthesis`: use the PRD template/drafting guidance only; return artifacts,
   not a published issue. Unresolved decisions remain explicit blockers.
 - `reviewer`: use inspection and review-format guidance only; return findings
