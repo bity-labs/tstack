@@ -9,7 +9,7 @@ required).
 
 | Agent | Model | Thinking | Role |
 |---|---|---|---|
-| `orchestrator` | gpt-6.1-sol | high | Returns tiered task drafts to the parent for approval and dispatch |
+| `planner` | gpt-6.1-sol | high | Returns tiered task drafts to the parent for approval and dispatch |
 | `dev-t1` | gpt-6-luna | off | Mechanical/spec-faithful work (CRUD on documented codebase) |
 | `dev-t2` | gpt-6.1-sol | medium | Standard feature dev (Next.js, API wiring) |
 | `dev-t3` | gpt-6.1-sol | xhigh | Hard-surface dev within approved decisions (Expo/RN, migrations, auth, offline) |
@@ -30,7 +30,7 @@ Reverse-engineering pipeline (understand an existing app from user flow to DB):
 Agents pin TStack harness skills by name in `skills:` frontmatter — the skills
 resolve from the harness's `.agents/skills/` layout (Pi-standard `<name>/SKILL.md`).
 
-- `orchestrator` → `break-into-issues`, `issues-triage`
+- `planner` → `break-into-issues`, `issues-triage`
 - `scout` → `understand-codebase`
 - `dev-t*` → `implement-with-tdd` (+ `debug`, `refactor-safely` on t3)
 - `reviewer` → `code-review`
@@ -68,7 +68,7 @@ Each agent prompt defines which stages belong in its unattended task:
   `clarify-with-context`; contradictory requirements return to the parent.
 - `dev-t3`: use the unattended paths of `debug` and `refactor-safely`. Missing
   reproduction access or unclear refactor scope returns `BLOCKED`.
-- `orchestrator`: use task-drafting and readiness guidance only. Return proposed
+- `planner`: use task-drafting and readiness guidance only. Return proposed
   AFK/HITL slices, dependencies, and tiers; do not ask for approval, publish
   issues, or dispatch. The parent gets approval of the breakdown before acting.
 - `re-synthesis`: use the PRD template/drafting guidance only; return artifacts,

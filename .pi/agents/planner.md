@@ -1,5 +1,5 @@
 ---
-name: orchestrator
+name: planner
 description: Splits PRDs into tiered, implementation-ready tasks
 model: openai/gpt-6.1-sol
 thinking: high
