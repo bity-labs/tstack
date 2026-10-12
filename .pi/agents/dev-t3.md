@@ -1,9 +1,9 @@
 ---
 name: dev-t3
 description: Hard-surface dev within approved decisions (Expo/RN, migrations, auth, offline)
-model: openai/gpt-6.1-sol
+model: gpt-6.1-sol
 thinking: xhigh
-max_turns: 80
+inheritProjectContext: true
 skills: implement-with-tdd, debug, refactor-safely
 ---
 

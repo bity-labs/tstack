@@ -1,9 +1,9 @@
 ---
 name: dev-t2
 description: Standard feature dev (Next.js, API wiring, spec'd screens)
-model: openai/gpt-6.1-sol
+model: gpt-6.1-sol
 thinking: medium
-max_turns: 50
+inheritProjectContext: true
 skills: implement-with-tdd
 ---
 

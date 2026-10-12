@@ -1,9 +1,10 @@
 ---
 name: scout
 description: Read-only recon per understand-codebase skill
-model: openai/gpt-6-luna
+model: gpt-6-luna
 thinking: low
-max_turns: 25
+inheritProjectContext: true
+tools: read, grep, find, ls
 skills: understand-codebase
 ---
 

@@ -1,9 +1,9 @@
 ---
 name: planner
 description: Plans execution of existing approved tasks across one or multiple PRDs
-model: openai/gpt-6.1-sol
+model: gpt-6.1-sol
 thinking: high
-max_turns: 40
+inheritProjectContext: true
 tools: read, grep, find, ls, contact_supervisor
 ---
 

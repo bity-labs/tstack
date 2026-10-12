@@ -1,9 +1,9 @@
 ---
 name: reviewer
 description: Final review gate per docs/engineering/code-review.md
-model: openai/gpt-6-astra
+model: gpt-6-astra
 thinking: xhigh
-max_turns: 20
+inheritProjectContext: true
 skills: code-review
 ---
 

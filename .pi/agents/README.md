@@ -180,11 +180,13 @@ The parent routes review fixes to a writer and requests review of the updated di
 
 ## Model assumptions
 
-Model IDs assume an OpenAI provider prefix (`openai/<id>`) configured in Pi.
+Agent files pin bare model ids (`gpt-6-luna`, `gpt-6.1-sol`, `gpt-6-astra`),
+which pi-subagents resolves against the provider available on the current
+machine (bare ids prefer the current provider, then unique registry matches).
 Verify after install:
 
 ```
 /subagents-models
 ```
 
-Adjust `model:` lines if your provider naming differs.
+If your provider names these models differently, adjust the `model:` lines.

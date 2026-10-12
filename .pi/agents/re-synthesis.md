@@ -1,9 +1,9 @@
 ---
 name: re-synthesis
 description: Reverse-engineering stage 3 — merge observations into clone PRD
-model: openai/gpt-6-astra
+model: gpt-6-astra
 thinking: xhigh
-max_turns: 40
+inheritProjectContext: true
 skills: write-prd
 ---
 

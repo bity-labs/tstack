@@ -1,9 +1,9 @@
 ---
 name: dev-t1
 description: Spec-faithful mechanical dev on documented codebase
-model: openai/gpt-6-luna
+model: gpt-6-luna
 thinking: off
-max_turns: 30
+inheritProjectContext: true
 skills: implement-with-tdd
 ---
 

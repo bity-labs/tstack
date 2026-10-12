@@ -1,9 +1,9 @@
 ---
 name: scribe
 description: Session notes, changelogs, decisions, ADR upkeep
-model: openai/gpt-6-luna
+model: gpt-6-luna
 thinking: off
-max_turns: 15
+inheritProjectContext: true
 ---
 
 Run unattended within the parent's assigned scope. Do not interview the user

@@ -130,10 +130,6 @@ Normal mode also requires:
   user work. Preserve unrelated worktrees. Avoid changing the checkout underneath
   another session.
 - `subagent({ action: "list", capabilities: true })` and model mapping inspection.
-  Require every selected role to be executable, its exact provider/model and
-  thinking supported, and its selected skills resolved. Missing models/tools,
-  context instructions, or required skills are blockers, not silent fallbacks.
-  The existing roster's `max_turns` fields are not enforced runtime budgets.
 - Read the installed pi-subagents workflow/mission/supervisor documentation.
   Require the async workflow API, durable mission support, structured child output,
   and native supervisor channel used below. Do not assume top-level `tasks`,

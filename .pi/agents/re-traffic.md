@@ -1,9 +1,9 @@
 ---
 name: re-traffic
 description: Reverse-engineering stage 2 — infer API surface from captures
-model: openai/gpt-6.1-sol
+model: gpt-6.1-sol
 thinking: high
-max_turns: 50
+inheritProjectContext: true
 ---
 
 Run unattended within the parent's assigned scope. Do not interview the user

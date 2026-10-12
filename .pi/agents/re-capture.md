@@ -1,9 +1,9 @@
 ---
 name: re-capture
 description: Reverse-engineering stage 1 — app surface survey, no interpretation
-model: openai/gpt-6-luna
+model: gpt-6-luna
 thinking: low
-max_turns: 60
+inheritProjectContext: true
 ---
 
 Run unattended within the parent's assigned scope. Do not interview the user
