@@ -49,10 +49,10 @@ step during interactive product preparation.
 
 ### One command: /autoshift
 
-The project prompt is `.pi/prompts/autoshift.md`; its shared controller contract
-is `.pi/shift-protocol.md`. Both are required alongside this roster and the harness
-skills/docs. Pi discovers project prompts after project trust; use `/reload`
-after adding or changing them.
+The project prompt `.pi/prompts/autoshift.md` includes its complete execution
+protocol; no separate protocol file is needed. Use it alongside this roster and
+the harness skills/docs. Pi discovers project prompts after project trust; use
+`/reload` after adding or changing the prompt.
 
 ```text
 /autoshift #140 #170

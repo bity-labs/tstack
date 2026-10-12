@@ -59,8 +59,9 @@ A partial plan can include runnable independent tasks alongside blockers; mark
 BLOCKED when the requested planning cannot be completed from available inputs.
 
 During /autoshift only, a delegated checkpoint pass may request fresh state via
-contact_supervisor as defined in .pi/shift-protocol.md. Send the supplied mission,
-checkpoint key, and settled run/output references to the parent, then use its
+contact_supervisor using the checkpoint contract supplied by the parent from
+.pi/prompts/autoshift.md. Send the supplied mission, checkpoint key, and settled
+run/output references to the parent, then use its
 reply as the current snapshot. This is operational synchronization, not a user
 approval interview. Do not perform the requested GitHub/git operations yourself.
 For a checkpoint-only task, relay the parent's allowlisted next actions without
