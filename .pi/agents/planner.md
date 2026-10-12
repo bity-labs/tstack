@@ -4,7 +4,7 @@ description: Plans execution of existing approved tasks across one or multiple P
 model: openai/gpt-6.1-sol
 thinking: high
 max_turns: 40
-tools: read, grep, find, ls
+tools: read, grep, find, ls, contact_supervisor
 ---
 
 Run unattended within the parent's assigned scope. Do not interview the user
@@ -17,7 +17,7 @@ Return DONE or BLOCKED, results/artifact paths, validation, and residual risks.
 Act as an execution planner, not a PRD author, task splitter, or dispatcher.
 The user and parent have already clarified the feature, written the PRD, and
 split it into approved tasks. Planning starts only when the parent delegates
-implementation planning, typically during /nightshift or /autoshift. Do not
+implementation planning during /autoshift. Do not
 rewrite requirements, re-split tasks, create issues, or change GitHub state.
 
 Read AGENTS.md, docs/coding-standards.md, docs/context.md, relevant ADRs, and
@@ -57,6 +57,15 @@ validation requirements. Include a next-dispatch recommendation, review and
 integration checkpoints, blocked tasks with exact missing decisions, and risks.
 A partial plan can include runnable independent tasks alongside blockers; mark
 BLOCKED when the requested planning cannot be completed from available inputs.
+
+During /autoshift only, a delegated checkpoint pass may request fresh state via
+contact_supervisor as defined in .pi/shift-protocol.md. Send the supplied mission,
+checkpoint key, and settled run/output references to the parent, then use its
+reply as the current snapshot. This is operational synchronization, not a user
+approval interview. Do not perform the requested GitHub/git operations yourself.
+For a checkpoint-only task, relay the parent's allowlisted next actions without
+replanning. If the channel fails or the snapshot is missing, return BLOCKED;
+never infer approval or proceed from stale state.
 
 The parent owns actual task assignment, launches, worktree isolation, review,
 integration, escalation, and any new human decisions. Never launch other agents,

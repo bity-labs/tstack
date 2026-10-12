@@ -31,19 +31,55 @@ The normal product workflow has two separate phases:
 
 1. **Interactive preparation — user + main agent, no subagents:** clarify the
    feature, write the PRD, split it into task issues, and approve the scope.
-2. **Implementation — /nightshift or /autoshift:** the main agent may invoke
+2. **Implementation — /autoshift:** the main agent may invoke
    `planner` to inspect the existing approved tasks and current code, check
    readiness/dependencies, recommend dev tiers, and propose execution batches.
    The main agent then dispatches workers and reviewers and owns integration
    and escalation. Routine execution planning inside approved scope does not
    require another approval round; new product decisions return to the user.
 
-For one clear, independent task, the main agent can dispatch directly. Use
-`planner` when dependency ordering, parallel batches, or competing work need
-coordination. The planner never authors PRDs, re-splits tasks, or creates issues.
-These are workflow conventions, not implementations of either slash command.
+For one clear, independent task, the main agent can choose the initial dev tier
+directly. Use `planner` for execution planning when dependency ordering, parallel
+batches, or competing work need coordination. The planner never authors PRDs,
+re-splits tasks, or creates issues. During a running shift, checkpoint-only
+planner passes also relay fresh parent state through the native supervisor
+channel; this is not nested delegation or a user approval interview.
 The RE pipeline is separate, explicitly requested research—not an automatic
 step during interactive product preparation.
+
+### One command: /autoshift
+
+The project prompt is `.pi/prompts/autoshift.md`; its shared controller contract
+is `.pi/shift-protocol.md`. Both are required alongside this roster and the harness
+skills/docs. Pi discovers project prompts after project trust; use `/reload`
+after adding or changing them.
+
+```text
+/autoshift #140 #170
+/autoshift --tasks #102 #103
+/autoshift --dry-run #140 #170
+/autoshift --merge --concurrency=3 #140 #170
+/autoshift --destination-branch=shift-integration #140 #170
+```
+
+- Default inputs are PRDs; `--tasks` selects existing task issues directly.
+- Default delivery is reviewed PRs, not automatic merge. `--merge` authorizes
+  gated delivery to default and closure of accepted selected work.
+- A destination branch authorizes child integration there; its reviewed aggregate
+  PR remains open unless `--merge` is also supplied. Open child issues do not
+  prevent integration progress: default-branch delivery and issue closure are
+  separate from destination-branch integration.
+- Defaults are two concurrent actions and three review dispatches per PR. Resume
+  preserves counters and reconciles existing runs/PRs instead of starting over.
+- Without merge authority or a destination branch, tasks depending on unmerged
+  prerequisites wait for integration rather than building on unreviewed branches.
+- One controlling session per repository; no crash-safe replay or cross-session
+  locking is claimed. The protocol includes a disposable-repo smoke checklist.
+
+This replaces the personal `/nightshift` and `/auto-shift` workflows for this
+project; no legacy command aliases are shipped. Existing files in
+`~/.pi/agent/prompts/` are not modified or removed by this PR. Use `/autoshift`
+here and archive those personal commands separately if desired.
 
 ### Multi-PRD execution note
 
