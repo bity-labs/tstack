@@ -15,6 +15,10 @@
     "test": {
       "outputs": []
     },
+    "@tstack/cli#test": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/harness/templates/**"],
+      "outputs": []
+    },
     "typecheck": {
       "outputs": []
     }
