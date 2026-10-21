@@ -5,9 +5,12 @@ import {
   rmSync,
   existsSync,
   readFileSync,
+  readdirSync,
+  lstatSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("node:child_process", () => ({
@@ -143,6 +146,47 @@ describe("initProject", () => {
       rmSync(sourceDir, { recursive: true, force: true });
       rmSync(templatesDir, { recursive: true, force: true });
       if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("installs bundled Pi agents and prompts as standalone files alongside shared skills", () => {
+    const fixtureDir = makeTempDir("tstack-init-pi-");
+    const sourceDir = join(fixtureDir, "source");
+    const targetDir = join(fixtureDir, "target");
+    const templatesDir = fileURLToPath(new URL("../../../harness/templates/", import.meta.url));
+
+    try {
+      mkdirSync(sourceDir);
+      writeFileSync(join(sourceDir, "package.json"), '{"name": "@tstack/boilerplate"}');
+
+      initProject({
+        sourceDir,
+        targetDir,
+        slug: "acme",
+        displayName: "Acme",
+        providers: { github: false, twitter: false, walletConnect: false, polar: false, digitalOcean: false, analytics: "none" },
+        templatesDir,
+      });
+
+      const installedPi = join(targetDir, ".pi");
+      expect(existsSync(join(installedPi, "agents", "planner.md"))).toBe(true);
+      expect(existsSync(join(installedPi, "prompts", "autoshift.md"))).toBe(true);
+      expect(existsSync(join(targetDir, ".agents", "skills", "implement-with-tdd", "SKILL.md"))).toBe(true);
+      expect(lstatSync(installedPi).isDirectory()).toBe(true);
+
+      const templatePi = join(templatesDir, "default", ".pi");
+      for (const path of readdirSync(templatePi, { recursive: true, encoding: "utf8" })) {
+        const source = join(templatePi, path);
+        const installed = join(installedPi, path);
+        expect(lstatSync(installed).isSymbolicLink()).toBe(false);
+        if (lstatSync(source).isFile()) {
+          expect(readFileSync(installed, "utf8")).toBe(readFileSync(source, "utf8"));
+        }
+      }
+      expect(existsSync(join(installedPi, "settings.json"))).toBe(false);
+      expect(existsSync(join(installedPi, "subagents"))).toBe(false);
+    } finally {
+      rmSync(fixtureDir, { recursive: true, force: true });
     }
   });
 
