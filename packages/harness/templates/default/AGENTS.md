@@ -22,6 +22,7 @@ This repository uses TStack: a small harness for disciplined agentic software de
 - `docs/engineering/` holds reusable engineering doctrine.
 - `docs/adr/` holds important architectural decisions and rationale.
 - `.agents/skills/` holds reusable workflows that use the docs.
+- `.pi/agents/` and `.pi/prompts/` hold optional Pi-specific agents and slash-command prompts. See `.pi/agents/README.md` for setup and execution rules; local Pi settings and runtime state are project-owned.
 
 ## Working Rules
 
