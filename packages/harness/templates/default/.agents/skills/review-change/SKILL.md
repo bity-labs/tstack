@@ -58,8 +58,8 @@ Classify each as:
 
 - `blocker` — correctness, security, or spec violation that must be fixed
   before merge
-- `required` — must be addressed before release or acceptance, but does not
-  block merge on its own
+- `required` — must be addressed before merge/acceptance; lower severity than
+  a blocker, but never optional
 - `suggestion` — non-blocking improvement
 
 Do not block on personal preference. Distinguish required fixes from optional

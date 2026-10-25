@@ -81,14 +81,20 @@ coverage notes) in this publication format:
 
 If a section has no items, write `None`.
 
-### 4. Choose PR Status
+### 4. Map the Verdict to a PR Status (fail closed)
 
-GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR:
+GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR. Map the `review-change` verdict explicitly:
 
-- `changes-requested` — use when the review has any blocker or required important improvement before merge
-- `ready-to-merge` — use only when the review accepts the PR as merge-ready
-
-Remove `needs-review` after reviewing either way.
+- `APPROVE` — set `ready-to-merge` only when validation evidence is adequate.
+  Missing or unavailable checks are missing evidence, not passing checks: keep
+  `needs-review` and report the gaps instead of marking merge-ready.
+- `CHANGES` — any blocker or required finding (all required findings are
+  mandatory before merge/acceptance). Set `changes-requested`.
+- `BLOCKED` — the inspection did not complete. Publish the missing evidence,
+  keep or set `needs-review`, and treat this as an incomplete review: never
+  set `ready-to-merge` (or `changes-requested`) from a blocked review, and do
+  not report it as a finished review. Escalate the exact missing
+  inputs/access to the owner.
 
 Ensure labels exist before applying them:
 
@@ -106,7 +112,7 @@ Always post the review as a PR comment. Do not only print it locally.
 gh pr comment <PR_URL> --body-file <review-file>
 ```
 
-Then update the PR status label.
+Then update the PR status label according to the verdict mapping.
 
 If changes are requested:
 
@@ -119,6 +125,10 @@ If ready to merge:
 ```bash
 gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge
 ```
+
+If the review is blocked, do not change the status labels to a terminal PR
+state: ensure `needs-review` is set and publish the missing evidence as the
+comment's opening section.
 
 ### 6. Report Back
 

@@ -116,4 +116,30 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     expect(reviewChange).toContain("APPROVE");
     expect(reviewChange).toContain("Do not post comments");
   });
+
+  it("fails closed on required findings and blocked reviews (documented contract)", () => {
+    // R4: static contract guard for the review semantics — required findings
+    // are mandatory before merge/acceptance, and a blocked inspection never
+    // resolves to a terminal PR state. This pins the documented wording, not
+    // runtime model compliance.
+    const normalize = (text: string): string => text.replace(/\s+/g, " ");
+    const reviewChange = normalize(readTemplate("default/.agents/skills/review-change/SKILL.md"));
+    expect(reviewChange).toContain(
+      "before merge/acceptance; lower severity than a blocker, but never optional"
+    );
+    expect(reviewChange).not.toContain("does not block merge");
+    expect(reviewChange).toContain("`CHANGES` — at least one blocker or required finding");
+    expect(reviewChange).toContain("`APPROVE` — no unresolved blockers or required findings");
+
+    const codeReview = normalize(readTemplate("default/.agents/skills/code-review/SKILL.md"));
+    expect(codeReview).toContain(
+      "`APPROVE` — set `ready-to-merge` only when validation evidence is adequate"
+    );
+    expect(codeReview).toContain("`CHANGES` — any blocker or required finding");
+    expect(codeReview).toContain("`BLOCKED` — the inspection did not complete");
+    expect(codeReview).toContain(
+      "never set `ready-to-merge` (or `changes-requested`) from a blocked review"
+    );
+    expect(codeReview).toContain("keep or set `needs-review`");
+  });
 });
