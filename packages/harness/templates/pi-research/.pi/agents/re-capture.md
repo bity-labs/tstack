@@ -1,7 +1,6 @@
 ---
 name: re-capture
 description: Reverse-engineering stage 1 — app surface survey, no interpretation
-model: gpt-6-luna
 thinking: low
 inheritProjectContext: true
 ---

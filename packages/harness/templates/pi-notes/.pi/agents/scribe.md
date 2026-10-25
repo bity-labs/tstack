@@ -1,7 +1,6 @@
 ---
 name: scribe
 description: Session notes, changelogs, decisions, ADR upkeep
-model: gpt-6-luna
 thinking: off
 inheritProjectContext: true
 ---

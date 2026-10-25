@@ -1,7 +1,6 @@
 ---
 name: re-traffic
 description: Reverse-engineering stage 2 — infer API surface from captures
-model: gpt-6.1-sol
 thinking: high
 inheritProjectContext: true
 ---

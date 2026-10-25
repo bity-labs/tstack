@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -7,6 +7,10 @@ const contractDir = "default/.pi/prompts/autoshift/";
 
 function readTemplate(path: string): string {
   return readFileSync(fileURLToPath(new URL(path, templates)), "utf8");
+}
+
+function templatePath(path: string): string {
+  return fileURLToPath(new URL(path, templates));
 }
 
 interface RoleOverride {
@@ -32,22 +36,17 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     const agentsDir = "default/.pi/agents/";
     expect(readTemplate(`${agentsDir}planner.md`)).toMatch(/^name: planner$/m);
     expect(readTemplate(`${agentsDir}README.md`)).toContain("Implementation tiers");
-    for (const removed of ["dev-t1", "dev-t2", "dev-t3", "scout.md", "reviewer.md"]) {
-      expect(existsSync(fileURLToPath(new URL(`${agentsDir}${removed}`, templates))), removed).toBe(
-        false
-      );
+    for (const removed of ["dev-t1.md", "dev-t2.md", "dev-t3.md", "scout.md", "reviewer.md"]) {
+      expect(existsSync(templatePath(`${agentsDir}${removed}`)), removed).toBe(false);
     }
   });
 
   it("documents the deployment contract beside the prompt", () => {
-    const contractDir = "default/.pi/prompts/autoshift/";
     const note = readTemplate(`${contractDir}note.md`);
     expect(note).toContain("settings.example.json");
     expect(note).toContain("docs/engineering/roles.md");
     expect(note).toContain("Not a test");
-    expect(existsSync(fileURLToPath(new URL(`${contractDir}settings.json`, templates)))).toBe(
-      false
-    );
+    expect(existsSync(templatePath(`${contractDir}settings.json`))).toBe(false);
   });
 
   it("configures read-only builtin reviewers and scouts without replacing their prompts", () => {
@@ -67,8 +66,18 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
       expect(role.inheritProjectContext).toBe(true);
       expect(role.inheritSkills).toBe(false);
     }
-    expect(overrides.reviewer.skills).toEqual([]);
+    // R1: fresh reviewers must receive the shared inspection contract through
+    // this override, not depend on per-launch selection.
+    expect(overrides.reviewer.skills).toEqual(["review-change"]);
     expect(overrides.scout.skills).toEqual(["understand-codebase"]);
+    for (const [name, role] of Object.entries(overrides)) {
+      for (const skill of role.skills) {
+        expect(
+          existsSync(templatePath(`default/.agents/skills/${skill}/SKILL.md`)),
+          `${name} skill ${skill}`
+        ).toBe(true);
+      }
+    }
   });
 
   it("keeps the planner inspection-only and fresh", () => {
@@ -76,5 +85,35 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     expect(planner).toMatch(/^acceptanceRole: read-only$/m);
     expect(planner).toMatch(/^tools: read, grep, find, ls, contact_supervisor$/m);
     expect(planner).toMatch(/^defaultContext: fresh$/m);
+  });
+
+  it("pins no concrete model in any reusable agent definition or role override", () => {
+    // R2: model routing is deployment configuration. Project agent files
+    // shadow bundled builtins wholesale, and every template agent definition
+    // is reusable payload, so none of them may pin a provider-specific model.
+    for (const template of readdirSync(templatePath(""), { withFileTypes: true })) {
+      if (!template.isDirectory()) continue;
+      const agentsDir = templatePath(`${template.name}/.pi/agents`);
+      for (const file of readdirSync(agentsDir)) {
+        if (!file.endsWith(".md")) continue;
+        const definition = readFileSync(`${agentsDir}/${file}`, "utf8");
+        expect(definition, `${template.name}/${file}`).not.toMatch(/^model:/m);
+      }
+    }
+    const overrides = readOverrides();
+    for (const [name, role] of Object.entries(overrides)) {
+      expect(role.model, `override ${name}`).toBeUndefined();
+    }
+  });
+
+  it("shares the inspection methodology between code-review and review-change", () => {
+    // S1: code-review stays the familiar end-to-end entry point; the
+    // inspection procedure lives once in review-change and is reused, so
+    // publication and inspection guidance cannot drift apart.
+    const codeReview = readTemplate("default/.agents/skills/code-review/SKILL.md");
+    expect(codeReview).toContain("review-change");
+    const reviewChange = readTemplate("default/.agents/skills/review-change/SKILL.md");
+    expect(reviewChange).toContain("APPROVE");
+    expect(reviewChange).toContain("Do not post comments");
   });
 });

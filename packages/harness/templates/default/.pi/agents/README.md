@@ -157,7 +157,7 @@ authoring workflows.
 
 - `scout` → `understand-codebase`
 - `worker` → `implement-with-tdd` (tier 3 adds `debug`, `refactor-safely`)
-- `reviewer` → the `review-pr` inspection contract (no publication)
+- `reviewer` → the `review-change` inspection contract (no publication)
 - Optional RE synthesis → `write-prd` drafting guidance only
 
 Review output is a draft returned to the parent. The parent resolves product
@@ -196,7 +196,7 @@ Delegation contracts define which stages belong in an unattended task:
 - `planner`: inspect existing approved tasks across the selected PRDs and return
   execution order, readiness, dependencies, tiers, and safe batches. Do not
   re-split the PRDs, create issues, ask for routine approval, or dispatch.
-- `reviewer`: use the `review-pr` inspection and review-format guidance only;
+- `reviewer`: use the `review-change` inspection and review-format guidance only;
   return findings and `APPROVE`/`CHANGES` to the parent. Do not publish,
   change labels, or fix code.
 - `scout`: investigate the assigned area without a clarification interview.

@@ -5,15 +5,22 @@ description: Review a GitHub pull request against the project's engineering doct
 
 # Code Review
 
-Review a GitHub pull request for correctness, maintainability, tests, domain fit, and operational risk. Always publish the review as a PR comment.
+Review a GitHub pull request for correctness, maintainability, tests, domain
+fit, and operational risk. Always publish the review as a PR comment.
+
+This is the user-facing end-to-end workflow. The inspection procedure is shared
+with the `review-change` skill: run `review-change` for the doctrine load,
+intent check, inspection, and findings format, then publish the result per this
+skill. Do not duplicate the inspection methodology here or in agents.
 
 ## Read These First
 
-1. `docs/engineering/code-review.md` — review principles and checklist
-2. `docs/coding-standards.md` — repo conventions
-3. `docs/context.md` — domain language and project model
-4. Relevant `docs/adr/` files for the area being touched
-5. Other scoped engineering docs when risk requires it, such as security, data modeling, debugging, boundaries, legacy code, or testing
+1. The `review-change` skill — the shared inspection procedure this workflow
+   reuses before publication
+2. `docs/engineering/code-review.md` — review principles and checklist
+3. `docs/coding-standards.md` — repo conventions
+4. `docs/context.md` — domain language and project model
+5. Relevant `docs/adr/` files for the area being touched
 
 ## Workflow
 
@@ -34,63 +41,23 @@ Use GitHub CLI when available:
 gh pr view <PR_URL> --json title,body,author,baseRefName,headRefName,files,commits,reviews
 ```
 
-### 2. Load Doctrine Before the Diff
+### 2. Inspect with review-change
 
-Read the review doctrine before judging the change.
+Run the `review-change` workflow against the identified PR revision:
 
-Use the TStack lowercase docs paths:
+- load doctrine before the diff,
+- understand the PR's stated intent and acceptance criteria,
+- inspect the change and classify findings (`blocker`, `required`,
+  `suggestion`), and
+- reach an `APPROVE`, `CHANGES`, or `BLOCKED` verdict with evidence.
 
-- `docs/engineering/code-review.md`
-- `docs/coding-standards.md`
-- `docs/context.md`
-- `docs/adr/`
+Do not inspect from generic taste. Review against the project's stated rules,
+vocabulary, and decisions.
 
-Do not review from generic taste. Review against the project's stated rules, vocabulary, and decisions.
+### 3. Format the Review
 
-### 3. Understand Intent
-
-Before reading deeply, understand what the PR claims to do:
-
-- PR title and body
-- linked issue, PRD, or task if present
-- stated acceptance criteria if present
-- changed files and rough scope
-
-Check whether the PR includes unrelated work. Unrelated scope is review risk.
-
-### 4. Inspect the Change
-
-Review the diff and surrounding code as needed.
-
-Focus on:
-
-- observable behavior and edge cases
-- failure paths and data integrity
-- test quality and missing coverage
-- interface shape and module boundaries
-- domain language consistency
-- architectural decisions and ADR alignment
-- operational, security, or migration risk
-- unnecessary complexity or speculative abstraction
-
-For large PRs, prioritize the highest-risk files first and mention any area you could not inspect confidently.
-
-### 5. Write Findings
-
-Each finding should be concrete and actionable.
-
-For every issue, include:
-
-- severity emoji: `🚫` blocker, `⚠️` important, or `💡` suggestion
-- where it appears
-- why it matters
-- what should change
-
-Do not block on personal preference. Distinguish required fixes from optional improvements.
-
-### 6. Format the Review
-
-Use this format:
+Use the `review-change` findings (including what the PR does well and test
+coverage notes) in this publication format:
 
 ```md
 ## Summary
@@ -114,7 +81,7 @@ Use this format:
 
 If a section has no items, write `None`.
 
-### 7. Choose PR Status
+### 4. Choose PR Status
 
 GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR:
 
@@ -131,7 +98,7 @@ gh label create changes-requested --repo <owner/repo> --description "PR status: 
 gh label create ready-to-merge --repo <owner/repo> --description "PR status: reviewed and ready to merge" --color 0E8A16 2>/dev/null || true
 ```
 
-### 8. Publish the Review
+### 5. Publish the Review
 
 Always post the review as a PR comment. Do not only print it locally.
 
@@ -153,7 +120,7 @@ If ready to merge:
 gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge
 ```
 
-### 9. Report Back
+### 6. Report Back
 
 Tell the user:
 
@@ -163,7 +130,7 @@ Tell the user:
 
 ## Guardrails
 
-- Always read doctrine before reviewing the diff.
+- Always run the `review-change` inspection before publishing anything.
 - Always publish the review as a PR comment.
 - Do not invent project rules that are not in the docs.
 - Do not block on style preference unless it violates documented conventions or creates real risk.

@@ -22,7 +22,7 @@
       },
       "reviewer": {
         "tools": ["read", "grep", "find", "ls", "watchdog_diff", "contact_supervisor"],
-        "skills": [],
+        "skills": ["review-change"],
         "acceptanceRole": "read-only",
         "defaultContext": "fresh",
         "inheritProjectContext": true,

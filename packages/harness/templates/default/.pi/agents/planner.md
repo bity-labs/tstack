@@ -1,7 +1,6 @@
 ---
 name: planner
 description: Plans execution of existing approved tasks across one or multiple PRDs
-model: gpt-6.1-sol
 thinking: high
 inheritProjectContext: true
 acceptanceRole: read-only

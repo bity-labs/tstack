@@ -35,7 +35,7 @@ Use `inspect-architecture` to find structural friction, then `break-architecture
 
 ## Pull request review
 
-Use `code-review` to evaluate a pull request against the project's engineering doctrine. Use `fix-code-review` to address review feedback with small, verified changes. Use `review-pr` when a subagent should inspect a change and return findings to the parent without publishing comments or changing labels.
+Use `code-review` to evaluate a pull request against the project's engineering doctrine (it reuses the `review-change` inspection procedure, then publishes and updates labels). Use `review-change` when a change should be inspected without publication, for example by a subagent returning findings to the parent. Use `fix-code-review` to address review feedback with small, verified changes.
 
 ## Tiered delegation with Pi
 
