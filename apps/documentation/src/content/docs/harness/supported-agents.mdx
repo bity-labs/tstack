@@ -32,3 +32,14 @@ If your agent does not discover `AGENTS.md` or `.agents/skills/`, you can still 
 ## Not included today
 
 The default harness does not currently include vendor-specific adapters, generated slash commands, hosted synchronization, or a CLI that installs agent integrations automatically.
+
+## Pi and pi-subagents
+
+For Pi specifically, the harness ships Pi-native assets: the `planner` project agent, the `/autoshift` slash-command prompt, and role configuration for the bundled pi-subagents builtin agents.
+
+- Install pi-subagents (Pi 1.2.0+) with `pi install npm:pi-subagents`, then follow the `setup-pi-subagents` skill to merge `.pi/prompts/autoshift/settings.example.json` into the project's `.pi/settings.json`.
+- Implementation, review, and recon use the builtin `worker`, `reviewer`, and `scout`; TStack policy (single writer per worktree, fresh-context review, tier escalation, blocked-then-escalate) lives in `docs/engineering/roles.md` and the `/autoshift` prompt rather than in copied agent definitions.
+- Model ids are project configuration, not template content. Verify the live mapping with `/subagents-models`.
+- Project agent files shadow bundled builtins wholesale, so avoid copying builtin definitions into `.pi/agents/`.
+
+Optional specialist agents (notes, reverse-engineering) are separate overlays and are not installed by default.

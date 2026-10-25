@@ -25,6 +25,14 @@ The Agent-Ready Boilerplate can be scaffolded as a standalone app with `tstack i
 
 Skills are plain Markdown workflows. The harness does not currently ship generated slash commands, tool-specific extension packages, or automatic agent configuration.
 
+## Pi setup is partly manual
+
+Installing pi-subagents is one command, but the role configuration must be merged into each project's `.pi/settings.json` by hand (or with the `setup-pi-subagents` skill). There is no automated settings merge, and there are no automated tests for model compliance or live workflow behavior; the disposable-repository smoke checklist in `/autoshift` covers that separately.
+
+## Optional Pi specialists are overlays
+
+The notes and reverse-engineering agents ship as separate template overlays. Copy them manually when needed; they are not installed by the default template.
+
 ## No automation for deployment or releases
 
 The harness does not set up payment providers, deployment infrastructure, release automation, repository access, or branch protection.

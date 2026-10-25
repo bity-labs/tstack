@@ -35,7 +35,17 @@ Use `inspect-architecture` to find structural friction, then `break-architecture
 
 ## Pull request review
 
-Use `code-review` to evaluate a pull request against the project's engineering doctrine. Use `fix-code-review` to address review feedback with small, verified changes.
+Use `code-review` to evaluate a pull request against the project's engineering doctrine. Use `fix-code-review` to address review feedback with small, verified changes. Use `review-pr` when a subagent should inspect a change and return findings to the parent without publishing comments or changing labels.
+
+## Tiered delegation with Pi
+
+When Pi and [pi-subagents](https://github.com/nicobailon/pi-subagents) are installed, implementation runs through configured builtin agents with TStack policy on top:
+
+1. `setup-pi-subagents` installs the package and merges the role configuration from `.pi/prompts/autoshift/settings.example.json`.
+2. `/autoshift` implements approved tasks: builtin `worker` children at effort tiers 1–3, fresh builtin `reviewer` children at the exact head/base, with the `planner` agent coordinating multi-PRD execution.
+3. Escalation runs tier 1 → 2 → 3 after two failed corrective attempts; reviews are never published by children and merges never happen without explicit `--merge` authority.
+
+`docs/engineering/roles.md` records the single-writer, fresh-review, and evidence rules.
 
 ## Validation
 

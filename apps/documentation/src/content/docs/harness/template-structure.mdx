@@ -13,6 +13,8 @@ packages/harness/templates/default/
 ├── docs/
 │   ├── context.md
 │   ├── coding-standards.md
+│   ├── architecture.md
+│   ├── design.md
 │   ├── adr/
 │   │   └── 0000-template.md
 │   └── engineering/
@@ -27,12 +29,22 @@ packages/harness/templates/default/
 │       ├── legacy-code.md
 │       ├── mocking.md
 │       ├── refactoring.md
+│       ├── roles.md
 │       ├── security-review.md
 │       ├── tdd.md
 │       └── testing.md
-└── .agents/
-    ├── prompts/
-    └── skills/
+├── .agents/
+│   ├── prompts/
+│   └── skills/
+└── .pi/
+    ├── agents/
+    │   ├── README.md
+    │   └── planner.md
+    └── prompts/
+        ├── autoshift.md
+        └── autoshift/
+            ├── settings.example.json
+            └── note.md
 ```
 
 ## Root instructions
@@ -59,6 +71,12 @@ packages/harness/templates/default/
 
 `.agents/skills/` contains workflow instructions for repeatable agent tasks. Each skill has its own `SKILL.md` and may include supporting templates.
 
+## Pi agents and prompts
+
+`.pi/agents/` defines Pi-specific sub-agents and `.pi/prompts/` defines Pi slash-command prompts. The default template defines only the `planner` execution planner; implementation, review, and recon use the bundled pi-subagents builtin agents with role boundaries configured through `subagents.agentOverrides` (see the `setup-pi-subagents` skill). `/autoshift` is the tiered autonomous implementation workflow, and `docs/engineering/roles.md` records the role policy.
+
+Optional specialist agents live in separate template overlays (`templates/pi-notes`, `templates/pi-research` in the TStack source) so a default install stays minimal; agent discovery is recursive, so optional agents must not sit inside the installed `.pi/agents/` directory.
+
 ## Copy vs symlink policy
 
 For normal installs, copy the entire template into the target project so the project works in isolation.
@@ -66,6 +84,8 @@ For normal installs, copy the entire template into the target project so the pro
 Inside the TStack monorepo only, harness-owned resources may be symlinked while dogfooding:
 
 - `.agents`
+- `.pi/agents`
+- `.pi/prompts`
 - `docs/engineering`
 
 Project-owned working documents should stay as real files and be customized per project:
