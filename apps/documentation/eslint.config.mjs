@@ -4,7 +4,19 @@ import astro from "eslint-plugin-astro";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["node_modules", "dist", ".astro", "coverage", "eslint.config.mjs"] },
+  {
+    ignores: [
+      "node_modules",
+      "dist",
+      ".astro",
+      "coverage",
+      ".next",
+      ".source",
+      "next-env.d.ts",
+      "*.tsbuildinfo",
+      "eslint.config.mjs"
+    ]
+  },
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   {
