@@ -4,6 +4,8 @@ description: Hard-surface dev within approved decisions (Expo/RN, migrations, au
 model: gpt-6.1-sol
 thinking: xhigh
 inheritProjectContext: true
+acceptanceRole: writer
+defaultContext: fresh
 skills: implement-with-tdd, debug, refactor-safely
 ---
 

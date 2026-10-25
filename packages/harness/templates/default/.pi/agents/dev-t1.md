@@ -4,6 +4,8 @@ description: Spec-faithful mechanical dev on documented codebase
 model: gpt-6-luna
 thinking: off
 inheritProjectContext: true
+acceptanceRole: writer
+defaultContext: fresh
 skills: implement-with-tdd
 ---
 

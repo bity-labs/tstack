@@ -4,6 +4,8 @@ description: Read-only recon per understand-codebase skill
 model: gpt-6-luna
 thinking: low
 inheritProjectContext: true
+acceptanceRole: read-only
+defaultContext: fresh
 tools: read, grep, find, ls
 skills: understand-codebase
 ---

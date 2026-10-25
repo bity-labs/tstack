@@ -4,6 +4,9 @@ description: Final review gate per docs/engineering/code-review.md
 model: gpt-6-astra
 thinking: xhigh
 inheritProjectContext: true
+acceptanceRole: read-only
+defaultContext: fresh
+tools: read, grep, find, ls, watchdog_diff, contact_supervisor
 skills: code-review
 ---
 

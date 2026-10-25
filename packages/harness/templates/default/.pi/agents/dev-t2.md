@@ -4,6 +4,8 @@ description: Standard feature dev (Next.js, API wiring, spec'd screens)
 model: gpt-6.1-sol
 thinking: medium
 inheritProjectContext: true
+acceptanceRole: writer
+defaultContext: fresh
 skills: implement-with-tdd
 ---
 

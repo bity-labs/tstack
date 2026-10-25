@@ -4,6 +4,8 @@ description: Plans execution of existing approved tasks across one or multiple P
 model: gpt-6.1-sol
 thinking: high
 inheritProjectContext: true
+acceptanceRole: read-only
+defaultContext: fresh
 tools: read, grep, find, ls, contact_supervisor
 ---
 
