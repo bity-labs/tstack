@@ -180,13 +180,20 @@ The parent routes review fixes to a writer and requests review of the updated di
 
 ## Model assumptions
 
-Agent files pin bare model ids (`gpt-6-luna`, `gpt-6.1-sol`, `gpt-6-astra`),
-which pi-subagents resolves against the provider available on the current
-machine (bare ids prefer the current provider, then unique registry matches).
-Verify after install:
+Bundled agent files pin bare model ids (`gpt-6-luna`, `gpt-6.1-sol`,
+`gpt-6-astra`), which pi-subagents resolves against the provider available on
+the current machine (bare ids prefer the current provider, then unique registry
+matches). Builtin agents inherit the parent session model until overridden.
+
+Deployment-owned model routing belongs in user or project settings, not in
+these reusable prompts: configure `subagents.agentOverrides.<name>.model`
+(and `thinking`) or pass a model at launch. Verify the live mapping after
+install or reload:
 
 ```
 /subagents-models
+/subagents-models reviewer
 ```
 
-If your provider names these models differently, adjust the `model:` lines.
+If your provider names these models differently, adjust your overrides or the
+bundled `model:` lines.

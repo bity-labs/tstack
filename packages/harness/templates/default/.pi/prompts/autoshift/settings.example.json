@@ -1,0 +1,34 @@
+{
+  "subagents": {
+    "agentOverrides": {
+      "scout": {
+        "tools": ["read", "grep", "find", "ls", "contact_supervisor"],
+        "skills": ["understand-codebase"],
+        "acceptanceRole": "read-only",
+        "defaultContext": "fresh",
+        "inheritProjectContext": true,
+        "inheritGlobalContext": false,
+        "inheritSkills": false
+      },
+      "worker": {
+        "tools": ["read", "grep", "find", "ls", "bash", "edit", "write", "contact_supervisor"],
+        "skills": ["implement-with-tdd"],
+        "acceptanceRole": "writer",
+        "defaultContext": "fresh",
+        "defaultReads": false,
+        "inheritProjectContext": true,
+        "inheritGlobalContext": false,
+        "inheritSkills": false
+      },
+      "reviewer": {
+        "tools": ["read", "grep", "find", "ls", "watchdog_diff", "contact_supervisor"],
+        "skills": [],
+        "acceptanceRole": "read-only",
+        "defaultContext": "fresh",
+        "inheritProjectContext": true,
+        "inheritGlobalContext": false,
+        "inheritSkills": false
+      }
+    }
+  }
+}
