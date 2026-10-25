@@ -1,29 +1,68 @@
 # Pi Sub-Agents Roster
 
-[pi-subagents](https://pi.dev/packages/pi-subagents) agent definitions for a
-tiered OpenAI sub-agent roster using the GPT-6 family. Drop `.pi/agents/` at
-the project root; Pi discovers them automatically (`pi install npm:pi-subagents`
-required).
+[pi-subagents](https://pi.dev/packages/pi-subagents) (Pi 1.2.0+) agent
+configuration for a tiered, builtin-based sub-agent roster. Drop `.pi/agents/`
+at the project root; Pi discovers them automatically (`pi install
+npm:pi-subagents` required). Configure with
+`.agents/skills/setup-pi-subagents/SKILL.md`.
 
 ## Roster
 
-| Agent | Model | Thinking | Role |
-|---|---|---|---|
-| `planner` | gpt-6.1-sol | high | Plans execution order, tiers, and safe batches across existing PRD tasks |
-| `dev-t1` | gpt-6-luna | off | Mechanical/spec-faithful work (CRUD on documented codebase) |
-| `dev-t2` | gpt-6.1-sol | medium | Standard feature dev (Next.js, API wiring) |
-| `dev-t3` | gpt-6.1-sol | xhigh | Hard-surface dev within approved decisions (Expo/RN, migrations, auth, offline) |
-| `reviewer` | gpt-6-astra | xhigh | Final review gate (correctness, security) |
-| `scout` | gpt-6-luna | low | Read-only recon, cheap |
-| `scribe` | gpt-6-luna | off | Session notes, changelog, ADR upkeep |
+| Agent | Source | Role |
+|---|---|---|
+| `scout` | Builtin, configured read-only via `subagents.agentOverrides` | Read-only recon per the `understand-codebase` skill |
+| `worker` | Builtin, configured per `subagents.agentOverrides` | Implementation at a selected effort tier; the single writer |
+| `reviewer` | Builtin, configured read-only | Fresh-context review gate (correctness, security) |
+| `planner` | Project agent (`.pi/agents/planner.md`) | Execution planning for existing approved tasks across one or multiple PRDs |
+| `oracle`, `delegate`, `researcher`, `evidence-auditor` | Builtin | Optional: second opinions, bounded delegation, web research, evidence audit |
+| `scribe` | Optional overlay (`templates/pi-notes`) | Session notes, changelog, ADR upkeep (not installed by default) |
 
-Reverse-engineering pipeline (understand an existing app from user flow to DB):
+Builtin agents inherit the parent session model unless
+`subagents.agentOverrides.<name>.model` or a per-launch model override selects
+one. Verify the live mapping with `/subagents-models`.
 
-| Agent | Model | Thinking | Stage |
-|---|---|---|---|
-| `re-capture` | gpt-6-luna | low | 1 — screen/state/asset capture, no interpretation |
-| `re-traffic` | gpt-6.1-sol | high | 2 — infer API surface from traffic captures |
-| `re-synthesis` | gpt-6-astra | xhigh | 3 — merge into clone PRD + OpenAPI + schema |
+## Implementation tiers
+
+Tier selection is dispatch policy in `.pi/prompts/autoshift.md`, not a set of
+agent files. The controller dispatches builtin `worker` children with a
+per-launch model/effort override or configured overrides:
+
+| Tier | Task shape | Typical thinking |
+|---|---|---|
+| 1 | Mechanical, tightly specified changes (CRUD on a documented codebase) | low |
+| 2 | Standard feature dev (Next.js, API wiring) | medium |
+| 3 | Hard-surface dev within approved decisions (migrations, auth, offline, platform divergence) | xhigh |
+
+Escalation runs `tier 1 → tier 2 → tier 3`; a tier change starts a new bounded
+writer (a retained child keeps its original model and tool contract). The
+planner recommends tiers; the parent assigns them at dispatch.
+
+## Role configuration
+
+`.pi/prompts/autoshift/settings.example.json` is the deployment contract:
+
+- `reviewer` and `scout` are read-only (`read`, `grep`, `find`, `ls`,
+  `watchdog_diff`/`contact_supervisor`); no `bash`, `edit`, `write`, or
+  `subagent`.
+- `worker` has implementation tools plus `implement-with-tdd` and the
+  `writer` acceptance role.
+- Model ids are intentionally absent; configure them per project.
+
+Merge this into the project's real `.pi/settings.json`; the template never
+ships live settings.
+
+## Reverse-engineering pack (not installed by default)
+
+A reverse-engineering pipeline (understand an existing app from user flow to
+DB) ships as a separate optional overlay (`templates/pi-research`) and is not
+part of the default roster. Its stages:
+
+1. App surface capture — screens, states, assets, no interpretation
+2. API inference from traffic captures — endpoints, shapes, auth
+3. Synthesis — clone PRD + OpenAPI + schema draft, parent-approved
+
+Do not invoke RE stages during interactive product preparation or
+`/autoshift`.
 
 ## Workflow: preparation first, delegation at implementation
 
@@ -33,19 +72,17 @@ The normal product workflow has two separate phases:
    feature, write the PRD, split it into task issues, and approve the scope.
 2. **Implementation — /autoshift:** the main agent may invoke
    `planner` to inspect the existing approved tasks and current code, check
-   readiness/dependencies, recommend dev tiers, and propose execution batches.
+   readiness/dependencies, recommend tiers, and propose execution batches.
    The main agent then dispatches workers and reviewers and owns integration
    and escalation. Routine execution planning inside approved scope does not
    require another approval round; new product decisions return to the user.
 
-For one clear, independent task, the main agent can choose the initial dev tier
+For one clear, independent task, the main agent can choose the initial tier
 directly. Use `planner` for execution planning when dependency ordering, parallel
 batches, or competing work need coordination. The planner never authors PRDs,
 re-splits tasks, or creates issues. During a running shift, checkpoint-only
 planner passes also relay fresh parent state through the native supervisor
 channel; this is not nested delegation or a user approval interview.
-The RE pipeline is separate, explicitly requested research—not an automatic
-step during interactive product preparation.
 
 ### One command: /autoshift
 
@@ -95,9 +132,9 @@ and worker capacity. The planner then:
   active, complete, and blocked work.
 - Checks cross-PRD dependencies, shared prerequisites, cycles, and duplicate or
   overlapping tasks without silently changing the approved task breakdown.
-- Recommends dev tiers and bounded parallel batches; serializes shared-file,
-  contract, migration, or resource conflicts. Separate worktrees alone do not
-  make those conflicts safe.
+- Recommends implementation tiers and bounded parallel batches; serializes
+  shared-file, contract, migration, or resource conflicts. Separate worktrees
+  alone do not make those conflicts safe.
 - Preserves active assignments and keeps independent work runnable when another
   PRD is blocked. Replanning uses fresh parent-supplied state and changes only
   pending work, not tasks already in flight.
@@ -111,23 +148,25 @@ orchestrator. No claim is made that these prompts implement a runtime scheduler.
 
 ## TStack integration
 
-Specialists pin TStack harness skills by name in `skills:` frontmatter — the
-skills resolve from the harness's `.agents/skills/` layout (Pi-standard
-`<name>/SKILL.md`). The execution planner uses its own read-only planning
-contract, not the `break-into-issues` or `issues-triage` authoring workflows.
+Role, tool, skill, and model boundaries are deployment configuration
+(`subagents.agentOverrides`), not prompt edits; `docs/engineering/roles.md`
+records the policy. Skills resolve from the harness's `.agents/skills/`
+layout (Pi-standard `<name>/SKILL.md`). The execution planner uses its own
+read-only planning contract, not the `break-into-issues` or `issues-triage`
+authoring workflows.
 
 - `scout` → `understand-codebase`
-- `dev-t*` → `implement-with-tdd` (+ `debug`, `refactor-safely` on t3)
-- `reviewer` → `code-review`
-- `re-synthesis` → `write-prd`
+- `worker` → `implement-with-tdd` (tier 3 adds `debug`, `refactor-safely`)
+- `reviewer` → the `review-pr` inspection contract (no publication)
+- Optional RE synthesis → `write-prd` drafting guidance only
 
-The RE pipeline's output (from `re-synthesis`) is a draft in the `write-prd`
-format. The parent resolves product decisions and obtains approval before
-publication and task breakdown; inferred behavior is not an approved spec.
+Review output is a draft returned to the parent. The parent resolves product
+decisions, publishes, and obtains approval before further breakdown and tiered
+dispatch; inferred behavior is not an approved spec.
 
 ## Autonomous child contract
 
-All ten agents run unattended within a bounded parent-assigned task. Autonomy
+All agents run unattended within a bounded parent-assigned task. Autonomy
 means executing that task without routine user interaction, not inventing
 requirements, bypassing approval, or launching more agents.
 
@@ -147,53 +186,34 @@ interaction, approvals, GitHub publication/labels, dispatch, and escalation.
 ### Skill execution boundaries
 
 Skills remain reusable harness guidance; this roster does not alter them.
-Each agent prompt defines which stages belong in its unattended task:
+Delegation contracts define which stages belong in an unattended task:
 
-- `dev-t*`: use `implement-with-tdd` in AFK mode. t2 does not use
-  `clarify-with-context`; contradictory requirements return to the parent.
-- `dev-t3`: use the unattended paths of `debug` and `refactor-safely`. Missing
-  reproduction access or unclear refactor scope returns `BLOCKED`.
+- `worker`: use `implement-with-tdd` in AFK mode. Tier-3 work may use the
+  unattended paths of `debug` and `refactor-safely`; missing reproduction
+  access or unclear refactor scope returns `BLOCKED`. `clarify-with-context`
+  is not part of AFK implementation; contradictory requirements return to the
+  parent.
 - `planner`: inspect existing approved tasks across the selected PRDs and return
   execution order, readiness, dependencies, tiers, and safe batches. Do not
   re-split the PRDs, create issues, ask for routine approval, or dispatch.
-- `re-synthesis`: use the PRD template/drafting guidance only; return artifacts,
-  not a published issue. Unresolved decisions remain explicit blockers.
-- `reviewer`: use inspection and review-format guidance only; return findings
-  and `APPROVE`/`CHANGES` to the parent. Do not publish, change labels, or fix code.
+- `reviewer`: use the `review-pr` inspection and review-format guidance only;
+  return findings and `APPROVE`/`CHANGES` to the parent. Do not publish,
+  change labels, or fix code.
 - `scout`: investigate the assigned area without a clarification interview.
 
 ## Escalation rule
 
-The parent may route ready implementation tasks through
-`dev-t1 (luna) → dev-t2 (sol/medium) → dev-t3 (sol/xhigh)`.
-After two unsuccessful corrective attempts at the same acceptance criterion,
-the dev returns `BLOCKED` with accumulated notes, attempted fixes, and validation
-output. An expected TDD RED is not a failed attempt. Missing access or runtime
-infrastructure failure blocks immediately rather than consuming code retries.
-No child launches its successor or changes its own effort.
+The parent may raise the effort tier of ready implementation tasks through
+`tier 1 → tier 2 → tier 3`. After two unsuccessful corrective attempts at the
+same acceptance criterion, the writer returns `BLOCKED` with accumulated notes,
+attempted fixes, and validation output. An expected TDD RED is not a failed
+attempt. Missing access or runtime infrastructure failure blocks immediately
+rather than consuming code retries. No child launches its successor or changes
+its own effort.
 
 The planner recommends tiers; the parent assigns them at dispatch. Unresolved
 product or architecture decisions are HITL blockers, not a reason to send an
-underspecified task to t3. Unresolved t3 work returns to the parent for a decision.
-The reviewer is an independent gate after implementation, not a fourth dev tier.
-The parent routes review fixes to a writer and requests review of the updated diff.
-
-## Model assumptions
-
-Bundled agent files pin bare model ids (`gpt-6-luna`, `gpt-6.1-sol`,
-`gpt-6-astra`), which pi-subagents resolves against the provider available on
-the current machine (bare ids prefer the current provider, then unique registry
-matches). Builtin agents inherit the parent session model until overridden.
-
-Deployment-owned model routing belongs in user or project settings, not in
-these reusable prompts: configure `subagents.agentOverrides.<name>.model`
-(and `thinking`) or pass a model at launch. Verify the live mapping after
-install or reload:
-
-```
-/subagents-models
-/subagents-models reviewer
-```
-
-If your provider names these models differently, adjust your overrides or the
-bundled `model:` lines.
+underspecified task to tier 3. Unresolved tier-3 work returns to the parent for
+a decision. The reviewer is an independent gate after implementation, not a
+fourth tier. The parent routes review fixes to a writer and requests review of
+the updated diff.

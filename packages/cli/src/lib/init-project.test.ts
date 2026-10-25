@@ -217,10 +217,24 @@ describe("initProject", () => {
       const installedPi = join(targetDir, ".pi");
       expect(existsSync(join(installedPi, "agents", "planner.md"))).toBe(true);
       expect(existsSync(join(installedPi, "prompts", "autoshift.md"))).toBe(true);
+      expect(existsSync(join(installedPi, "prompts", "autoshift", "settings.example.json"))).toBe(
+        true
+      );
       expect(
         existsSync(join(targetDir, ".agents", "skills", "implement-with-tdd", "SKILL.md"))
       ).toBe(true);
+      expect(existsSync(join(targetDir, ".agents", "skills", "review-pr", "SKILL.md"))).toBe(true);
+      expect(
+        existsSync(join(targetDir, ".agents", "skills", "setup-pi-subagents", "SKILL.md"))
+      ).toBe(true);
+      expect(existsSync(join(targetDir, "docs", "engineering", "roles.md"))).toBe(true);
       expect(lstatSync(installedPi).isDirectory()).toBe(true);
+
+      // Only the planner remains a project agent definition; optional
+      // specialists live in separate template overlays.
+      expect(readdirSync(join(installedPi, "agents")).sort()).toEqual(["README.md", "planner.md"]);
+      expect(existsSync(join(installedPi, "agents", "scribe.md"))).toBe(false);
+      expect(existsSync(join(installedPi, "agents", "re-capture.md"))).toBe(false);
 
       const templatePi = join(templatesDir, "default", ".pi");
       for (const path of readdirSync(templatePi, { recursive: true, encoding: "utf8" })) {

@@ -13,6 +13,7 @@ Load only the rule files needed for the task. Do not load every file by default.
 - `deep-modules.md` — load when reducing complexity, introducing abstractions, or changing module responsibilities.
 - `refactoring.md` — load when improving structure without intended behavior changes.
 - `code-review.md` — load when reviewing a change or preparing a change for review.
+- `roles.md` — load when delegating work to Pi subagents, choosing worker tiers, or configuring role boundaries.
 
 ## Scoped Rules
 

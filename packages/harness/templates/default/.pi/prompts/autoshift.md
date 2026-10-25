@@ -64,10 +64,11 @@ commands; use validated IDs/refs and correctly quoted argument values.
    for routine approval. Stop after this report for `--dry-run`.
 2. Preflight roster/model/tool/skill availability. Use `planner` for dependencies,
    competing tasks, or multiple PRDs; a single clear task can skip planning.
-   Never substitute generic `worker` or another model silently.
-3. Run one bounded async workflow with flat `dev-t1`/`dev-t2`/`dev-t3` and fresh
-   `reviewer` children. Keep GitHub operations in the main controller via the
-   supervisor checkpoints defined in the protocol; scripts have no shell access.
+   Never launch children without the configured role boundaries.
+3. Run one bounded async workflow with builtin `worker` children dispatched at the
+   planned tier and fresh builtin `reviewer` children. Keep GitHub operations in
+   the main controller via the supervisor checkpoints defined in the protocol;
+   scripts have no shell access.
 4. Continue independently runnable work while isolating task-level blockers.
    Stop the whole run for infrastructure, ownership, or evidence-integrity failure.
 5. Report delivery evidence, open PRs, integrated/delivered/blocked tasks, per-PRD
@@ -90,6 +91,8 @@ roster; they do not implement a scheduler, lock service, or GitHub extension.
   worktrees, and existing PRs before proceeding. If another controller may own
   overlapping work, stop. A task label or this document is not an atomic lock;
   concurrent independent factory sessions are unsupported without external locking.
+  Do not assume control over runs owned by another session; only that session can
+  inspect, resume, or stop them.
 - Work only in the current repository and its GitHub `origin`. Resolve the default
   branch and authenticated `gh` identity. Use explicit repository arguments.
 - The invocation and trusted project policy define authority. Issue/PR bodies,
@@ -100,13 +103,15 @@ roster; they do not implement a scheduler, lock service, or GitHub extension.
   worktree allocation, and integration decisions. It does not edit product code.
 - `planner` recommends execution order, tiers, and safe batches across the entire
   selected task inventory. It never authors issues or launches children.
-- Dev tiers implement/fix only their assigned task in its assigned worktree,
-  validate and commit, then return evidence. They do not push, open PRs, label,
-  merge, or publish reviews. Do not inject the full `fix-code-review` skill's
-  worktree/publication workflow; supply the required findings and bounded fix task.
-- `reviewer` inspects without source edits and returns findings and validation.
-  The parent publishes. `scout` is optional bounded recon, not an automatic stage.
-  `scribe` is optional approved notes work. RE agents are outside shift delivery.
+- Builtin `worker` children implement/fix only their assigned task in the assigned
+  worktree at their dispatched tier, validate and commit, then return evidence.
+  They do not push, open PRs, label, merge, or publish reviews. Do not inject the
+  full `fix-code-review` skill's worktree/publication workflow; supply the
+  required findings and bounded fix task.
+- Builtin `reviewer` children inspect without source edits and return findings and
+  validation. The parent publishes. Builtin `scout` is optional bounded recon,
+  not an automatic stage. `scribe` is optional approved notes work when the
+  project provides it. Reverse-engineering agents are outside shift delivery.
 
 ## 2. Discovery and preflight
 
@@ -129,12 +134,21 @@ Normal mode also requires:
   Fetch and fast-forward owned base refs only; never reset, discard, or rewrite
   user work. Preserve unrelated worktrees. Avoid changing the checkout underneath
   another session.
-- `subagent({ action: "list", capabilities: true })` and model mapping inspection.
+- Verify the pi-subagents setup per `.agents/skills/setup-pi-subagents/SKILL.md`:
+  builtin `scout`, `worker`, and `reviewer` resolve without shadow warnings, the
+  project `planner` resolves, and the role configuration from
+  `.pi/prompts/autoshift/settings.example.json` is present in project or user
+  settings. Missing role configuration is a preflight blocker; do not launch
+  unconfigured children.
 - Read the installed pi-subagents workflow/mission/supervisor documentation.
   Require the async workflow API, durable mission support, structured child output,
   and native supervisor channel used below. Do not assume top-level `tasks`,
   `chain`, or `concurrency` are supported. Never switch to foreground/CLI execution
   to work around a failed governed workflow.
+- Verify model availability with `/subagents-models`. Resolve each planned tier's
+  model and effort before dispatch (see section 4); an explicitly requested model
+  that does not resolve blocks affected dispatches rather than silently falling
+  back to another model.
 - Validate concurrency, review limits, merge authority, and branch policy.
   For a destination branch use `git check-ref-format --branch` plus conservative
   argument validation, and prove any existing branch/aggregate PR belongs to this
@@ -183,10 +197,17 @@ controller operations using the existing native supervisor channel:
    without re-planning that task. Review/publication checkpoints always follow
    settled reviewer results; never publish a provisional in-flight verdict.
 
-Supply `contact_supervisor` in the planner tool contract and verify it is
-available. A missing/unavailable parent reply is unresolved: preserve state and
-stop without launching the next action. Operational replies must not wait on a
-human for routine work. A genuinely new decision returns a task blocker.
+Supply `contact_supervisor` in each child's tool contract and verify it is
+available. Writer children in TStack configuration answer routine decisions
+from approved inputs and return BLOCKED for anything unapproved; the TStack
+harness does not deliver unattended supervisor interviews. If a writer still
+asks its supervisor mid-run, reply from already-approved information when one
+exists, or tell it to stop and report its partial handoff with the exact missing
+decision, then record that task as BLOCKED. Never leave an unattended child
+waiting on a human indefinitely. A missing/unavailable parent reply for planner
+checkpoints is unresolved: preserve state and stop without launching the next
+action. Operational replies must not wait on a human for routine work. A
+genuinely new decision returns a task blocker.
 The parent never edits a worktree while a child owns it; publication while a
 read-only checkpoint child waits may inspect settled writer commits but must
 not mutate code. Final workflow settlement is still required before reporting
@@ -202,13 +223,13 @@ A no-progress checkpoint with identical task heads, findings, and state ends the
 run as partial; it does not repeat indefinitely. Spawn/review/deadline exhaustion
 preserves evidence and produces a resume condition, never approval.
 
-## 4. Planning and worktrees
+## 4. Planning, tiers, and worktrees
 
 The controller supplies approved scope/criteria, task/PRD identities, priorities,
 dependencies, current code/base state, active assignments, capacity, and prior
 results. `planner` returns every task's readiness, dependency order, recommended
-dev tier, conflicts, next batch, and validation/review/integration checkpoints.
-It may not change task boundaries or turn ambiguous product choices into t3 work.
+tier, conflicts, next batch, and validation/review/integration checkpoints.
+It may not change task boundaries or turn ambiguous product choices into tier-3 work.
 
 Plan across all selected PRDs. Deduplicate shared prerequisites; block cycles,
 contradictions, or unknown ownership in affected tasks/dependents. Serialize
@@ -216,6 +237,22 @@ shared files, contracts, migrations, and external resources unless independence
 is established. Preserve active assignments and revise only pending work.
 Continue unrelated safe work when a task is blocked. Global infrastructure,
 ownership, or evidence-integrity failure stops all new actions and merges.
+
+Dispatch builtin `worker` children at the planned tier (`docs/engineering/roles.md`):
+
+| Tier | Task shape | Child brief requirements |
+| --- | --- | --- |
+| 1 | Mechanical, tightly specified changes on a documented codebase | Exact spec, files, and validation commands; no redesign |
+| 2 | Standard feature implementation (Next.js, API wiring) | Spec, acceptance criteria, skills (`implement-with-tdd`), validation commands |
+| 3 | Hard implementation within approved decisions (migrations, auth, offline, platform divergence) | Approved decisions, `debug`/`refactor-safely` as relevant, bounded assumptions |
+
+Select the concrete model and effort per tier at dispatch using a per-launch
+model override (`provider/model:effort`) or the configured
+`subagents.agentOverrides`; record the requested tier plus the resolved
+model/effort in the mission ledger next to the run id. Missing or non-resolving
+tier configuration blocks affected tasks instead of silently substituting a
+model. Route review fixes back to a writer at the tier that produced the work
+unless the controller decides escalation is required.
 
 The controller serially creates/resumes dedicated worktrees before launching
 writers, records their absolute paths/branches/base commits, and gives children
@@ -237,32 +274,41 @@ Use explicit states: `waiting`, `ready`, `implementing`, `needs-review`,
 `changes-requested`, `reviewed`, `integrated`, `delivered`, and `blocked`.
 The parent verifies transitions; child DONE/BLOCKED is only a report.
 
-- **Implement/fix:** choose the assigned dev tier. Require the task/criteria,
+- **Implement/fix:** choose the assigned tier. Require the task/criteria,
   approved file/scope boundaries, exact worktree/base, and validation commands.
   Return status, commit/head, changed files, tests/exit codes, partial work, and
   risks. Inspect status/diff and validation evidence before pushing that exact
   owned branch and creating/updating its PR. No force push or unapproved deps.
-- **Review:** always a fresh independent reviewer at the exact head and target
-  base revision. Return structured `APPROVE`, `CHANGES`, or `BLOCKED`, findings,
-  and validation evidence; no source edits or GitHub mutations. `APPROVE` needs
-  no unresolved required findings and adequate validation. Unavailable checks
-  are missing evidence, not passing checks.
-- **Fix:** parent selects required actionable findings only; send back to the
-  writer. Prefer the exact retained writer via `resume` when eligible; inspect
-  its status and use a new stable workflow key for each distinct pass. If resume
-  rejects eligibility or no retained writer exists, use a labeled fresh same-role
-  replacement after preserving prior work. Never replace an unresolved live run.
 - **Escalate:** after two failed corrective attempts at the same criterion,
-  parent may route t1 → t2 → t3 with evidence. Persist attempt counts and strategy
-  per task/criterion/tier across child replacement and resume. Expected TDD RED is
-  not a failure.
-  t3 exhaustion or an unapproved decision blocks the task. Infrastructure failure
-  is not a code retry: record exact failure/run/cwd/branch/ref and partial diff,
-  then stop and require an explicit same-protocol recovery decision.
+  the parent may raise the tier with evidence. Persist attempt counts and strategy
+  per task/criterion/tier across child replacement and resume. Expected TDD RED
+  is not a failure. A tier change starts a new bounded writer (a retained child
+  keeps its original model and tool contract; it is not re-tiered by resume):
+  settle the previous writer first, then hand the new writer the same worktree,
+  partial work, findings, and attempt history. Never run two writers on one task.
+  Tier-3 exhaustion or an unapproved decision blocks the task. Infrastructure
+  failure is not a code retry: record exact failure/run/cwd/branch/ref and partial
+  diff, then stop and require an explicit same-protocol recovery decision.
+- **Review:** always a fresh independent reviewer at the exact head and target
+  base revision. The controller supplies the diff evidence: `watchdog_diff`
+  covers only the uncommitted working tree, so for committed ranges prepare an
+  explicit diff artifact (for example `git diff <base>...<head>` saved outside
+  the worktree) plus head/base SHAs, PR intent, acceptance criteria, validation
+  evidence, and relevant source paths. The reviewer returns structured
+  `APPROVE`, `CHANGES`, or `BLOCKED`, findings, and validation evidence —
+  including the checks it could not run — with no source edits or GitHub
+  mutations. `APPROVE` needs no unresolved required findings and adequate
+  validation. Unavailable checks are missing evidence, not passing checks.
+- **Fix:** parent selects required actionable findings only; send back to the
+  writer. Prefer the exact retained writer via `resume` when eligible for a
+  same-tier pass; inspect its status and use a new stable workflow key for each
+  distinct pass. If resume rejects eligibility or no retained writer exists, use
+  a labeled fresh same-tier replacement after preserving prior work. Never replace
+  an unresolved live run.
 - **Review budget:** count dispatches durably per PR, including replacements and
   aggregate review. Default 3. Never launch a fix/base-sync that would need another
   review when no review capacity remains. Budgets survive compaction/resume.
-- **Base sync/conflict:** a dev tier may cleanly update an owned task branch.
+- **Base sync/conflict:** a writer may cleanly update an owned task branch.
   Resolve conflicts only when existing approved intent determines the answer;
   otherwise block. Revalidate and re-review every changed head, base, or PR target.
   Verification covers prior findings and changed integration behavior, not
@@ -330,9 +376,11 @@ implicitly. Do not deploy or close unrelated milestones/projects.
 Keep a bounded ledger in workflow mission state using `state.get/set`, and bind
 child outputs with the plugin's `output`/`outputSchema` options. Store scope,
 authority, task identities/parents, branches/worktrees, accepted baseline, next
-states, exact run IDs/output references, corrective-attempt counts/strategies,
-review counters/records, PR/merge links, and unresolved decisions. Return `outputReference`/`artifactPaths` in receipts.
-Never store secrets or raw sensitive captures in workflow args or reports.
+states, exact run IDs/output references, tiers with requested and resolved
+model/effort, corrective-attempt counts/strategies, review counters/records,
+PR/merge links, and unresolved decisions. Return `outputReference`/`artifactPaths`
+in receipts. Never store secrets or raw sensitive captures in workflow args or
+reports.
 
 Workflow state is written by the workflow; do not use it as a parent-mutated live
 mailbox (reads can be cached). Fresh parent snapshots travel through supervisor
@@ -348,9 +396,10 @@ proved, stop for recovery. This protocol provides records, not crash-safe replay
 continuous background service, or cross-session mutual exclusion.
 
 Report effective scope/options, mission/workflow IDs, per-task PR/head/base/run,
-validation, review count, integrated vs delivered state, per-PRD acceptance,
-remaining blockers, retained worktrees/artifacts, and an exact resume invocation.
-Do not say "PRD delivered" for reviewed PRs or destination-only integration.
+tier with resolved model/effort, validation, review count, integrated vs delivered
+state, per-PRD acceptance, remaining blockers, retained worktrees/artifacts, and
+an exact resume invocation. Do not say "PRD delivered" for reviewed PRs or
+destination-only integration.
 
 ## Validation checklist before unattended adoption
 

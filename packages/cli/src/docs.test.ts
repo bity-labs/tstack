@@ -41,6 +41,15 @@ describe("v2 documentation", () => {
     expect(readme).toContain("../../apps/documentation/content/docs/reference/cli.mdx");
   });
 
+  it("describes the builtin-based Pi roster in the harness README", () => {
+    const readme = readRepoFile("packages/harness/README.md");
+    expect(readme).toContain("templates/pi-notes");
+    expect(readme).toContain("templates/pi-research");
+    expect(readme).toContain("settings.example.json");
+    expect(readme).toContain("/subagents-models");
+    expect(readme).not.toMatch(/dev-t\d/);
+  });
+
   it.each([
     "README.md",
     "apps/documentation/src/content/docs/index.mdx",

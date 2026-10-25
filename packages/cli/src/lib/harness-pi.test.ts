@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -28,6 +28,28 @@ function readOverrides(): Record<string, RoleOverride> {
 }
 
 describe("Pi harness declarations (not model-compliance tests)", () => {
+  it("keeps only the planner as a project agent definition", () => {
+    const agentsDir = "default/.pi/agents/";
+    expect(readTemplate(`${agentsDir}planner.md`)).toMatch(/^name: planner$/m);
+    expect(readTemplate(`${agentsDir}README.md`)).toContain("Implementation tiers");
+    for (const removed of ["dev-t1", "dev-t2", "dev-t3", "scout.md", "reviewer.md"]) {
+      expect(existsSync(fileURLToPath(new URL(`${agentsDir}${removed}`, templates))), removed).toBe(
+        false
+      );
+    }
+  });
+
+  it("documents the deployment contract beside the prompt", () => {
+    const contractDir = "default/.pi/prompts/autoshift/";
+    const note = readTemplate(`${contractDir}note.md`);
+    expect(note).toContain("settings.example.json");
+    expect(note).toContain("docs/engineering/roles.md");
+    expect(note).toContain("Not a test");
+    expect(existsSync(fileURLToPath(new URL(`${contractDir}settings.json`, templates)))).toBe(
+      false
+    );
+  });
+
   it("configures read-only builtin reviewers and scouts without replacing their prompts", () => {
     const overrides = readOverrides();
     for (const name of ["reviewer", "scout"]) {

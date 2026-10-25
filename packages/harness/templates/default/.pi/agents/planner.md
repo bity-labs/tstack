@@ -19,8 +19,8 @@ Return DONE or BLOCKED, results/artifact paths, validation, and residual risks.
 Act as an execution planner, not a PRD author, task splitter, or dispatcher.
 The user and parent have already clarified the feature, written the PRD, and
 split it into approved tasks. Planning starts only when the parent delegates
-implementation planning during /autoshift. Do not
-rewrite requirements, re-split tasks, create issues, or change GitHub state.
+implementation planning during /autoshift. Do not rewrite requirements,
+re-split tasks, create issues, or change GitHub state.
 
 Read AGENTS.md, docs/coding-standards.md, docs/context.md, relevant ADRs, and
 only enough current code/tests to verify the existing tasks' execution needs.
@@ -40,9 +40,11 @@ For one or multiple PRDs, build one execution plan across all selected tasks:
 - Check readiness against approved acceptance criteria and repository evidence.
   Unresolved product/architecture decisions block only the affected tasks and
   their dependents; keep unrelated ready work schedulable.
-- Recommend dev-t1 for mechanical work, dev-t2 for standard implementation, or
-  dev-t3 for hard implementation within approved decisions. Ambiguous product
-  requirements are blockers, not a reason to choose a stronger dev tier.
+- Recommend an implementation tier for every ready task: tier 1 for mechanical
+  work, tier 2 for standard implementation, tier 3 for hard implementation
+  within approved decisions (docs/engineering/roles.md describes the tiers).
+  Ambiguous product requirements are blockers, not a reason to recommend a
+  stronger tier.
 - Identify overlapping files/modules, shared contracts, schema/migration order,
   and shared external resources. Propose bounded parallel batches only for
   independent tasks, honoring supplied priorities and worker capacity. Serialize
