@@ -62,6 +62,24 @@ describe("v2 documentation", () => {
     expect(content).toContain(archiveUrl);
   });
 
+  it("serializes Astro app builds after lint and typecheck to avoid concurrent .astro writes", () => {
+    // astro check and astro build both write .astro/content-assets.mjs (and its
+    // .tmp sibling). The validation workflow runs a workspace's tasks in one
+    // turbo invocation, so without ordering the two processes race the temp
+    // rename and CI fails with `ENOENT ... rename .../content-assets.mjs.tmp`
+    // (seen in Validate / apps_documentation). The workspace turbo.json removes
+    // that concurrency; this guard keeps the ordering contract in place.
+    for (const app of ["apps/documentation", "apps/boilerplate-docs"]) {
+      const config = JSON.parse(readRepoFile(join(app, "turbo.json"))) as {
+        extends: string[];
+        tasks: { build: { dependsOn: string[] } };
+      };
+      expect(config.extends, app).toEqual(["//"]);
+      expect(config.tasks.build.dependsOn, app).toContain("lint");
+      expect(config.tasks.build.dependsOn, app).toContain("typecheck");
+    }
+  });
+
   it("describes legacy commands without claiming they configure v2", () => {
     const guide = readRepoFile("apps/documentation/src/content/docs/reference/cli.mdx");
     expect(guide).toContain("tstack init");

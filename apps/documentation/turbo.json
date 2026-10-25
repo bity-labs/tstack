@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "lint", "typecheck"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    }
+  }
+}
