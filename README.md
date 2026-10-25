@@ -29,13 +29,9 @@ docs/
 In this monorepo, harness-owned assets are symlinked into the repo root and boilerplate app so local edits improve the product source of truth:
 
 - `.agents` -> `packages/harness/templates/default/.agents`
-- `.pi/agents` -> `packages/harness/templates/default/.pi/agents`
-- `.pi/prompts` -> `packages/harness/templates/default/.pi/prompts`
 - `docs/engineering` -> `packages/harness/templates/default/docs/engineering`
 - `apps/boilerplate/.agents` -> `packages/harness/templates/default/.agents`
 - `apps/boilerplate/docs/engineering` -> `packages/harness/templates/default/docs/engineering`
-
-Pi-specific agents and slash-command prompts stay in `.pi`, separate from the shared `.agents/skills` workflows. Root `.pi` remains a real directory: local settings and runtime state are project-owned, not shared template assets. See [the harness README](packages/harness/README.md) for Pi setup.
 
 Project-owned working documents stay as real files and may diverge from the generic template: `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` at each project root.
 

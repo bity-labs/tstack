@@ -21,8 +21,6 @@
 
 - Root `.agents` is a symlink to `packages/harness/templates/default/.agents`.
 - Editing files under root `.agents/skills` changes the harness template source of truth.
-- Root `.pi/agents` and `.pi/prompts` are symlinks to the matching directories in `packages/harness/templates/default/.pi`; edits there also change the harness template source of truth.
-- Keep root `.pi` as a real directory. Do not move project-local Pi settings, sessions, or runtime state into the shared template. Pi-specific agents/prompts stay in `.pi`, not `.agents`.
 - Root `docs/engineering` is a symlink to `packages/harness/templates/default/docs/engineering` so shared engineering doctrine is not duplicated.
 - Root `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` are real monorepo-specific working documents, not symlinks to the harness template.
 - `apps/boilerplate` follows the same rule: `.agents` and `docs/engineering` are symlinked harness assets; `AGENTS.md`, context, standards, ADRs, and stack docs are real boilerplate-specific files.

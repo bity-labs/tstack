@@ -18,8 +18,7 @@ TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack prod
 - Keep applications under `apps/*` and packages under `packages/*`.
 - Keep root docs focused on the TStack monorepo itself, not buyer-facing documentation app content.
 - Shared harness engineering doctrine is sourced from `packages/harness/templates/default/docs/engineering` and exposed at `docs/engineering`.
-- In monorepo dev mode, symlink only harness-owned reusable assets: `.agents`, `docs/engineering`, and root `.pi/agents` / `.pi/prompts`.
-- Pi agents and prompts live in `packages/harness/templates/default/.pi`, separate from shared `.agents/skills`. Root `.pi` stays a real directory; local Pi settings and runtime state remain project-owned.
+- In monorepo dev mode, symlink only harness-owned reusable assets: `.agents` and `docs/engineering`.
 - Keep project-owned working documents as real files: `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**`.
 - Future installer/scaffold output must copy all harness files into generated projects so they work without monorepo symlinks.
 
@@ -30,7 +29,7 @@ TStack is a pnpm/Turborepo monorepo for building and maintaining the TStack prod
 | Agent-Ready Boilerplate | Next.js SaaS starter app under `apps/boilerplate`. |
 | Documentation app | Fumadocs app under `apps/documentation` that publishes buyer-facing TStack docs. |
 | Harness | Reusable agent-facing template assets stored in `packages/harness/templates/default`. |
-| Harness-owned asset | Reusable content that should stay linked to the harness source of truth while dogfooding, such as `.agents`, `.pi/agents`, `.pi/prompts`, and `docs/engineering`. |
+| Harness-owned asset | Reusable content that should stay linked to the harness source of truth while dogfooding, such as `.agents` and `docs/engineering`. |
 | Monorepo root | The orchestration layer for workspace configuration, root docs, and repository maintenance. |
 | Project-owned working document | Context, standards, ADRs, or agent entrypoints that belong to a concrete project and should be copied/customized instead of symlinked. |
 | Template assets | Files intended to be reused by projects that install or dogfood the harness. |
