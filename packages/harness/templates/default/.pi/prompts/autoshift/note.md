@@ -3,8 +3,12 @@
 This directory configures the Pi deployment that `/autoshift` depends on. It is
 documentation, not runtime configuration.
 
-- `settings.example.json` is the role configuration contract: read-only
-  `reviewer`/`scout` boundaries and the `worker` writer contract. Merge it into
+- `settings.example.json` is the role configuration contract: the `scout` strict
+  read-only tool boundary, the `reviewer` source-read-only policy with `bash`
+  available for inspection and normal `gh` review publication through the
+  `code-review` skill (a composed prompt override replaces the builtin
+  reviewer's shell prohibition; no-editing is policy, not enforced filesystem
+  isolation), and the `worker` writer contract. Merge it into
   the project's real `.pi/settings.json` (never commit live settings here) with
   `.agents/skills/setup-pi-subagents/SKILL.md`.
 - Model ids for the implementation tiers are deliberately absent. Select them at

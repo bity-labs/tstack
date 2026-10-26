@@ -223,9 +223,10 @@ describe("initProject", () => {
       expect(
         existsSync(join(targetDir, ".agents", "skills", "implement-with-tdd", "SKILL.md"))
       ).toBe(true);
-      expect(existsSync(join(targetDir, ".agents", "skills", "review-change", "SKILL.md"))).toBe(
+      expect(existsSync(join(targetDir, ".agents", "skills", "code-review", "SKILL.md"))).toBe(
         true
       );
+      expect(existsSync(join(targetDir, ".agents", "skills", "review-change"))).toBe(false);
       expect(
         existsSync(join(targetDir, ".agents", "skills", "setup-pi-subagents", "SKILL.md"))
       ).toBe(true);

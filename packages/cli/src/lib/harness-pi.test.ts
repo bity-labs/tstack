@@ -22,6 +22,7 @@ interface RoleOverride {
   inheritSkills: boolean;
   model?: string;
   systemPrompt?: string;
+  systemPromptMode?: "append" | "replace";
 }
 
 function readOverrides(): Record<string, RoleOverride> {
@@ -49,27 +50,60 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     expect(existsSync(templatePath(`${contractDir}settings.json`))).toBe(false);
   });
 
-  it("configures read-only builtin reviewers and scouts without replacing their prompts", () => {
+  it("configures the scout strictly read-only and the reviewer as a policy-bounded publisher", () => {
     const overrides = readOverrides();
-    for (const name of ["reviewer", "scout"]) {
-      const role = overrides[name];
-      expect(role.acceptanceRole).toBe("read-only");
-      expect(role.defaultContext).toBe("fresh");
-      expect(role.tools).toEqual(
-        expect.arrayContaining(["read", "grep", "find", "ls", "contact_supervisor"])
-      );
-      for (const forbidden of ["bash", "edit", "write", "subagent"]) {
-        expect(role.tools).not.toContain(forbidden);
-      }
-      expect(role.model).toBeUndefined();
-      expect(role.systemPrompt).toBeUndefined();
-      expect(role.inheritProjectContext).toBe(true);
-      expect(role.inheritSkills).toBe(false);
+
+    // Scout: strict read-only tool boundary, no shell.
+    const scout = overrides.scout;
+    expect(scout.acceptanceRole).toBe("read-only");
+    expect(scout.defaultContext).toBe("fresh");
+    expect(scout.tools).toEqual(
+      expect.arrayContaining(["read", "grep", "find", "ls", "contact_supervisor"])
+    );
+    for (const forbidden of ["bash", "edit", "write", "subagent"]) {
+      expect(scout.tools).not.toContain(forbidden);
     }
-    // R1: fresh reviewers must receive the shared inspection contract through
-    // this override, not depend on per-launch selection.
-    expect(overrides.reviewer.skills).toEqual(["review-change"]);
-    expect(overrides.scout.skills).toEqual(["understand-codebase"]);
+    expect(scout.model).toBeUndefined();
+    expect(scout.systemPrompt).toBeUndefined();
+    expect(scout.inheritProjectContext).toBe(true);
+    expect(scout.inheritSkills).toBe(false);
+    expect(scout.skills).toEqual(["understand-codebase"]);
+
+    // Reviewer: bash is required for inspection and normal gh publication
+    // through the code-review skill; edit/write stay unavailable and the
+    // no-source-mutation rule is a composed-prompt policy, not enforced
+    // filesystem isolation.
+    const reviewer = overrides.reviewer;
+    expect(reviewer.acceptanceRole).toBe("read-only");
+    expect(reviewer.defaultContext).toBe("fresh");
+    expect(reviewer.tools).toEqual(
+      expect.arrayContaining([
+        "read",
+        "grep",
+        "find",
+        "ls",
+        "bash",
+        "watchdog_diff",
+        "contact_supervisor"
+      ])
+    );
+    for (const forbidden of ["edit", "write", "subagent"]) {
+      expect(reviewer.tools).not.toContain(forbidden);
+    }
+    expect(reviewer.model).toBeUndefined();
+    expect(reviewer.inheritProjectContext).toBe(true);
+    expect(reviewer.inheritSkills).toBe(false);
+    // The composed prompt must not keep the builtin reviewer's shell
+    // prohibition, and it must state the policy boundary truthfully.
+    expect(reviewer.systemPromptMode).toBe("append");
+    expect(reviewer.systemPrompt).toBeDefined();
+    expect(reviewer.systemPrompt).not.toContain("Do not use shell commands");
+    expect(reviewer.systemPrompt).toContain("not an enforced filesystem restriction");
+    expect(reviewer.systemPrompt).toContain("Never edit, stage, commit, or push source changes");
+
+    // Fresh reviewers receive the review workflow through this override, not
+    // per-launch selection; every configured skill resolves on disk.
+    expect(reviewer.skills).toEqual(["code-review"]);
     for (const [name, role] of Object.entries(overrides)) {
       for (const skill of role.skills) {
         expect(
@@ -106,15 +140,20 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     }
   });
 
-  it("shares the inspection methodology between code-review and review-change", () => {
-    // S1: code-review stays the familiar end-to-end entry point; the
-    // inspection procedure lives once in review-change and is reused, so
-    // publication and inspection guidance cannot drift apart.
+  it("consolidates inspection, verdict mapping, and publication in code-review", () => {
+    // One review skill for interactive use and reviewer subagents; the
+    // two-skill split was withdrawn. This pins the documented contract, not
+    // runtime model compliance.
     const codeReview = readTemplate("default/.agents/skills/code-review/SKILL.md");
-    expect(codeReview).toContain("review-change");
-    const reviewChange = readTemplate("default/.agents/skills/review-change/SKILL.md");
-    expect(reviewChange).toContain("APPROVE");
-    expect(reviewChange).toContain("Do not post comments");
+    expect(codeReview).toMatch(/^name: code-review$/m);
+    expect(codeReview).toContain("Load doctrine before the diff");
+    expect(codeReview).toContain("required");
+    expect(codeReview).toContain("## 9. Report Back");
+    expect(codeReview).toContain("gh pr comment");
+    expect(codeReview).toContain("never edit, stage, commit, or push source changes");
+    expect(existsSync(templatePath("default/.agents/skills/review-change")), "review-change").toBe(
+      false
+    );
   });
 
   it("fails closed on required findings and blocked reviews (documented contract)", () => {
@@ -123,20 +162,15 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     // resolves to a terminal PR state. This pins the documented wording, not
     // runtime model compliance.
     const normalize = (text: string): string => text.replace(/\s+/g, " ");
-    const reviewChange = normalize(readTemplate("default/.agents/skills/review-change/SKILL.md"));
-    expect(reviewChange).toContain(
-      "before merge/acceptance; lower severity than a blocker, but never optional"
-    );
-    expect(reviewChange).not.toContain("does not block merge");
-    expect(reviewChange).toContain("`CHANGES` — at least one blocker or required finding");
-    expect(reviewChange).toContain("`APPROVE` — no unresolved blockers or required findings");
-
     const codeReview = normalize(readTemplate("default/.agents/skills/code-review/SKILL.md"));
     expect(codeReview).toContain(
-      "`APPROVE` — set `ready-to-merge` only when validation evidence is adequate"
+      "before merge/acceptance; lower severity than a blocker, but never optional"
+    );
+    expect(codeReview).toContain(
+      "`APPROVE` — no unresolved blockers or required findings and adequate"
     );
     expect(codeReview).toContain("`CHANGES` — any blocker or required finding");
-    expect(codeReview).toContain("`BLOCKED` — the inspection did not complete");
+    expect(codeReview).toContain("`BLOCKED` — the review could not finish");
     expect(codeReview).toContain(
       "never set `ready-to-merge` (or `changes-requested`) from a blocked review"
     );

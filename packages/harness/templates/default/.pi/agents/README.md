@@ -12,7 +12,7 @@ npm:pi-subagents` required). Configure with
 |---|---|---|
 | `scout` | Builtin, configured read-only via `subagents.agentOverrides` | Read-only recon per the `understand-codebase` skill |
 | `worker` | Builtin, configured per `subagents.agentOverrides` | Implementation at a selected effort tier; the single writer |
-| `reviewer` | Builtin, configured read-only | Fresh-context review gate (correctness, security) |
+| `reviewer` | Builtin, configured via `subagents.agentOverrides` | Publishes the review comment and status label via the `code-review` skill; no source mutation |
 | `planner` | Project agent (`.pi/agents/planner.md`) | Execution planning for existing approved tasks across one or multiple PRDs |
 | `oracle`, `delegate`, `researcher`, `evidence-auditor` | Builtin | Optional: second opinions, bounded delegation, web research, evidence audit |
 | `scribe` | Optional overlay (`templates/pi-notes`) | Session notes, changelog, ADR upkeep (not installed by default) |
@@ -41,9 +41,12 @@ planner recommends tiers; the parent assigns them at dispatch.
 
 `.pi/prompts/autoshift/settings.example.json` is the deployment contract:
 
-- `reviewer` and `scout` are read-only (`read`, `grep`, `find`, `ls`,
-  `watchdog_diff`/`contact_supervisor`); no `bash`, `edit`, `write`, or
-  `subagent`.
+- `scout` keeps a strict read-only tool boundary (`read`, `grep`, `find`, `ls`,
+  `contact_supervisor`); no `bash`, `edit`, `write`, or `subagent`.
+- `reviewer` gets read/search tools plus `bash` for inspection and normal `gh`
+  review publication through the `code-review` skill; `edit`/`write` stay
+  unavailable, and the no-source-mutation rule is a composed-prompt policy
+  boundary, not enforced filesystem isolation.
 - `worker` has implementation tools plus `implement-with-tdd` and the
   `writer` acceptance role.
 - Model ids are intentionally absent; configure them per project.
@@ -157,11 +160,14 @@ authoring workflows.
 
 - `scout` → `understand-codebase`
 - `worker` → `implement-with-tdd` (tier 3 adds `debug`, `refactor-safely`)
-- `reviewer` → the `review-change` inspection contract (no publication)
+- `reviewer` → `code-review` (publishes the review comment and status label,
+  then returns the URL, verdict, and findings to the parent)
 - Optional RE synthesis → `write-prd` drafting guidance only
 
-Review output is a draft returned to the parent. The parent resolves product
-decisions, publishes, and obtains approval before further breakdown and tiered
+The reviewer publishes its review through the full `code-review` workflow and
+returns the comment URL. The parent resolves product
+decisions, verifies the published review, and obtains approval before further
+breakdown and tiered
 dispatch; inferred behavior is not an approved spec.
 
 ## Autonomous child contract
@@ -196,9 +202,11 @@ Delegation contracts define which stages belong in an unattended task:
 - `planner`: inspect existing approved tasks across the selected PRDs and return
   execution order, readiness, dependencies, tiers, and safe batches. Do not
   re-split the PRDs, create issues, ask for routine approval, or dispatch.
-- `reviewer`: use the `review-change` inspection and review-format guidance only;
-  return findings and `APPROVE`/`CHANGES` to the parent. Do not publish,
-  change labels, or fix code.
+- `reviewer`: run the `code-review` workflow end to end — inspect, classify,
+  publish the comment and exactly one status label, and return the URL,
+  verdict, and findings. The no-source-mutation rule (no edit, stage, commit,
+  push; never merge) is a policy boundary, not enforced filesystem isolation;
+  bash exists for inspection and the skill's `gh` publication commands only.
 - `scout`: investigate the assigned area without a clarification interview.
 
 ## Escalation rule

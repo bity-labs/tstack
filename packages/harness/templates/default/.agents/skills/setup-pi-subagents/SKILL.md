@@ -45,8 +45,10 @@ Merge the harness contract from
   agents inherit the parent session model by default; add
   `subagents.agentOverrides.<name>.model` only for the worker tiers the user
   approves, and verify each with `/subagents-models`.
-- Keep the reviewer and scout read-only tool and skill boundaries exactly as
-  the example declares.
+- Keep the scout tool boundary strictly read-only (no `bash`, `edit`,
+  `write`, `subagent`) and keep the reviewer's `edit`/`write` tools
+  unavailable exactly as the example declares; the reviewer's `bash` is for
+  inspection and `gh` review publication under its composed prompt policy.
 
 Never edit agent prompt files to change tool, model, or acceptance behavior;
 that configuration belongs in settings.
@@ -57,10 +59,11 @@ Run these checks and report each result:
 
 1. `subagent({ action: "list" })` resolves `scout`, `worker`, `reviewer`, and
    the project `planner` without shadow warnings.
-2. `/subagents-models reviewer` shows the configured tools and the effective
-   model.
-3. The resolved reviewer toolset contains no `bash`, `edit`, `write`, or
-   `subagent`.
+2. `/subagents-models reviewer` shows the configured skills, tools, and the
+   effective model.
+3. The resolved reviewer toolset has no `edit`, `write`, or `subagent`; it has
+   `bash` for inspection and `gh` review publication, scoped by the composed
+   prompt override and the `code-review` skill.
 4. `subagent({ action: "doctor" })` reports no configuration errors.
 
 Do not launch real children as part of setup. Report anything that cannot be
