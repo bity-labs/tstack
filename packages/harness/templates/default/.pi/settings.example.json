@@ -1,0 +1,19 @@
+{
+  "subagents": {
+    "agentOverrides": {
+      "scout": {
+        "skills": ["understand-codebase"]
+      },
+      "worker": {
+        "skills": ["implement-with-tdd"]
+      },
+      "reviewer": {
+        "skills": ["code-review"]
+      },
+      "delegate": {
+        "skills": ["publish-review"],
+        "tools": ["read", "grep", "find", "ls", "bash", "contact_supervisor"]
+      }
+    }
+  }
+}
