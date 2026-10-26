@@ -103,7 +103,7 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     // R5: the prompt permits self-service diffs and the equivalent REST label
     // commands instead of restricting the reviewer to known-failing gh pr edit.
     expect(reviewer.systemPrompt).toContain("gh pr diff");
-    expect(reviewer.systemPrompt).toContain("gh api REST fallback");
+    expect(reviewer.systemPrompt).toContain("gh api label fallback");
 
     // Fresh reviewers receive the review workflow through this override, not
     // per-launch selection; every configured skill resolves on disk.
@@ -144,53 +144,51 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     }
   });
 
-  it("consolidates inspection, verdict mapping, and publication in code-review", () => {
-    // One review skill for interactive use and reviewer subagents; the
-    // two-skill split was withdrawn. This pins the documented contract, not
-    // runtime model compliance.
+  it("keeps code-review generic and near its original size with the review contract", () => {
+    // The operator restored the original skill as the foundation; the generic
+    // skill carries only the review contract, while Pi/controller/tool
+    // mechanics live in the reviewer configuration and /autoshift. Static
+    // contract guard, not a runtime-compliance claim.
     const codeReview = readTemplate("default/.agents/skills/code-review/SKILL.md");
+    expect(codeReview.split("\n").length).toBeLessThanOrEqual(190);
     expect(codeReview).toMatch(/^name: code-review$/m);
-    expect(codeReview).toContain("Load doctrine before the diff");
-    expect(codeReview).toContain("required");
-    expect(codeReview).toContain("## 9. Report Back");
-    expect(codeReview).toContain("gh pr comment");
-    expect(codeReview).toContain("never edit, stage, commit, or push source changes");
-    // R5: ordinary PR-URL workflow is executable without a write tool —
-    // self-service pinned read-only diffs and direct stdin publication.
-    expect(codeReview).toContain("gh pr diff");
-    expect(codeReview).toContain("not a\nprerequisite");
-    expect(codeReview).toContain("--body-file - <<'REVIEW_EOF'");
-    // Documented minimal REST fallback for the installed gh pr edit
-    // projectCards failure; unrelated labels stay intact by construction.
-    expect(codeReview).toContain(
-      "gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels -X POST -F labels[]=changes-requested"
-    );
-    expect(codeReview).toContain(
-      "gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels/needs-review -X DELETE"
-    );
+    expect(codeReview).toContain("Load Doctrine Before the Diff");
+    expect(codeReview).toContain("### 9. Report Back");
+
+    // The three behavioral additions survive the simplification.
+    expect(codeReview).toContain("never edits code and never merges");
+    expect(codeReview).toContain("Never edit code as part of the review, and never merge");
+    expect(codeReview).toContain("keep `needs-review`, report the missing evidence");
+    expect(codeReview).toContain("never imply approval or resolve to a terminal status");
+    expect(codeReview).toContain("the published comment URL and the review verdict");
+    // Prior functional fixes kept as one short note: literal stdin
+    // publication and the gh api label fallback with unrelated labels intact.
+    expect(codeReview).toContain("--body-file -");
+    expect(codeReview).toContain("quoted heredoc delimiter");
+    expect(codeReview).toContain("gh api` issue-labels endpoints");
+    expect(codeReview).toContain("unrelated labels stay intact");
+
+    // No Pi/controller/tool/isolation mechanics duplicated into the generic
+    // skill; those belong to the reviewer configuration and /autoshift.
+    expect(codeReview).not.toContain("watchdog_diff");
+    expect(codeReview).not.toContain("controller");
+    expect(codeReview).not.toContain("filesystem");
     expect(existsSync(templatePath("default/.agents/skills/review-change")), "review-change").toBe(
       false
     );
   });
 
   it("fails closed on required findings and blocked reviews (documented contract)", () => {
-    // R4: static contract guard for the review semantics — required findings
-    // are mandatory before merge/acceptance, and a blocked inspection never
-    // resolves to a terminal PR state. This pins the documented wording, not
-    // runtime model compliance.
+    // Fail-closed review semantics preserved in the shortened step 7:
+    // findings before merge are never optional, and an incomplete review
+    // keeps needs-review instead of resolving to a terminal state. Static
+    // contract guard, not runtime model compliance.
     const normalize = (text: string): string => text.replace(/\s+/g, " ");
     const codeReview = normalize(readTemplate("default/.agents/skills/code-review/SKILL.md"));
+    expect(codeReview).toContain("none of these findings is optional");
     expect(codeReview).toContain(
-      "before merge/acceptance; lower severity than a blocker, but never optional"
+      "use only when the review accepts the PR as merge-ready and validation evidence is adequate"
     );
-    expect(codeReview).toContain(
-      "`APPROVE` — no unresolved blockers or required findings and adequate"
-    );
-    expect(codeReview).toContain("`CHANGES` — any blocker or required finding");
-    expect(codeReview).toContain("`BLOCKED` — the review could not finish");
-    expect(codeReview).toContain(
-      "never set `ready-to-merge` (or `changes-requested`) from a blocked review"
-    );
-    expect(codeReview).toContain("keep or set `needs-review`");
+    expect(codeReview).toContain("never imply approval or resolve to a terminal status");
   });
 });
