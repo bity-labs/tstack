@@ -29,20 +29,24 @@ Compare the head SHA, base SHA, and base branch against the review's identity. I
 
 ### 2. Check for a Prior Publication
 
-Search all comments, not just the latest page:
+Retrieve candidate bodies and URLs from all pages, not just the latest:
 
 ```bash
-gh api repos/<owner>/<repo>/issues/<number>/comments --paginate --jq '.[] | select(.body | contains("<reviewed-head-sha>")) | .html_url'
+gh api repos/<owner>/<repo>/issues/<number>/comments --paginate --jq '.[] | [.html_url, .body] | @tsv'
 ```
 
-If this returns a URL, the review is already published: report that URL and stop. If several URLs match or the check is inconclusive, stop and report the ambiguity instead of reposting.
+A candidate is this publication only when its body carries the supplied review's findings and the identity line `Reviewed at <head-sha> on <base-branch> (<base-sha>).` matching the supplied head, base, and target branch. A SHA mention, a bot comment, or a review of the same head against a different base does not match.
+
+If exactly one comment matches, reuse its URL and skip only comment creation, continuing with the status label. If several match or the check is inconclusive, stop and report the ambiguity instead of reposting.
 
 ### 3. Translate and Format
 
 Translate the completed verdict conservatively — never upgrade it:
 
-- `BLOCK` or `OK with notes` → `changes-requested`
+- `BLOCK` → `changes-requested`
 - `OK` → `ready-to-merge`
+- `OK with notes` → `ready-to-merge` when the notes are non-blocking; `changes-requested` when a note reports missing or incomplete validation evidence
+- exactly `No issues found.` → `ready-to-merge` when the supplied context and validation evidence are adequate; otherwise return for re-review
 - missing or unrecognized verdict → stop and return for re-review
 
 Map `P0` → Blockers (🚫), `P1` → Important Improvements (⚠️), `P2` → Suggestions (💡) mechanically; do not re-judge. Use this format; findings that already use it stay verbatim:
@@ -86,8 +90,8 @@ gh pr comment <PR_URL> --body-file -
 
 GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR, from the translated verdict, not re-judged:
 
-- `changes-requested` — translated from `BLOCK` or `OK with notes`
-- `ready-to-merge` — translated from `OK`
+- `changes-requested` — translated from `BLOCK`, or `OK with notes` with unresolved validation gaps
+- `ready-to-merge` — translated from `OK`, `No issues found.`, or `OK with notes` carrying only non-blocking notes
 
 Ensure labels exist before applying them:
 

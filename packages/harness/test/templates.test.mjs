@@ -97,6 +97,14 @@ test("publish-review holds GitHub formatting, translation, and identity checks",
   assert.match(body, /## Verdict/);
   assert.ok(body.includes("headRefOid,baseRefOid,baseRefName"), "checks head, base, and branch");
   assert.ok(body.includes("--paginate"), "searches comments across all pages");
+  assert.ok(body.includes(".html_url"), "retrieves candidate URLs for comparison");
+  assert.equal(
+    body.includes("select(.body | contains("),
+    false,
+    "a SHA mention alone must not count as this publication"
+  );
+  assert.ok(body.includes("No issues found."), "handles the native clean review");
+  assert.ok(body.includes("non-blocking"), "preserves accepted OK with notes");
   assert.ok(body.includes("labels/"), "uses issue-label endpoints");
   assert.equal(body.includes("-X PUT"), false, "no issue-update PUT fallback");
   for (const verdict of ["BLOCK", "OK with notes", "ready-to-merge", "changes-requested"]) {
