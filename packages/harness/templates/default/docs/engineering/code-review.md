@@ -26,3 +26,9 @@ Review should protect correctness, maintainability, and operational safety while
 - Are naming and domain concepts consistent with project language?
 - Are security, data, and production risks considered where relevant?
 - Is the change small enough to review confidently?
+
+## Delegated PR Reviews
+
+When a PR review is delegated, the parent coordinates three steps: hand the reviewer the exact PR, revisions, and any available validation evidence (the reviewer has no shell); run the `code-review` skill and collect the findings and verdict; then delegate `publish-review`, which verifies the revision is still current, posts the comment, and sets the status label. Report the comment URL to the user.
+
+The parent resolves missing validation evidence or reports the blocker; it never upgrades an incomplete review to approval. Children do not delegate further, and publication never merges. This is ordinary sequential delegation — the parent keeps product decisions and can review small PRs directly. Fixing findings, including PR worktree handling, remains `fix-code-review` work.
