@@ -104,8 +104,8 @@ gh label create ready-to-merge --repo <owner/repo> --description "PR status: rev
 Prefer `gh pr edit`:
 
 ```bash
-gh pr edit <PR_URL> --remove-label needs-review --remove-label ready-to-merge --add-label changes-requested   # BLOCK / OK with notes
-gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge   # OK
+gh pr edit <PR_URL> --remove-label needs-review --remove-label ready-to-merge --add-label changes-requested   # BLOCK / OK with unresolved validation gaps
+gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge   # OK / No issues found / OK with non-blocking notes
 ```
 
 If `gh pr edit` fails on a project-managed PR (known `projectCards` issue), change only the status labels through the issue-labels endpoints; unrelated labels stay untouched. A `404` from a DELETE only means that label was not present. Any other failure stops publication and is reported, not swallowed:

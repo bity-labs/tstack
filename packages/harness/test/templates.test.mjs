@@ -26,7 +26,7 @@ const frontmatter = (path) => {
         const key = line.slice(0, index).trim();
         let value = line.slice(index + 1).trim();
         let quoted = false;
-        for (const quote of ["'", "'"]) {
+        for (const quote of ["\"", "'"]) {
           if (value.startsWith(quote)) {
             quoted = true;
             assert.ok(
