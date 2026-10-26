@@ -66,9 +66,12 @@ commands; use validated IDs/refs and correctly quoted argument values.
    competing tasks, or multiple PRDs; a single clear task can skip planning.
    Never launch children without the configured role boundaries.
 3. Run one bounded async workflow with builtin `worker` children dispatched at the
-   planned tier and fresh builtin `reviewer` children. Keep GitHub operations in
-   the main controller via the supervisor checkpoints defined in the protocol;
-   scripts have no shell access.
+   planned tier and fresh builtin `reviewer` children. Keep merges, closures,
+   pushes, and other delivery-state GitHub operations in the main controller
+   via the supervisor checkpoints defined in the protocol; scripts have no
+   shell access. Exception: reviewer children publish their own review comment
+   and status label directly through the `code-review` skill; the controller
+   verifies the settled result and does not duplicate it.
 4. Continue independently runnable work while isolating task-level blockers.
    Stop the whole run for infrastructure, ownership, or evidence-integrity failure.
 5. Report delivery evidence, open PRs, integrated/delivered/blocked tasks, per-PRD
@@ -200,8 +203,11 @@ controller operations using the existing native supervisor channel:
 5. For one clear task, the main agent may choose its initial tier directly and
    omit initial execution planning. Later planner calls may be checkpoint-only:
    relay the refresh request and return the parent's allowlisted next actions,
-   without re-planning that task. Review/publication checkpoints always follow
-   settled reviewer results; never publish a provisional in-flight verdict.
+   without re-planning that task. The reviewer publishes its final assessment
+   before returning, so review/publication checkpoints verify settled reviewer
+   results — the controller checks the published comment URL and verdict/label
+   coherence and never re-publishes or accepts a provisional in-flight verdict;
+   parent integration remains gated on settled results.
 
 Supply `contact_supervisor` in each child's tool contract and verify it is
 available. Writer children in TStack configuration answer routine decisions

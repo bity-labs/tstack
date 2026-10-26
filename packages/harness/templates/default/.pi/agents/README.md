@@ -187,7 +187,10 @@ decisions. Children resolve routine details from repository evidence and return:
 
 A missing required decision, permission, or access causes a `BLOCKED` handoff,
 not a user interview or a waiting approval loop. The parent owns human
-interaction, approvals, GitHub publication/labels, dispatch, and escalation.
+interaction, approvals, dispatch, integration, and escalation; the reviewer
+publishes its final assessment (review comment and status label) through the
+`code-review` skill before returning, and the parent verifies the settled
+result without publishing a duplicate.
 
 ### Skill execution boundaries
 

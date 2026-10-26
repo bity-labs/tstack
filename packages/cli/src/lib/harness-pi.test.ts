@@ -100,6 +100,10 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     expect(reviewer.systemPrompt).not.toContain("Do not use shell commands");
     expect(reviewer.systemPrompt).toContain("not an enforced filesystem restriction");
     expect(reviewer.systemPrompt).toContain("Never edit, stage, commit, or push source changes");
+    // R5: the prompt permits self-service diffs and the equivalent REST label
+    // commands instead of restricting the reviewer to known-failing gh pr edit.
+    expect(reviewer.systemPrompt).toContain("gh pr diff");
+    expect(reviewer.systemPrompt).toContain("gh api REST fallback");
 
     // Fresh reviewers receive the review workflow through this override, not
     // per-launch selection; every configured skill resolves on disk.
@@ -151,6 +155,19 @@ describe("Pi harness declarations (not model-compliance tests)", () => {
     expect(codeReview).toContain("## 9. Report Back");
     expect(codeReview).toContain("gh pr comment");
     expect(codeReview).toContain("never edit, stage, commit, or push source changes");
+    // R5: ordinary PR-URL workflow is executable without a write tool —
+    // self-service pinned read-only diffs and direct stdin publication.
+    expect(codeReview).toContain("gh pr diff");
+    expect(codeReview).toContain("not a\nprerequisite");
+    expect(codeReview).toContain("--body-file - <<'REVIEW_EOF'");
+    // Documented minimal REST fallback for the installed gh pr edit
+    // projectCards failure; unrelated labels stay intact by construction.
+    expect(codeReview).toContain(
+      "gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels -X POST -F labels[]=changes-requested"
+    );
+    expect(codeReview).toContain(
+      "gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels/needs-review -X DELETE"
+    );
     expect(existsSync(templatePath("default/.agents/skills/review-change")), "review-change").toBe(
       false
     );

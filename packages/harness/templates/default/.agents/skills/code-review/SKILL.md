@@ -52,9 +52,12 @@ gh pr view <PR_URL> --json title,body,author,baseRefName,headRefName,headRefOid,
 Confirm and record the exact revision under review: repository owner/name, PR
 number, head SHA, head branch, and target base branch. Review only that
 revision. A changed head, base, or target invalidates the review until it is
-re-inspected. `watchdog_diff` does not inspect committed ranges; for committed
-work, require a supplied diff artifact instead of claiming a commit was
-reviewed.
+re-inspected. `watchdog_diff` covers only the uncommitted working tree; for
+committed revisions, obtain the diff yourself with `gh pr diff <PR> --repo
+<owner/repo>` or a pinned read-only `git diff <base>...<head>` — a
+parent-supplied diff artifact is welcome when available but is not a
+prerequisite. Never claim a revision was reviewed without having seen its
+diff.
 
 ### 2. Load doctrine before the diff
 
@@ -157,6 +160,18 @@ Always post the review as a PR comment. Do not only print it locally.
 gh pr comment <PR_URL> --body-file <review-file>
 ```
 
+When no review file exists (for example as a reviewer subagent, which has no
+write tool), publish directly through stdin with a **quoted heredoc
+delimiter**, so the content stays literal, or pass a safely quoted `--body`:
+
+```bash
+gh pr comment <PR_URL> --body-file - <<'REVIEW_EOF'
+<full review markdown>
+REVIEW_EOF
+```
+
+Never build the body through unquoted expansion or shell interpolation.
+
 Then update the PR status label according to the verdict mapping.
 
 If changes are requested:
@@ -174,6 +189,19 @@ gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested
 If the review is blocked, do not change the status labels to a terminal PR
 state: ensure `needs-review` is set and publish the missing evidence as the
 comment's opening section.
+
+If `gh pr edit` fails with the installed CLI's deprecated `projectCards`
+GraphQL error, use the minimal `gh api` REST fallback for the same operations.
+It adds/removes only the named status labels, so unrelated labels stay
+intact by construction:
+
+```bash
+gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels -X POST -F labels[]=changes-requested
+gh api repos/<owner>/<repo>/issues/<PR_NUMBER>/labels/needs-review -X DELETE
+```
+
+Verify each call's result; do not suppress errors. Reviewer subagents may use
+these equivalent commands.
 
 ### 9. Report Back
 
