@@ -87,14 +87,10 @@ pnpm tstack --help
 
 ## Harness reuse
 
-The generic harness source lives in `packages/harness/templates/default`. This monorepo reuses it through four symlinks:
+The generic harness source lives in `packages/harness/templates/default`. This monorepo reuses it through two symlinks:
 
 - `.agents` → `packages/harness/templates/default/.agents`
-- `.pi/agents` → `packages/harness/templates/default/.pi/agents`
-- `.pi/prompts` → `packages/harness/templates/default/.pi/prompts`
 - `docs/engineering` → `packages/harness/templates/default/docs/engineering`
-
-Pi-specific agents and slash-command prompts stay in `.pi`, separate from the shared `.agents/skills` workflows. Root `.pi` remains a real directory: local settings and runtime state are project-owned, not shared template assets. See [the harness README](packages/harness/README.md) for Pi setup.
 
 Editing these linked assets changes the reusable template. Project-owned `AGENTS.md`, context, standards, and ADRs remain real files. Installed projects must receive copies, not symlinks back to this checkout.
 

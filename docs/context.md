@@ -37,8 +37,7 @@ The CLI's `ready` and `products` commands retain legacy configuration behavior f
 - `apps/documentation` documents TStack itself; `apps/boilerplate-docs` is the documentation app shipped with a builder's product.
 - Root `docs/` contains internal project context, standards, and ADRs.
 - `packages/harness/templates/default` owns the platform-independent engineering harness.
-- Root `.agents`, `.pi/agents`, `.pi/prompts`, and `docs/engineering` link to that generic template. Editing them changes the shared source of truth.
-- Pi agents and prompts live in `packages/harness/templates/default/.pi`, separate from shared `.agents/skills`. Root `.pi` stays a real directory; local Pi settings and runtime state remain project-owned.
+- Root `.agents` and `docs/engineering` link to that generic template. Editing them changes the shared source of truth.
 - `AGENTS.md`, `docs/context.md`, `docs/coding-standards.md`, and `docs/adr/**` are real project-owned files.
 - Standalone installs must copy harness files so they work without this checkout.
 
