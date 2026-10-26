@@ -26,8 +26,7 @@ The default harness includes skills for:
 - `break-architecture-into-issues` — turn architecture opportunities into concrete implementation tasks.
 - `understand-codebase` — map an unfamiliar codebase area.
 - `issues-triage` — classify and prepare GitHub issues for implementation.
-- `code-review` — review a pull request against the project's engineering doctrine. It reuses the `review-change` inspection procedure, then publishes the review as a PR comment and updates labels.
-- `review-change` — shared inspection-only review procedure: returns findings and a verdict to the parent without publishing comments or changing labels. Use it directly for any change (working diff, committed range, or PR) and wherever a subagent should inspect without publication.
+- `code-review` — the single review workflow: inspect a pull request against the project's engineering doctrine, classify findings, and publish the review as a PR comment with a status label. Used interactively and by reviewer subagents, which return the published comment URL, verdict, and findings to the controller.
 - `fix-code-review` — address pull request feedback with minimal verified changes.
 - `setup-pi-subagents` — install and configure the pi-subagents package and the harness role configuration.
 

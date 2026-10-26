@@ -35,15 +35,15 @@ Use `inspect-architecture` to find structural friction, then `break-architecture
 
 ## Pull request review
 
-Use `code-review` to evaluate a pull request against the project's engineering doctrine (it reuses the `review-change` inspection procedure, then publishes and updates labels). Use `review-change` when a change should be inspected without publication, for example by a subagent returning findings to the parent. Use `fix-code-review` to address review feedback with small, verified changes.
+Use `code-review` to evaluate a pull request against the project's engineering doctrine and publish the review as a PR comment with a status label. Reviewer subagents run the same workflow during tiered delegation and return the comment URL, verdict, and findings; the controller verifies the published review without duplicating it. Use `fix-code-review` to address review feedback with small, verified changes.
 
 ## Tiered delegation with Pi
 
 When Pi and [pi-subagents](https://github.com/nicobailon/pi-subagents) are installed, implementation runs through configured builtin agents with TStack policy on top:
 
 1. `setup-pi-subagents` installs the package and merges the role configuration from `.pi/prompts/autoshift/settings.example.json`.
-2. `/autoshift` implements approved tasks: builtin `worker` children at effort tiers 1–3, fresh builtin `reviewer` children at the exact head/base, with the `planner` agent coordinating multi-PRD execution.
-3. Escalation runs tier 1 → 2 → 3 after two failed corrective attempts; reviews are never published by children and merges never happen without explicit `--merge` authority.
+2. `/autoshift` implements approved tasks: builtin `worker` children at effort tiers 1–3, fresh builtin `reviewer` children at the exact head/base that publish their review through `code-review`, with the `planner` agent coordinating multi-PRD execution.
+3. Escalation runs tier 1 → 2 → 3 after two failed corrective attempts; reviewer children never edit source or merge, and merges never happen without explicit `--merge` authority.
 
 `docs/engineering/roles.md` records the single-writer, fresh-review, and evidence rules.
 
