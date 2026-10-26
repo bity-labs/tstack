@@ -11,35 +11,41 @@ Publish an already-completed review as a PR comment and set the PR status label.
 
 Require from the caller:
 
-- the completed review findings and verdict (`ready-to-merge` or `changes-requested`)
+- the completed review findings and verdict
 - repository (`owner/name`) and PR number or URL
-- the head and base revisions the review covered
+- the head revision, base revision, and target branch the review covered
 
 If the findings are incomplete or carry no clear verdict, stop and return them to the caller. Missing evidence cannot become approval.
 
 ## Workflow
 
-### 1. Verify the Revision Is Current
+### 1. Verify the Review Identity Is Current
 
 ```bash
-gh pr view <PR_URL> --json headRefOid,baseRefName
+gh pr view <PR_URL> --json headRefOid,baseRefOid,baseRefName
 ```
 
-If the head revision differs from the reviewed one, stop and return the review to the caller for re-review. Never publish stale findings.
+Compare the head SHA, base SHA, and base branch against the review's identity. If any differ — new commits, changed base, or a retargeted PR — stop and return the review to the caller for re-review. Never publish stale findings.
 
 ### 2. Check for a Prior Publication
 
-If a previous attempt may already have posted, check the PR's latest comments before retrying:
+Search all comments, not just the latest page:
 
 ```bash
-gh api repos/<owner>/<repo>/issues/<number>/comments --jq '.[-1].body'
+gh api repos/<owner>/<repo>/issues/<number>/comments --paginate --jq '.[] | select(.body | contains("<reviewed-head-sha>")) | .html_url'
 ```
 
-Publish only when the review is not already there. Never post the same review twice.
+If this returns a URL, the review is already published: report that URL and stop. If several URLs match or the check is inconclusive, stop and report the ambiguity instead of reposting.
 
-### 3. Format the Review
+### 3. Translate and Format
 
-Use this format; publish findings that already use it verbatim:
+Translate the completed verdict conservatively — never upgrade it:
+
+- `BLOCK` or `OK with notes` → `changes-requested`
+- `OK` → `ready-to-merge`
+- missing or unrecognized verdict → stop and return for re-review
+
+Map `P0` → Blockers (🚫), `P1` → Important Improvements (⚠️), `P2` → Suggestions (💡) mechanically; do not re-judge. Use this format; findings that already use it stay verbatim:
 
 ```md
 ## Summary
@@ -62,6 +68,8 @@ Use this format; publish findings that already use it verbatim:
 
 ## Verdict
 <`changes-requested` or `ready-to-merge`, with the deciding reason>
+
+Reviewed at <head-sha> on <base-branch> (<base-sha>).
 ```
 
 If a section has no items, write `None`.
@@ -76,10 +84,10 @@ gh pr comment <PR_URL> --body-file -
 
 ### 5. Set the Status Label
 
-GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR, derived from the verdict, not re-judged:
+GitHub labels are shared between issues and PRs, but these labels represent PR review state only. Keep only one active on the PR, from the translated verdict, not re-judged:
 
-- `changes-requested` — the verdict is `changes-requested`
-- `ready-to-merge` — the verdict is `ready-to-merge`
+- `changes-requested` — translated from `BLOCK` or `OK with notes`
+- `ready-to-merge` — translated from `OK`
 
 Ensure labels exist before applying them:
 
@@ -89,35 +97,33 @@ gh label create changes-requested --repo <owner/repo> --description "PR status: 
 gh label create ready-to-merge --repo <owner/repo> --description "PR status: reviewed and ready to merge" --color 0E8A16 2>/dev/null || true
 ```
 
-If changes are requested:
+Prefer `gh pr edit`:
 
 ```bash
-gh pr edit <PR_URL> --remove-label needs-review --remove-label ready-to-merge --add-label changes-requested
+gh pr edit <PR_URL> --remove-label needs-review --remove-label ready-to-merge --add-label changes-requested   # BLOCK / OK with notes
+gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge   # OK
 ```
 
-If ready to merge:
+If `gh pr edit` fails on a project-managed PR (known `projectCards` issue), change only the status labels through the issue-labels endpoints; unrelated labels stay untouched. A `404` from a DELETE only means that label was not present. Any other failure stops publication and is reported, not swallowed:
 
 ```bash
-gh pr edit <PR_URL> --remove-label needs-review --remove-label changes-requested --add-label ready-to-merge
+gh api repos/<owner>/<repo>/issues/<number>/labels/needs-review -X DELETE
+gh api repos/<owner>/<repo>/issues/<number>/labels/ready-to-merge -X DELETE
+gh api repos/<owner>/<repo>/issues/<number>/labels -X POST --input - <<< '{"labels":["changes-requested"]}'
 ```
 
-If `gh pr edit` fails on a project-managed PR (known `projectCards` issue), fall back to the issues API, retaining unrelated labels:
-
-```bash
-keep=$(gh api repos/<owner/repo>/issues/<number> --jq '[.labels[].name] | map(select(. != "needs-review" and . != "changes-requested" and . != "ready-to-merge"))')
-gh api repos/<owner/repo>/issues/<number> -X PUT --input - <<< "$(jq -n --argjson keep "$keep" --arg status <status-label> '{labels: $keep + [$status]}')"
-```
+For a `ready-to-merge` verdict, delete `needs-review` and `changes-requested` and post `ready-to-merge` instead.
 
 ### 6. Report Back
 
 Tell the caller:
 
-- the comment URL printed by `gh pr comment`
+- the comment URL printed by `gh pr comment` (or the existing URL from step 2)
 - the status label applied
 
 ## Guardrails
 
 - Publish only what the review concluded. Never re-review, invent findings, or upgrade a verdict.
 - No source edits and no merges.
-- Verify the revision before publishing; a stale revision returns for re-review.
+- Verify head, base, and target branch before publishing; any mismatch returns for re-review.
 - Check for an ambiguous prior publication before retrying a failed publish.

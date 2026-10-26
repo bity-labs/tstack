@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a GitHub pull request against the project's engineering doctrine. Inspection only: returns findings and a verdict without publishing or editing. Use when the user says "review this PR", "code review", "review pull request", or provides a GitHub PR URL for review.
+description: 'Review a GitHub pull request against the project''s engineering doctrine. Inspection only: reports findings and a verdict without publishing or editing. Use when the user says "review this PR", "code review", "review pull request", or provides a GitHub PR URL for review.'
 ---
 
 # Code Review
@@ -19,7 +19,7 @@ Review a GitHub pull request for correctness, maintainability, tests, domain fit
 
 ### 1. Identify the PR
 
-Use the PR, revisions, and diff the caller provides. When you can run commands, `gh pr view` and `gh pr diff` gather them. Note the exact head and base revisions you reviewed; publication later depends on them.
+Work from what the caller supplies: the PR, the actual committed diff under review, the head/base revisions and target branch, and any validation evidence. When you can run commands, `gh pr view` and `gh pr diff` gather them.
 
 ### 2. Load Doctrine Before the Diff
 
@@ -66,51 +66,17 @@ For large PRs, prioritize the highest-risk files first and mention any area you 
 
 Note what validation evidence exists: tests run, CI status, or checks the caller reports. Treat missing validation as a finding, and do not assume unverified work passes.
 
-### 6. Write Findings
+### 6. Report Findings and Verdict
 
-Each finding should be concrete and actionable.
+Keep the reporting agent's native review structure. When delegated, the builtin reviewer's own report stands verbatim: `Finding: P0/P1/P2` entries (issue, location, evidence, smallest fix), `Merge verdict: BLOCK, OK, or OK with notes`, or exactly `No issues found.` when nothing qualifies.
 
-For every issue, include:
+When reporting directly, use the same native shape:
 
-- severity emoji: `🚫` blocker, `⚠️` important, or `💡` suggestion
-- where it appears
-- why it matters
-- what should change
+- `P0` blocks merge; `P1` should be fixed before release; `P2` is a report-only note.
+- End with one merge verdict: `BLOCK`, `OK`, or `OK with notes`. Missing validation evidence keeps the verdict from being plain `OK` — name the gap instead.
+- Each finding is concrete and actionable. Do not block on personal preference.
 
-Do not block on personal preference. Distinguish required fixes from optional improvements.
-
-### 7. Report Findings and Verdict
-
-Use this format:
-
-```md
-## Summary
-<short assessment of what the PR does and whether it is close to mergeable>
-
-## Blockers
-- 🚫 <issue, impact, and required fix>
-
-## Important Improvements
-- ⚠️ <issue, impact, and recommended fix>
-
-## Suggestions
-- 💡 <non-blocking improvement>
-
-## Tests / Coverage
-<what is covered, what is missing, and whether coverage is acceptable>
-
-## What Works Well
-<call out strong choices briefly>
-
-## Verdict
-<`changes-requested` or `ready-to-merge`, with the deciding reason>
-```
-
-If a section has no items, write `None`.
-
-The verdict is `changes-requested` when any blocker or required improvement remains; otherwise `ready-to-merge`. Missing validation evidence keeps the verdict at `changes-requested` with the gap named.
-
-Return the report and the reviewed head/base revisions to the caller. Do not publish, label, or fix.
+Return the report with the reviewed head/base revisions to the caller. Do not publish, label, or fix.
 
 ## Guardrails
 
