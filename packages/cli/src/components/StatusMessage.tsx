@@ -12,7 +12,7 @@ const statusConfig: Record<StatusMessageStatus, { color: string; prefix: string 
   success: { color: "green", prefix: "✓" },
   error: { color: "red", prefix: "✗" },
   skip: { color: "yellow", prefix: "○" },
-  info: { color: "cyan", prefix: "→" },
+  info: { color: "cyan", prefix: "→" }
 };
 
 export function StatusMessage({ status, children }: StatusMessageProps) {

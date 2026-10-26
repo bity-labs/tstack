@@ -15,7 +15,7 @@ import {
   Spinner,
   StatusMessage,
   TextInput,
-  type SyncStatus,
+  type SyncStatus
 } from "./index.js";
 
 function renderFrame(element: React.ReactElement): string {
@@ -31,9 +31,9 @@ describe("CLI component rendering", () => {
           value: "my-app",
           onChange: () => {},
           placeholder: "Enter name",
-          error: "Name is required",
-        }),
-      ),
+          error: "Name is required"
+        })
+      )
     ).toContain("Name:");
     expect(
       renderFrame(
@@ -42,9 +42,9 @@ describe("CLI component rendering", () => {
           value: "my-app",
           onChange: () => {},
           placeholder: "Enter name",
-          error: "Name is required",
-        }),
-      ),
+          error: "Name is required"
+        })
+      )
     ).toContain("my-app");
     expect(
       renderFrame(
@@ -52,9 +52,9 @@ describe("CLI component rendering", () => {
           label: "Name",
           value: "",
           onChange: () => {},
-          placeholder: "Enter name",
-        }),
-      ),
+          placeholder: "Enter name"
+        })
+      )
     ).toContain("Enter name");
     expect(
       renderFrame(
@@ -62,18 +62,24 @@ describe("CLI component rendering", () => {
           label: "Name",
           value: "",
           onChange: () => {},
-          error: "Name is required",
-        }),
-      ),
+          error: "Name is required"
+        })
+      )
     ).toContain("✗ Name is required");
   });
 
   it("renders confirmation choices with the selected default emphasized", () => {
-    expect(renderFrame(React.createElement(Confirm, { label: "Continue?", onConfirm: () => {} }))).toContain(
-      "[N]o",
-    );
     expect(
-      renderFrame(React.createElement(Confirm, { label: "Continue?", onConfirm: () => {}, defaultValue: true })),
+      renderFrame(React.createElement(Confirm, { label: "Continue?", onConfirm: () => {} }))
+    ).toContain("[N]o");
+    expect(
+      renderFrame(
+        React.createElement(Confirm, {
+          label: "Continue?",
+          onConfirm: () => {},
+          defaultValue: true
+        })
+      )
     ).toContain("[Y]es");
   });
 
@@ -83,10 +89,10 @@ describe("CLI component rendering", () => {
         label: "Choose environment",
         options: [
           { label: "Sandbox", value: "sandbox" },
-          { label: "Production", value: "production" },
+          { label: "Production", value: "production" }
         ],
-        onSelect: () => {},
-      }),
+        onSelect: () => {}
+      })
     );
 
     expect(frame).toContain("Choose environment");
@@ -100,11 +106,11 @@ describe("CLI component rendering", () => {
         label: "Choose providers",
         items: [
           { label: "GitHub OAuth", value: "github" },
-          { label: "Polar", value: "polar" },
+          { label: "Polar", value: "polar" }
         ],
         onSubmit: () => {},
-        initialSelected: ["github"],
-      }),
+        initialSelected: ["github"]
+      })
     );
 
     expect(frame).toContain("Choose providers");
@@ -114,22 +120,26 @@ describe("CLI component rendering", () => {
   });
 
   it("renders spinner labels", () => {
-    expect(renderFrame(React.createElement(Spinner, { label: "Installing dependencies" }))).toContain(
-      "Installing dependencies",
-    );
+    expect(
+      renderFrame(React.createElement(Spinner, { label: "Installing dependencies" }))
+    ).toContain("Installing dependencies");
   });
 
   it.each([
     ["success", "✓", "Done"],
     ["error", "✗", "Failed"],
     ["skip", "○", "Skipped"],
-    ["info", "→", "Working"],
+    ["info", "→", "Working"]
   ] as const)("renders %s status messages", (status, icon, copy) => {
-    expect(renderFrame(React.createElement(StatusMessage, { status, children: copy }))).toContain(`${icon} ${copy}`);
+    expect(renderFrame(React.createElement(StatusMessage, { status, children: copy }))).toContain(
+      `${icon} ${copy}`
+    );
   });
 
   it("renders section headers with optional subtitles", () => {
-    const frame = renderFrame(React.createElement(SectionHeader, { title: "Project setup", subtitle: "TStack" }));
+    const frame = renderFrame(
+      React.createElement(SectionHeader, { title: "Project setup", subtitle: "TStack" })
+    );
 
     expect(frame).toContain("Project setup");
     expect(frame).toContain("TStack");
@@ -151,10 +161,10 @@ describe("CLI component rendering", () => {
           web3: { enabled: false },
           payment: { enabled: true },
           storage: { enabled: false },
-          analytics: { enabled: true, provider: "posthog" },
+          analytics: { enabled: true, provider: "posthog" }
         },
-        currentStep: "env",
-      }),
+        currentStep: "env"
+      })
     );
 
     expect(frame).toContain("Project: my-app");
@@ -174,20 +184,20 @@ describe("CLI component rendering", () => {
             name: "Pro Monthly",
             type: "subscription",
             recurringInterval: "month",
-            prices: [{ amountType: "fixed", amount: 1999, currency: "usd" }],
+            prices: [{ amountType: "fixed", amount: 1999, currency: "usd" }]
           },
           {
             slug: "free",
             name: "Free",
             type: "free",
-            prices: [{ amountType: "free" }],
-          },
+            prices: [{ amountType: "free" }]
+          }
         ],
         syncStatus: new Map<string, SyncStatus>([
           ["pro-monthly", "synced"],
-          ["free", "archived"],
-        ]),
-      }),
+          ["free", "archived"]
+        ])
+      })
     );
 
     expect(frame).toContain("✓");
@@ -197,15 +207,21 @@ describe("CLI component rendering", () => {
   });
 
   it("renders product empty states", () => {
-    expect(renderFrame(React.createElement(ProductList, { products: [], syncStatus: new Map() }))).toContain(
-      "No products found",
-    );
+    expect(
+      renderFrame(React.createElement(ProductList, { products: [], syncStatus: new Map() }))
+    ).toContain("No products found");
   });
 
   it("renders product operation menus for empty and populated projects", () => {
-    const emptyFrame = renderFrame(React.createElement(OperationMenu, { hasProducts: false, onSelect: () => {} }));
+    const emptyFrame = renderFrame(
+      React.createElement(OperationMenu, { hasProducts: false, onSelect: () => {} })
+    );
     const populatedFrame = renderFrame(
-      React.createElement(OperationMenu, { hasProducts: true, hasArchivedProducts: true, onSelect: () => {} }),
+      React.createElement(OperationMenu, {
+        hasProducts: true,
+        hasArchivedProducts: true,
+        onSelect: () => {}
+      })
     );
 
     expect(emptyFrame).toContain("No products found");
@@ -222,8 +238,8 @@ describe("CLI component rendering", () => {
       React.createElement(ErrorRecovery, {
         error: "Copy failed",
         context: "Check file permissions",
-        onRetry: () => {},
-      }),
+        onRetry: () => {}
+      })
     );
 
     expect(frame).toContain("✗ Copy failed");

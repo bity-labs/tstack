@@ -12,9 +12,9 @@ import { MultiSelect } from "./components/MultiSelect.js";
 import { TextInput } from "./components/TextInput.js";
 import { Confirm } from "./components/Confirm.js";
 import { Spinner } from "./components/Spinner.js";
-import { readProducts, writeProducts } from "./lib/products.js";
+import { readProducts } from "./lib/products.js";
 import type { Product } from "./lib/products.js";
-import { loadPolarCredentials, createPolarClient } from "./lib/polar.js";
+import { loadPolarCredentials } from "./lib/polar.js";
 import { useAddProduct } from "./hooks/useAddProduct.js";
 import { useProductOperations } from "./hooks/useProductOperations.js";
 
@@ -25,7 +25,9 @@ export interface ProductsWizardProps {
   onComplete?: () => void;
 }
 
-export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsWizardProps) {
+export function ProductsWizard({ projectDir, env, token }: ProductsWizardProps) {
+  // `onComplete` remains an optional interface field for API compatibility but
+  // current CLI flows never fire a completion callback.
   const [step, setStep] = useState<string>("loading");
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState("");
@@ -84,10 +86,9 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
     token,
     polarToken,
     productsFilePath,
-    otherProductsFilePath,
     step,
     setStep,
-    setError,
+    setError
   });
 
   const addProduct = useAddProduct({
@@ -96,14 +97,14 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
     productsFilePath,
     regenerateFiles: ops.regenerateFiles,
     setStep,
-    setError,
+    setError
   });
 
   useEffect(() => {
     if (step === "regenerate") {
       ops.handleRegenerate();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   const ensurePolarCredentials = (targetStep: string): { token: string } | null => {
@@ -161,7 +162,9 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
         setStep("cleanup_loading");
       }
     } else if (operation === "sync_from_sandbox") {
-      const sandboxProducts = existsSync(otherProductsFilePath) ? readProducts(otherProductsFilePath) : [];
+      const sandboxProducts = existsSync(otherProductsFilePath)
+        ? readProducts(otherProductsFilePath)
+        : [];
       ops.setSandboxProductsList(sandboxProducts);
       const creds = ensurePolarCredentials("sync_from_sandbox_select");
       if (creds) {
@@ -248,7 +251,7 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
                 name: p.name,
                 type: p.type,
                 recurringInterval: p.recurringInterval,
-                prices: p.prices,
+                prices: p.prices
               }))}
               syncStatus={syncStatus}
             />
@@ -269,7 +272,7 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
           options={[
             { label: "Subscription", value: "subscription" },
             { label: "One-time", value: "one_time" },
-            { label: "Free", value: "free" },
+            { label: "Free", value: "free" }
           ]}
           onSelect={addProduct.handleAddType}
         />
@@ -309,7 +312,7 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
             { label: "Day", value: "day" },
             { label: "Week", value: "week" },
             { label: "Month", value: "month" },
-            { label: "Year", value: "year" },
+            { label: "Year", value: "year" }
           ]}
           onSelect={addProduct.handleAddInterval}
         />
@@ -344,20 +347,34 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
       {step === "add_highlighted" && (
         <Box flexDirection="column">
           <Text>Highlight this product on the pricing page?</Text>
-          <Confirm label="Highlighted" onConfirm={addProduct.handleAddHighlighted} defaultValue={false} />
+          <Confirm
+            label="Highlighted"
+            onConfirm={addProduct.handleAddHighlighted}
+            defaultValue={false}
+          />
         </Box>
       )}
       {step === "add_confirm" && (
         <Box flexDirection="column">
-          <Text>Add {addProduct.newName} ({addProduct.newSlug})?</Text>
-          <Confirm label="Confirm add" onConfirm={addProduct.handleConfirmAdd} defaultValue={true} />
+          <Text>
+            Add {addProduct.newName} ({addProduct.newSlug})?
+          </Text>
+          <Confirm
+            label="Confirm add"
+            onConfirm={addProduct.handleConfirmAdd}
+            defaultValue={true}
+          />
         </Box>
       )}
       {step === "add_yearly" && addProduct.yearlyDraft && (
         <Box flexDirection="column">
           <Text>Would you like to add the yearly counterpart: {addProduct.yearlyDraft.name}?</Text>
           <Text dimColor>Price: ${(addProduct.yearlyDraft.prices[0]?.amount ?? 0) / 100}/year</Text>
-          <Confirm label="Add yearly product" onConfirm={addProduct.handleYearlyConfirm} defaultValue={true} />
+          <Confirm
+            label="Add yearly product"
+            onConfirm={addProduct.handleYearlyConfirm}
+            defaultValue={true}
+          />
         </Box>
       )}
       {step === "credentials" && (
@@ -413,7 +430,7 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
           label={`Found ${ops.orphanProducts.length} orphan Polar product(s). What would you like to do?`}
           options={[
             { label: "Archive orphan products on Polar", value: "archive" },
-            { label: "Import orphan products into local JSON", value: "import" },
+            { label: "Import orphan products into local JSON", value: "import" }
           ]}
           onSelect={handleCleanupMenuSelect}
         />
@@ -440,7 +457,10 @@ export function ProductsWizard({ projectDir, env, token, onComplete }: ProductsW
       {step === "sync_from_sandbox_select" && (
         <MultiSelect
           label="Select sandbox products to sync to production"
-          items={ops.sandboxProductsList.map((p) => ({ label: `${p.name} (${p.slug})`, value: p.slug }))}
+          items={ops.sandboxProductsList.map((p) => ({
+            label: `${p.name} (${p.slug})`,
+            value: p.slug
+          }))}
           onSubmit={handleSyncFromSandboxSelect}
         />
       )}

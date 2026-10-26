@@ -7,14 +7,18 @@ This repository uses TStack: a small harness for disciplined agentic software de
 1. Read this file first.
 2. Read `docs/coding-standards.md` before changing code.
 3. Read `docs/context.md` when the task touches product behavior, domain language, or business rules.
-4. Read `docs/engineering/index.md` and load only the engineering rule files relevant to the task.
-5. Check `docs/adr/` before changing architecture, boundaries, data ownership, or long-term constraints.
+4. Read `docs/architecture.md` when the task touches system structure, parts, boundaries, or flows.
+5. Read `docs/design.md` when the task touches user-facing surfaces, product conventions, or behavior rules.
+6. Read `docs/engineering/index.md` and load only the engineering rule files relevant to the task.
+7. Check `docs/adr/` before changing architecture, boundaries, data ownership, or long-term constraints.
 
 ## Source of Truth
 
 - GitHub Issues hold specs, tasks, and acceptance criteria.
 - `docs/context.md` holds durable product and domain language.
 - `docs/coding-standards.md` holds project-level implementation expectations.
+- `docs/architecture.md` holds the durable system shape, parts, and boundaries.
+- `docs/design.md` holds durable user-facing surfaces, design conventions, and behavior rules.
 - `docs/engineering/` holds reusable engineering doctrine.
 - `docs/adr/` holds important architectural decisions and rationale.
 - `.agents/skills/` holds reusable workflows that use the docs.

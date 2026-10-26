@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const excludedDirectories = new Set([
@@ -9,7 +9,7 @@ const excludedDirectories = new Set([
   ".velite",
   ".vercel",
   ".worktrees",
-  "src/generated/prisma",
+  "src/generated/prisma"
 ]);
 
 const excludedFiles = new Set([
@@ -19,11 +19,16 @@ const excludedFiles = new Set([
   ".DS_Store",
   "sqlite.db",
   "IMPLEMENTATION_PLAN.md",
-  "next-env.d.ts",
+  "next-env.d.ts"
 ]);
 
 const excludedExtensions = new Set([".db", ".pem", ".tsbuildinfo"]);
-const excludedPatterns = [/^npm-debug\.log/, /^yarn-debug\.log/, /^yarn-error\.log/, /^\.pnpm-debug\.log/];
+const excludedPatterns = [
+  /^npm-debug\.log/,
+  /^yarn-debug\.log/,
+  /^yarn-error\.log/,
+  /^\.pnpm-debug\.log/
+];
 
 function isExcluded(entryName: string, relativePath: string): boolean {
   if (excludedDirectories.has(relativePath) || excludedDirectories.has(entryName)) {
@@ -61,7 +66,12 @@ export function exportBoilerplate(options: {
   copyDirectory(sourceDir, targetDir, "", new Set(excludedPaths));
 }
 
-function copyDirectory(source: string, target: string, relativePath: string, extraExcludedPaths: Set<string>): void {
+function copyDirectory(
+  source: string,
+  target: string,
+  relativePath: string,
+  extraExcludedPaths: Set<string>
+): void {
   mkdirSync(target, { recursive: true });
 
   for (const entry of readdirSync(source, { withFileTypes: true })) {

@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { existsSync } from "node:fs";
 import type { Product } from "../lib/products.js";
-import { readProducts, writeProducts } from "../lib/products.js";
+import { writeProducts } from "../lib/products.js";
 import { writeBillingGenerated } from "../lib/billing-generated.js";
 import {
   loadPolarCredentials,
@@ -9,7 +8,7 @@ import {
   syncProductToPolar,
   checkSyncStatus,
   toBuyerMessage,
-  listArchivedPolarProducts,
+  listArchivedPolarProducts
 } from "../lib/polar.js";
 import {
   removeProducts,
@@ -18,7 +17,7 @@ import {
   archiveOrphanProducts,
   importOrphanProducts,
   syncSandboxToProduction,
-  type OperationResult,
+  type OperationResult
 } from "../lib/products-operations.js";
 
 export interface UseProductOperationsOptions {
@@ -29,7 +28,6 @@ export interface UseProductOperationsOptions {
   token?: string;
   polarToken: string;
   productsFilePath: string;
-  otherProductsFilePath: string;
   step: string;
   setStep: (step: string) => void;
   setError: (error: string) => void;
@@ -44,23 +42,27 @@ export function useProductOperations(options: UseProductOperationsOptions) {
     token,
     polarToken,
     productsFilePath,
-    otherProductsFilePath,
     step,
     setStep,
-    setError,
+    setError
   } = options;
 
   const [syncResults, setSyncResults] = useState<Array<{ slug: string; status: string }>>([]);
   const [operationResults, setOperationResults] = useState<OperationResult[]>([]);
   const [pendingSelection, setPendingSelection] = useState<string[]>([]);
-  const [archivedPolarProducts, setArchivedPolarProducts] = useState<Array<{ id: string; name: string }>>([]);
+  const [archivedPolarProducts, setArchivedPolarProducts] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
   const [orphanProducts, setOrphanProducts] = useState<Array<{ id: string; name: string }>>([]);
   const [cleanupAction, setCleanupAction] = useState<string>("");
   const [sandboxProductsList, setSandboxProductsList] = useState<Product[]>([]);
 
-  const regenerateFiles = useCallback((_currentProducts: Product[]) => {
-    writeBillingGenerated({ projectDir });
-  }, [projectDir]);
+  const regenerateFiles = useCallback(
+    (_currentProducts: Product[]) => {
+      writeBillingGenerated({ projectDir });
+    },
+    [projectDir]
+  );
 
   const handleRegenerate = useCallback(() => {
     try {
@@ -106,7 +108,17 @@ export function useProductOperations(options: UseProductOperationsOptions) {
     }
 
     setStep("done");
-  }, [products, projectDir, env, token, polarToken, productsFilePath, setProducts, regenerateFiles, setStep]);
+  }, [
+    products,
+    projectDir,
+    env,
+    token,
+    polarToken,
+    productsFilePath,
+    setProducts,
+    regenerateFiles,
+    setStep
+  ]);
 
   const runRemove = useCallback(async () => {
     const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
@@ -118,18 +130,28 @@ export function useProductOperations(options: UseProductOperationsOptions) {
       regenerate: (updated) => {
         setProducts(updated);
         regenerateFiles(updated);
-      },
+      }
     });
     setOperationResults(results);
     setStep("done");
-  }, [pendingSelection, productsFilePath, projectDir, env, token, polarToken, setProducts, regenerateFiles, setStep]);
+  }, [
+    pendingSelection,
+    productsFilePath,
+    projectDir,
+    env,
+    token,
+    polarToken,
+    setProducts,
+    regenerateFiles,
+    setStep
+  ]);
 
   const runUnarchive = useCallback(async () => {
     const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
     const client = createPolarClient(credentials, env);
     const results = await unarchiveProducts({
       idsToUnarchive: pendingSelection,
-      client,
+      client
     });
     setOperationResults(results);
     setStep("done");
@@ -142,7 +164,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
     if (cleanupAction === "archive") {
       const results = await archiveOrphanProducts({
         orphanIds: pendingSelection,
-        client,
+        client
       });
       setOperationResults(results);
     } else if (cleanupAction === "import") {
@@ -152,13 +174,25 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         regenerate: (updated) => {
           setProducts(updated);
           regenerateFiles(updated);
-        },
+        }
       });
       setOperationResults(results);
     }
 
     setStep("done");
-  }, [cleanupAction, pendingSelection, orphanProducts, productsFilePath, projectDir, env, token, polarToken, setProducts, regenerateFiles, setStep]);
+  }, [
+    cleanupAction,
+    pendingSelection,
+    orphanProducts,
+    productsFilePath,
+    projectDir,
+    env,
+    token,
+    polarToken,
+    setProducts,
+    regenerateFiles,
+    setStep
+  ]);
 
   const runSyncFromSandbox = useCallback(async () => {
     const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
@@ -171,11 +205,21 @@ export function useProductOperations(options: UseProductOperationsOptions) {
       regenerate: (updated) => {
         setProducts(updated);
         regenerateFiles(updated);
-      },
+      }
     });
     setOperationResults(results);
     setStep("done");
-  }, [sandboxProductsList, pendingSelection, productsFilePath, projectDir, token, polarToken, setProducts, regenerateFiles, setStep]);
+  }, [
+    sandboxProductsList,
+    pendingSelection,
+    productsFilePath,
+    projectDir,
+    token,
+    polarToken,
+    setProducts,
+    regenerateFiles,
+    setStep
+  ]);
 
   // Trigger async operations based on step changes
   useEffect(() => {
@@ -185,7 +229,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         setStep("error");
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
@@ -195,12 +239,12 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         setStep("error");
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
     if (step === "unarchive_loading") {
-      (async () => {
+      void (async () => {
         try {
           const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
           const client = createPolarClient(credentials, env);
@@ -219,7 +263,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         }
       })();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
@@ -229,12 +273,12 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         setStep("error");
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
     if (step === "cleanup_loading") {
-      (async () => {
+      void (async () => {
         try {
           const credentials = loadPolarCredentials(projectDir, token) ?? { token: polarToken };
           const client = createPolarClient(credentials, env);
@@ -253,7 +297,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         }
       })();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
@@ -263,7 +307,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         setStep("error");
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   useEffect(() => {
@@ -273,7 +317,7 @@ export function useProductOperations(options: UseProductOperationsOptions) {
         setStep("error");
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- documented: re-run only on `step` change; other reactive values are inputs, not triggers, for these async flows
   }, [step]);
 
   return {
@@ -296,6 +340,6 @@ export function useProductOperations(options: UseProductOperationsOptions) {
     runRemove,
     runUnarchive,
     runCleanup,
-    runSyncFromSandbox,
+    runSyncFromSandbox
   };
 }

@@ -22,13 +22,13 @@ export function MultiSelect({ label, items, onSubmit, initialSelected = [] }: Mu
       (input: string, key) => {
         if (items.length > 0 && (key.upArrow || input === "k")) {
           setHighlightedIndex((previousIndex) =>
-            previousIndex <= 0 ? items.length - 1 : previousIndex - 1,
+            previousIndex <= 0 ? items.length - 1 : previousIndex - 1
           );
         }
 
         if (items.length > 0 && (key.downArrow || input === "j")) {
           setHighlightedIndex((previousIndex) =>
-            previousIndex >= items.length - 1 ? 0 : previousIndex + 1,
+            previousIndex >= items.length - 1 ? 0 : previousIndex + 1
           );
         }
 
@@ -54,8 +54,8 @@ export function MultiSelect({ label, items, onSubmit, initialSelected = [] }: Mu
           onSubmit(Array.from(selectedValues));
         }
       },
-      [highlightedIndex, items, onSubmit, selectedValues],
-    ),
+      [highlightedIndex, items, onSubmit, selectedValues]
+    )
   );
 
   return (

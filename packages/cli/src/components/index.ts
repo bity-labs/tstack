@@ -7,20 +7,20 @@ export { SectionHeader, type SectionHeaderProps } from "./SectionHeader.js";
 export {
   StatusMessage,
   type StatusMessageProps,
-  type StatusMessageStatus,
+  type StatusMessageStatus
 } from "./StatusMessage.js";
 export { Header } from "./Header.js";
 export {
   CompletedSteps,
   type CompletedStepsConfig,
-  type CompletedStepsProps,
+  type CompletedStepsProps
 } from "./CompletedSteps.js";
 export {
   ProductList,
   type ProductListProduct,
   type ProductListProps,
   type ProductPrice,
-  type SyncStatus,
+  type SyncStatus
 } from "./ProductList.js";
 export { OperationMenu, type Operation, type OperationMenuProps } from "./OperationMenu.js";
 export { ErrorRecovery, type ErrorRecoveryProps } from "./ErrorRecovery.js";

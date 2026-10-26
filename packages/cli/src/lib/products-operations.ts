@@ -1,17 +1,13 @@
 import { existsSync } from "node:fs";
 import { Polar } from "@polar-sh/sdk";
 
-import {
-  readProducts,
-  writeProducts,
-  type Product,
-} from "./products.js";
+import { readProducts, writeProducts, type Product } from "./products.js";
 import {
   archivePolarProduct,
   unarchivePolarProduct,
   listActivePolarProducts,
   convertToPolarProduct,
-  toBuyerMessage,
+  toBuyerMessage
 } from "./polar.js";
 import { slugify } from "./validate.js";
 
@@ -63,7 +59,9 @@ export interface UnarchiveProductsOptions {
   client: Polar;
 }
 
-export async function unarchiveProducts(options: UnarchiveProductsOptions): Promise<OperationResult[]> {
+export async function unarchiveProducts(
+  options: UnarchiveProductsOptions
+): Promise<OperationResult[]> {
   const { idsToUnarchive, client } = options;
   const results: OperationResult[] = [];
 
@@ -85,10 +83,12 @@ export interface FindOrphanProductsOptions {
 }
 
 export async function findOrphanProducts(
-  options: FindOrphanProductsOptions,
+  options: FindOrphanProductsOptions
 ): Promise<Array<{ id: string; name: string }>> {
   const { client, localProducts } = options;
-  const localIds = new Set(localProducts.map((p) => p.polarProductId).filter((id): id is string => id != null));
+  const localIds = new Set(
+    localProducts.map((p) => p.polarProductId).filter((id): id is string => id != null)
+  );
   const active = await listActivePolarProducts(client);
   return active.filter((p) => !localIds.has(p.id));
 }
@@ -98,7 +98,9 @@ export interface ArchiveOrphanProductsOptions {
   client: Polar;
 }
 
-export async function archiveOrphanProducts(options: ArchiveOrphanProductsOptions): Promise<OperationResult[]> {
+export async function archiveOrphanProducts(
+  options: ArchiveOrphanProductsOptions
+): Promise<OperationResult[]> {
   const { orphanIds, client } = options;
   const results: OperationResult[] = [];
 
@@ -147,9 +149,9 @@ export function importOrphanProducts(options: ImportOrphanProductsOptions): Oper
         features: [],
         badge: null,
         highlighted: false,
-        cta: "Get Started",
+        cta: "Get Started"
       },
-      polarProductId: orphan.id,
+      polarProductId: orphan.id
     };
 
     products.push(imported);
@@ -170,9 +172,10 @@ export interface SyncSandboxToProductionOptions {
 }
 
 export async function syncSandboxToProduction(
-  options: SyncSandboxToProductionOptions,
+  options: SyncSandboxToProductionOptions
 ): Promise<OperationResult[]> {
-  const { sandboxProducts, slugsToSync, productionClient, productionProductsFilePath, regenerate } = options;
+  const { sandboxProducts, slugsToSync, productionClient, productionProductsFilePath, regenerate } =
+    options;
   const productionProducts = existsSync(productionProductsFilePath)
     ? readProducts(productionProductsFilePath)
     : [];
@@ -188,7 +191,7 @@ export async function syncSandboxToProduction(
       const existingIndex = productionProducts.findIndex((p) => p.slug === sandboxProduct.slug);
       const productionProduct: Product = {
         ...sandboxProduct,
-        polarProductId: created.id,
+        polarProductId: created.id
       };
 
       if (existingIndex >= 0) {
@@ -197,7 +200,11 @@ export async function syncSandboxToProduction(
         productionProducts.push(productionProduct);
       }
 
-      results.push({ slug: sandboxProduct.slug, status: "success", message: "Synced to production" });
+      results.push({
+        slug: sandboxProduct.slug,
+        status: "success",
+        message: "Synced to production"
+      });
     } catch (err) {
       results.push({ slug: sandboxProduct.slug, status: "failure", message: toBuyerMessage(err) });
     }

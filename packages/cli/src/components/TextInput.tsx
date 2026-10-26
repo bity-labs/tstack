@@ -19,7 +19,7 @@ export function TextInput({
   onSubmit,
   placeholder,
   mask,
-  error,
+  error
 }: TextInputProps) {
   return (
     <Box flexDirection="column">
@@ -35,7 +35,7 @@ export function TextInput({
           mask={mask}
         />
       </Box>
-      {error ? <Text color="red">  ✗ {error}</Text> : null}
+      {error ? <Text color="red"> ✗ {error}</Text> : null}
     </Box>
   );
 }

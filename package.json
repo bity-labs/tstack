@@ -7,6 +7,8 @@
     "dev": "turbo run dev",
     "dev:documentation": "turbo run dev --filter=@tstack/documentation",
     "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "release": "semantic-release",
     "setup": "pnpm --filter @tstack/cli build && cd packages/cli && pnpm link --global",
     "test": "turbo run test",
@@ -15,6 +17,8 @@
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "prettier": "3.9.9",
+    "prettier-plugin-astro": "1.1.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^12.0.8",
     "@semantic-release/release-notes-generator": "^14.1.1",

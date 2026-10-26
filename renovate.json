@@ -1,0 +1,42 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "baseBranchPatterns": ["v2"],
+  "timezone": "Etc/UTC",
+  "schedule": ["* * * * 1"],
+  "automerge": false,
+  "separateMajorMinor": true,
+  "separateMinorPatch": false,
+  "packageRules": [
+    {
+      "description": "Pin direct npm dependencies without narrowing peer compatibility ranges",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "devDependencies", "optionalDependencies"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "Group routine updates across the workspace into one PR",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "non-major dependencies",
+      "groupSlug": "non-major-dependencies"
+    },
+    {
+      "description": "Convert existing dependency ranges to exact pins in one PR",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["pin"],
+      "groupName": "dependency version pins",
+      "groupSlug": "dependency-version-pins"
+    },
+    {
+      "description": "Keep major upgrades out of grouped maintenance PRs",
+      "matchUpdateTypes": ["major"],
+      "groupName": null
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": [],
+    "groupName": null,
+    "automerge": false
+  }
+}

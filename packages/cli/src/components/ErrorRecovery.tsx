@@ -49,9 +49,13 @@ export function ErrorRecovery({ error, onRetry, context }: ErrorRecoveryProps) {
       ) : null}
       <Box marginTop={1}>
         <Text bold>What would you like to do? </Text>
-        <Text color={selected === "retry" ? "green" : "gray"}>[{selected === "retry" ? "R" : "r"}]etry</Text>
+        <Text color={selected === "retry" ? "green" : "gray"}>
+          [{selected === "retry" ? "R" : "r"}]etry
+        </Text>
         <Text> / </Text>
-        <Text color={selected === "exit" ? "red" : "gray"}>[{selected === "exit" ? "E" : "e"}]xit</Text>
+        <Text color={selected === "exit" ? "red" : "gray"}>
+          [{selected === "exit" ? "E" : "e"}]xit
+        </Text>
       </Box>
     </Box>
   );

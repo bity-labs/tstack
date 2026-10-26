@@ -22,7 +22,7 @@ const OPTIONAL_GROUP_KEYS: Record<OptionalGroup, string[]> = {
     "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
     "NEXT_PUBLIC_UMAMI_HOST",
     "NEXT_PUBLIC_POSTHOG_KEY",
-    "NEXT_PUBLIC_POSTHOG_HOST",
+    "NEXT_PUBLIC_POSTHOG_HOST"
   ],
   fileUploads: [
     "FILE_UPLOAD_PROVIDER",
@@ -32,11 +32,11 @@ const OPTIONAL_GROUP_KEYS: Record<OptionalGroup, string[]> = {
     "DIGITALOCEAN_SPACES_ACCESS_KEY_ID",
     "DIGITALOCEAN_SPACES_SECRET_ACCESS_KEY",
     "DIGITALOCEAN_SPACES_CDN",
-    "MAX_FILE_SIZE_MB",
+    "MAX_FILE_SIZE_MB"
   ],
   emailBranding: ["EMAIL_BRAND_LOGO_URL"],
   support: ["SUPPORT_EMAIL"],
-  landingMode: ["LANDING_MODE"],
+  landingMode: ["LANDING_MODE"]
 };
 
 export interface ProjectEnv {
@@ -70,7 +70,7 @@ export function readProjectEnv(projectDir: string): ProjectEnv {
 
 export function detectEnabledGroups(
   envValues: Record<string, string>,
-  _exampleContent: string,
+  _exampleContent: string
 ): OptionalGroup[] {
   const groups: OptionalGroup[] = [];
 

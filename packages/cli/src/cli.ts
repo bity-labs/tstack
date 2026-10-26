@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import React from "react";
 
-import { exportBoilerplate } from "./lib/export-boilerplate.js";
 import { initProject } from "./lib/init-project.js";
 import { resolveProjectDir } from "./lib/resolve-project-dir.js";
 
@@ -27,7 +26,7 @@ Run after linking the private CLI from the TStack repository:
   tstack <command> [options]
 
 Commands:
-  init       Scaffold a TStack app from apps/boilerplate.
+  init       Scaffold a TStack app (unavailable while the v2 starter is being built).
   ready      Prepare production environment configuration.
   products   Manage products and regenerate billing definitions.
 
@@ -51,7 +50,7 @@ function unknownCommandOption(command: SupportedCommand, option: string): CliRes
   return {
     exitCode: 1,
     stdout: "",
-    stderr: `Unknown option "${option}" for tstack ${command}. Run "tstack ${command} --help" for usage.\n`,
+    stderr: `Unknown option "${option}" for tstack ${command}. Run "tstack ${command} --help" for usage.\n`
   };
 }
 
@@ -75,7 +74,8 @@ Options:
 
 Usage: tstack init [project-dir] [--project-dir <path>] [--app-name <name>]
 
-Scaffold a new TStack app by exporting apps/boilerplate to the target directory.
+Scaffold a new TStack app. V2 scaffolding is not implemented yet.
+Use the v1 branch for the previous starter.
 
 Options:
   --project-dir <path>   Target directory for the new app. Defaults to interactive prompt.
@@ -97,9 +97,9 @@ Options:
 `;
   }
 
-  return `TStack ${command}
+  return `TStack ${String(command)}
 
-Usage: tstack ${command} [options]
+Usage: tstack ${String(command)} [options]
 
 This command is routed by the TStack repository CLI.
 
@@ -108,21 +108,19 @@ Options:
 `;
 }
 
-function resolveBoilerplateSourcePath(): string {
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  return resolve(__dirname, "../../../apps/boilerplate");
-}
+const initUnavailableMessage =
+  "V2 scaffolding is not implemented yet. Use the v1 branch for the previous starter.\n";
 
 function routeCommand(
   command: SupportedCommand,
   args: string[],
-  options?: { boilerplateSourcePath?: string },
+  options?: { boilerplateSourcePath?: string }
 ): CliResult {
   if (args[0] === "--help" || args[0] === "-h") {
     return {
       exitCode: 0,
       stdout: commandHelp(command),
-      stderr: "",
+      stderr: ""
     };
   }
 
@@ -136,7 +134,8 @@ function routeCommand(
 
     const remainingArgs = args.filter((_, i) => {
       if (appNameIndex !== -1 && (i === appNameIndex || i === appNameIndex + 1)) return false;
-      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1)) return false;
+      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1))
+        return false;
       return true;
     });
 
@@ -149,7 +148,7 @@ function routeCommand(
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Unexpected argument "${remainingArgs[0]}". Use either a positional project directory or --project-dir, not both.\n`,
+        stderr: `Unexpected argument "${remainingArgs[0]}". Use either a positional project directory or --project-dir, not both.\n`
       };
     }
 
@@ -157,11 +156,15 @@ function routeCommand(
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Unexpected argument "${remainingArgs[1]}". Only one project directory can be specified.\n`,
+        stderr: `Unexpected argument "${remainingArgs[1]}". Only one project directory can be specified.\n`
       };
     }
 
     const projectDir = explicitProjectDir ?? remainingArgs[0];
+
+    if (!options?.boilerplateSourcePath) {
+      return { exitCode: 1, stdout: "", stderr: initUnavailableMessage };
+    }
 
     // Interactive mode if project dir or app name is missing
     if (!projectDir || !appName) {
@@ -169,7 +172,7 @@ function routeCommand(
         exitCode: 0,
         stdout: "",
         stderr: `Interactive mode required. Use --app-name to run non-interactively, or use the wizard.\n`,
-        interactive: true,
+        interactive: true
       };
     }
 
@@ -178,7 +181,7 @@ function routeCommand(
 
     try {
       initProject({
-        sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
+        sourceDir: options.boilerplateSourcePath,
         targetDir: targetPath,
         slug,
         displayName: appName,
@@ -188,24 +191,24 @@ function routeCommand(
           walletConnect: false,
           polar: false,
           digitalOcean: false,
-          analytics: "none",
+          analytics: "none"
         },
         initGit: true,
-        installDeps: true,
+        installDeps: true
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Error: ${message}\n`,
+        stderr: `Error: ${message}\n`
       };
     }
 
     return {
       exitCode: 0,
       stdout: `Created TStack app at ${targetPath}\n`,
-      stderr: "",
+      stderr: ""
     };
   }
 
@@ -225,7 +228,7 @@ function routeCommand(
       exitCode: 0,
       stdout: "",
       stderr: `Interactive mode required. Use the wizard to configure the production environment.\n`,
-      interactive: true,
+      interactive: true
     };
   }
 
@@ -239,7 +242,7 @@ function routeCommand(
       return {
         exitCode: 1,
         stdout: "",
-        stderr: `Cannot use --prod and --env together. Use one or the other.\n`,
+        stderr: `Cannot use --prod and --env together. Use one or the other.\n`
       };
     }
 
@@ -249,14 +252,15 @@ function routeCommand(
         return {
           exitCode: 1,
           stdout: "",
-          stderr: `Invalid value "${envValue ?? ""}" for --env. Expected sandbox or production.\n`,
+          stderr: `Invalid value "${envValue ?? ""}" for --env. Expected sandbox or production.\n`
         };
       }
     }
 
     const remainingArgs = args.filter((_, i) => {
       if (envIndex !== -1 && (i === envIndex || i === envIndex + 1)) return false;
-      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1)) return false;
+      if (projectDirIndex !== -1 && (i === projectDirIndex || i === projectDirIndex + 1))
+        return false;
       if (tokenIndex !== -1 && (i === tokenIndex || i === tokenIndex + 1)) return false;
       if (args[i] === "--prod") return false;
       return true;
@@ -284,8 +288,8 @@ function routeCommand(
       interactiveData: {
         env,
         projectDir: resolve(projectDir),
-        token,
-      },
+        token
+      }
     };
   }
 
@@ -295,20 +299,17 @@ function routeCommand(
 
   return {
     exitCode: 0,
-    stdout: `tstack ${command} route is available, but the workflow is not implemented yet.\n`,
-    stderr: "",
+    stdout: `tstack ${String(command)} route is available, but the workflow is not implemented yet.\n`,
+    stderr: ""
   };
 }
 
-export function runCli(
-  args: string[],
-  options?: { boilerplateSourcePath?: string },
-): CliResult {
+export function runCli(args: string[], options?: { boilerplateSourcePath?: string }): CliResult {
   if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
     return {
       exitCode: 0,
       stdout: rootHelp,
-      stderr: "",
+      stderr: ""
     };
   }
 
@@ -318,7 +319,7 @@ export function runCli(
     return {
       exitCode: 1,
       stdout: "",
-      stderr: `Unknown option "${command}". Run "tstack --help" for usage.\n`,
+      stderr: `Unknown option "${command}". Run "tstack --help" for usage.\n`
     };
   }
 
@@ -329,26 +330,24 @@ export function runCli(
   return {
     exitCode: 1,
     stdout: "",
-    stderr: `Unknown command "${command}". Run "tstack --help" for usage.\n`,
+    stderr: `Unknown command "${command}". Run "tstack --help" for usage.\n`
   };
 }
 
 export async function runCliAsync(
   args: string[],
-  options?: { boilerplateSourcePath?: string },
+  options?: { boilerplateSourcePath?: string }
 ): Promise<CliResult> {
   const syncResult = runCli(args, options);
 
   // If the sync result already resolved the command, return it.
   if (syncResult.stdout !== "" || syncResult.stderr !== "" || syncResult.exitCode !== 0) {
     // Check if this is the interactive-init signal
-    if (
-      args[0] === "init" &&
-      syncResult.interactive
-    ) {
+    if (args[0] === "init" && syncResult.interactive && options?.boilerplateSourcePath) {
       const projectDirIndex = args.indexOf("--project-dir");
       const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : undefined;
 
+      const sourceDir = options.boilerplateSourcePath;
       const { render } = await import("ink");
       const { Wizard } = await import("./Wizard.js");
 
@@ -356,24 +355,21 @@ export async function runCliAsync(
         render(
           React.createElement(Wizard, {
             projectDir: projectDir ? resolveProjectDir(projectDir) : undefined,
-            sourceDir: options?.boilerplateSourcePath ?? resolveBoilerplateSourcePath(),
-            onComplete: done,
-          }),
+            sourceDir,
+            onComplete: done
+          })
         );
       });
 
       return {
         exitCode: 0,
         stdout: "",
-        stderr: "",
+        stderr: ""
       };
     }
 
     // Check if this is the interactive-ready signal
-    if (
-      args[0] === "ready" &&
-      syncResult.interactive
-    ) {
+    if (args[0] === "ready" && syncResult.interactive) {
       const projectDirIndex = args.indexOf("--project-dir");
       const projectDir = projectDirIndex !== -1 ? args[projectDirIndex + 1] : ".";
 
@@ -384,23 +380,20 @@ export async function runCliAsync(
         render(
           React.createElement(ReadyWizard, {
             projectDir: resolve(projectDir),
-            onComplete: done,
-          }),
+            onComplete: done
+          })
         );
       });
 
       return {
         exitCode: 0,
         stdout: "",
-        stderr: "",
+        stderr: ""
       };
     }
 
     // Check if this is the interactive-products signal
-    if (
-      args[0] === "products" &&
-      syncResult.interactive
-    ) {
+    if (args[0] === "products" && syncResult.interactive) {
       const data = syncResult.interactiveData;
       const env = data?.env ?? "sandbox";
       const projectDir = data?.projectDir ?? ".";
@@ -415,15 +408,15 @@ export async function runCliAsync(
             projectDir: resolve(projectDir),
             env,
             token,
-            onComplete: done,
-          }),
+            onComplete: done
+          })
         );
       });
 
       return {
         exitCode: 0,
         stdout: "",
-        stderr: "",
+        stderr: ""
       };
     }
 
@@ -446,8 +439,10 @@ function writeResult(result: CliResult): void {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  runCliAsync(process.argv.slice(2)).then(writeResult).catch((error) => {
-    process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
-    process.exitCode = 1;
-  });
+  runCliAsync(process.argv.slice(2))
+    .then(writeResult)
+    .catch((error) => {
+      process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
+      process.exitCode = 1;
+    });
 }

@@ -11,7 +11,7 @@ import {
   detectEnabledGroups,
   generateProductionEnv,
   writeProductionEnv,
-  type OptionalGroup,
+  type OptionalGroup
 } from "./lib/env-ready.js";
 
 type WizardStep =
@@ -34,7 +34,7 @@ const REQUIRED_KEYS = [
   "POLAR_ACCESS_TOKEN",
   "POLAR_WEBHOOK_SECRET",
   "POLAR_ORGANIZATION_ID",
-  "RESEND_API_KEY",
+  "RESEND_API_KEY"
 ];
 
 const OPTIONAL_GROUPS: { value: OptionalGroup; label: string }[] = [
@@ -45,7 +45,7 @@ const OPTIONAL_GROUPS: { value: OptionalGroup; label: string }[] = [
   { value: "fileUploads", label: "File Uploads (DigitalOcean)" },
   { value: "emailBranding", label: "Email Branding" },
   { value: "support", label: "Support Email" },
-  { value: "landingMode", label: "Landing Mode" },
+  { value: "landingMode", label: "Landing Mode" }
 ];
 
 const OPTIONAL_GROUP_KEYS: Record<OptionalGroup, string[]> = {
@@ -57,7 +57,7 @@ const OPTIONAL_GROUP_KEYS: Record<OptionalGroup, string[]> = {
     "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
     "NEXT_PUBLIC_UMAMI_HOST",
     "NEXT_PUBLIC_POSTHOG_KEY",
-    "NEXT_PUBLIC_POSTHOG_HOST",
+    "NEXT_PUBLIC_POSTHOG_HOST"
   ],
   fileUploads: [
     "FILE_UPLOAD_PROVIDER",
@@ -67,11 +67,11 @@ const OPTIONAL_GROUP_KEYS: Record<OptionalGroup, string[]> = {
     "DIGITALOCEAN_SPACES_ACCESS_KEY_ID",
     "DIGITALOCEAN_SPACES_SECRET_ACCESS_KEY",
     "DIGITALOCEAN_SPACES_CDN",
-    "MAX_FILE_SIZE_MB",
+    "MAX_FILE_SIZE_MB"
   ],
   emailBranding: ["EMAIL_BRAND_LOGO_URL"],
   support: ["SUPPORT_EMAIL"],
-  landingMode: ["LANDING_MODE"],
+  landingMode: ["LANDING_MODE"]
 };
 
 export interface ReadyWizardProps {
@@ -180,7 +180,9 @@ export function ReadyWizard({ projectDir, onComplete }: ReadyWizardProps) {
   return (
     <Box flexDirection="column">
       <Header />
-      {step === "loading" && <StatusMessage status="info">Loading project environment...</StatusMessage>}
+      {step === "loading" && (
+        <StatusMessage status="info">Loading project environment...</StatusMessage>
+      )}
       {step === "required" && currentRequiredKey && (
         <TextInput
           label={`${currentRequiredKey} (required)`}
@@ -210,10 +212,16 @@ export function ReadyWizard({ projectDir, onComplete }: ReadyWizardProps) {
       {step === "confirmOverwrite" && (
         <Box flexDirection="column">
           <Text>Write production environment to .env.production?</Text>
-          <Confirm label="Write .env.production" onConfirm={handleConfirmOverwrite} defaultValue={true} />
+          <Confirm
+            label="Write .env.production"
+            onConfirm={handleConfirmOverwrite}
+            defaultValue={true}
+          />
         </Box>
       )}
-      {step === "writing" && <StatusMessage status="info">Writing .env.production...</StatusMessage>}
+      {step === "writing" && (
+        <StatusMessage status="info">Writing .env.production...</StatusMessage>
+      )}
       {step === "done" && (
         <StatusMessage status="success">.env.production written for {projectDir}</StatusMessage>
       )}

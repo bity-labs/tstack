@@ -1,0 +1,16 @@
+{
+  "name": "boilerplate-mobile-application",
+  "slug": "boilerplate-mobile-application",
+  "version": "0.0.0",
+  "scheme": "boilerplate-mobile-application",
+  "orientation": "portrait",
+  "userInterfaceStyle": "automatic",
+  "platforms": ["ios", "android", "web"],
+  "web": {
+    "bundler": "metro",
+    "output": "static"
+  },
+  "experiments": {
+    "typedRoutes": true
+  }
+}

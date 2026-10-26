@@ -7,8 +7,7 @@ import {
   readProjectEnv,
   detectEnabledGroups,
   writeProductionEnv,
-  generateProductionEnv,
-  type OptionalGroup,
+  generateProductionEnv
 } from "./env-ready.js";
 
 function makeTempDir(prefix: string): string {
@@ -28,8 +27,14 @@ describe("readProjectEnv", () => {
   it("reads .env.example and .env when present", () => {
     const projectDir = makeTempDir("tstack-ready-example-");
     try {
-      writeFileSync(join(projectDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=MyApp\nDATABASE_URL=\n");
-      writeFileSync(join(projectDir, ".env"), "NEXT_PUBLIC_APP_NAME=Acme\nDATABASE_URL=postgresql://localhost\n");
+      writeFileSync(
+        join(projectDir, ".env.example"),
+        "NEXT_PUBLIC_APP_NAME=MyApp\nDATABASE_URL=\n"
+      );
+      writeFileSync(
+        join(projectDir, ".env"),
+        "NEXT_PUBLIC_APP_NAME=Acme\nDATABASE_URL=postgresql://localhost\n"
+      );
 
       const result = readProjectEnv(projectDir);
       expect(result.exampleContent).toContain("NEXT_PUBLIC_APP_NAME=MyApp");
@@ -120,9 +125,9 @@ describe("detectEnabledGroups", () => {
         GITHUB_CLIENT_ID: "abc",
         TWITTER_CLIENT_ID: "xyz",
         NEXT_PUBLIC_ANALYTICS_PROVIDER: "posthog",
-        LANDING_MODE: "true",
+        LANDING_MODE: "true"
       },
-      "",
+      ""
     );
     expect(groups).toContain("github");
     expect(groups).toContain("twitter");
@@ -146,8 +151,8 @@ BETTER_AUTH_SECRET=
         PROJECT_URL: "https://myapp.com",
         NEXT_PUBLIC_APP_NAME: "MyApp",
         DATABASE_URL: "postgresql://prod:pass@db/myapp",
-        BETTER_AUTH_SECRET: "secret123",
-      },
+        BETTER_AUTH_SECRET: "secret123"
+      }
     });
 
     expect(result).toContain("PROJECT_URL=https://myapp.com");
@@ -165,7 +170,7 @@ DATABASE_URL=
 `;
     const result = generateProductionEnv({
       exampleContent: example,
-      values: { PROJECT_URL: "https://myapp.com" },
+      values: { PROJECT_URL: "https://myapp.com" }
     });
 
     expect(result).toContain("# Project Configuration");
@@ -178,7 +183,7 @@ DATABASE_URL=
 FILLED=value`;
     const result = generateProductionEnv({
       exampleContent: example,
-      values: { EMPTY: "now-filled", FILLED: "replaced" },
+      values: { EMPTY: "now-filled", FILLED: "replaced" }
     });
     expect(result).toContain("EMPTY=now-filled");
     expect(result).toContain("FILLED=replaced");
@@ -192,7 +197,7 @@ describe("writeProductionEnv", () => {
       writeFileSync(join(projectDir, ".env.example"), "NEXT_PUBLIC_APP_NAME=\n");
       const result = writeProductionEnv({
         projectDir,
-        content: "NEXT_PUBLIC_APP_NAME=MyApp\n",
+        content: "NEXT_PUBLIC_APP_NAME=MyApp\n"
       });
 
       expect(result.path).toBe(join(projectDir, ".env.production"));
@@ -214,8 +219,8 @@ describe("writeProductionEnv", () => {
         writeProductionEnv({
           projectDir,
           content: "NEXT_PUBLIC_APP_NAME=MyApp\n",
-          overwrite: false,
-        }),
+          overwrite: false
+        })
       ).toThrow(".env.production already exists");
     } finally {
       rmSync(projectDir, { recursive: true, force: true });
@@ -231,7 +236,7 @@ describe("writeProductionEnv", () => {
       const result = writeProductionEnv({
         projectDir,
         content: "NEXT_PUBLIC_APP_NAME=MyApp\n",
-        overwrite: true,
+        overwrite: true
       });
 
       expect(result.existed).toBe(true);

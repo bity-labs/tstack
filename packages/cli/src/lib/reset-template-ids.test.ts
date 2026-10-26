@@ -7,8 +7,8 @@ describe("resetTemplateIds", () => {
     const input = {
       products: [
         { slug: "pro", polarProductId: "abc-123", name: "Pro" },
-        { slug: "free", polarProductId: null, name: "Free" },
-      ],
+        { slug: "free", polarProductId: null, name: "Free" }
+      ]
     };
     const result = resetTemplateIds(input, "products");
     expect(result.products[0].polarProductId).toBeNull();
@@ -18,7 +18,7 @@ describe("resetTemplateIds", () => {
 
   it("clears polarMeterId in meter JSON", () => {
     const input = {
-      meters: [{ slug: "tokens", polarMeterId: "xyz-789", name: "Tokens" }],
+      meters: [{ slug: "tokens", polarMeterId: "xyz-789", name: "Tokens" }]
     };
     const result = resetTemplateIds(input, "meters");
     expect(result.meters[0].polarMeterId).toBeNull();

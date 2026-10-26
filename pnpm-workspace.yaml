@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Declines install scripts for esbuild and sharp (they ship prebuilds),
+# clearing pnpm's build-scripts gate for the docs app scaffold.
+ignoredBuiltDependencies:
+  - esbuild
+  - sharp

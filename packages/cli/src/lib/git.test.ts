@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
+  execSync: vi.fn()
 }));
 
 import { execSync } from "node:child_process";
@@ -23,10 +23,10 @@ describe("setupGit", () => {
 
       expect(execSync).toHaveBeenCalledWith("git init", { cwd: targetDir, stdio: "ignore" });
       expect(execSync).toHaveBeenCalledWith("git add .", { cwd: targetDir, stdio: "ignore" });
-      expect(execSync).toHaveBeenCalledWith(
-        'git commit -m "Initial commit from TStack"',
-        { cwd: targetDir, stdio: "ignore" },
-      );
+      expect(execSync).toHaveBeenCalledWith('git commit -m "Initial commit from TStack"', {
+        cwd: targetDir,
+        stdio: "ignore"
+      });
     } finally {
       rmSync(targetDir, { recursive: true, force: true });
     }

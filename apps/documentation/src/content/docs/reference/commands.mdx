@@ -1,0 +1,42 @@
+---
+title: "Commands"
+description: "Commands available in the current TStack source workspace."
+sidebar:
+  order: 2
+---
+
+Run these from the repository root.
+
+## Install and run documentation
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev:documentation
+```
+
+## Whole workspace validation
+
+```sh
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm build
+git diff --check
+```
+
+Turbo runs matching scripts for packages with manifests. README-only placeholders have no tasks. The documentation app's test and lint scripts are placeholders, not coverage; its typecheck and build are implemented.
+
+## CLI development
+
+```sh
+pnpm tstack --help
+pnpm --filter @tstack/cli test
+pnpm --filter @tstack/cli typecheck
+pnpm --filter @tstack/cli build
+```
+
+V2 scaffolding is not implemented yet. See [CLI status](/reference/cli) before using retained legacy commands.
+
+## Harness installation
+
+The harness is copied and customized, not installed by a dedicated CLI command. Follow [harness installation](/harness/installation), including the merge instructions for existing project files.

@@ -24,7 +24,13 @@ describe("buildReplacements", () => {
 describe("replacePlaceholders", () => {
   it("replaces all known placeholders in text", () => {
     const text = "Welcome to MyApp. Visit myapp.com for more.";
-    const result = replacePlaceholders(text, new Map([["myapp", "acme"], ["MyApp", "Acme"]]));
+    const result = replacePlaceholders(
+      text,
+      new Map([
+        ["myapp", "acme"],
+        ["MyApp", "Acme"]
+      ])
+    );
     expect(result).toBe("Welcome to Acme. Visit acme.com for more.");
   });
 

@@ -1,0 +1,30 @@
+---
+title: "Known Limitations"
+description: "What is and is not implemented in the v2 shell."
+sidebar:
+  order: 5
+---
+
+## No v2 scaffolding
+
+V2 scaffolding is not implemented yet. `tstack init` exits with an explanatory message. The website, application, and product documentation directories are README-only placeholders.
+
+## New setup components are placeholders
+
+Brain, assistant, and OS contain no installation tooling or runtime behavior yet. TStack does not currently provision servers or coordinate a live assistant through these components.
+
+## Legacy commands are not v2 integrations
+
+The CLI retains `ready` and `products` for existing compatible projects. They use the previous starter's environment and billing configuration model; they do not configure the new placeholders. See [CLI status](/reference/cli).
+
+## Generic harness installation is manual
+
+Copy and customize the existing harness as described in [installation](/harness/installation). There is no dedicated harness-install command.
+
+## Symlinks are source-development assets
+
+Root `.agents` and `docs/engineering` link to the generic harness inside this repository. Installed projects must receive real copies so they do not depend on this checkout.
+
+## Validation coverage is limited
+
+The CLI has tests and TypeScript checks. The documentation app has build and typecheck validation but no dedicated test or lint implementation. Placeholder directories have no validation scripts.

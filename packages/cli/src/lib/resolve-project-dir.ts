@@ -5,10 +5,7 @@ import { fileURLToPath } from "node:url";
 function findTstackRepoRoot(): string | undefined {
   let dir = dirname(fileURLToPath(import.meta.url));
   while (dir !== dirname(dir)) {
-    if (
-      existsSync(join(dir, "turbo.json")) &&
-      existsSync(join(dir, "pnpm-workspace.yaml"))
-    ) {
+    if (existsSync(join(dir, "turbo.json")) && existsSync(join(dir, "pnpm-workspace.yaml"))) {
       return dir;
     }
     dir = dirname(dir);

@@ -14,7 +14,7 @@ import {
   Spinner,
   StatusMessage,
   TextInput,
-  type SyncStatus,
+  type SyncStatus
 } from "./index.js";
 
 describe("shared CLI primitives", () => {
@@ -24,14 +24,15 @@ describe("shared CLI primitives", () => {
         React.createElement(TextInput, {
           label: "Project slug",
           value: "my-app",
-          onChange: () => {},
-        }),
-      ).lastFrame(),
+          onChange: () => {}
+        })
+      ).lastFrame()
     ).toContain("Project slug:");
 
     expect(
-      render(React.createElement(Confirm, { label: "Install dependencies?", onConfirm: () => {} }))
-        .lastFrame(),
+      render(
+        React.createElement(Confirm, { label: "Install dependencies?", onConfirm: () => {} })
+      ).lastFrame()
     ).toContain("Install dependencies?");
 
     expect(
@@ -39,9 +40,9 @@ describe("shared CLI primitives", () => {
         React.createElement(Select, {
           label: "Environment",
           options: [{ label: "Sandbox", value: "sandbox" }],
-          onSelect: () => {},
-        }),
-      ).lastFrame(),
+          onSelect: () => {}
+        })
+      ).lastFrame()
     ).toContain("Sandbox");
 
     expect(
@@ -50,30 +51,34 @@ describe("shared CLI primitives", () => {
           label: "Providers",
           items: [{ label: "GitHub OAuth", value: "github" }],
           onSubmit: () => {},
-          initialSelected: ["github"],
-        }),
-      ).lastFrame(),
+          initialSelected: ["github"]
+        })
+      ).lastFrame()
     ).toContain("Selected: 1 item");
 
-    expect(render(React.createElement(Spinner, { label: "Copying boilerplate" })).lastFrame()).toContain(
-      "Copying boilerplate",
-    );
+    expect(
+      render(React.createElement(Spinner, { label: "Copying boilerplate" })).lastFrame()
+    ).toContain("Copying boilerplate");
 
     expect(
-      render(React.createElement(StatusMessage, { status: "success", children: "Ready" })).lastFrame(),
+      render(
+        React.createElement(StatusMessage, { status: "success", children: "Ready" })
+      ).lastFrame()
     ).toContain("✓ Ready");
 
     expect(
-      render(React.createElement(SectionHeader, { title: "Project setup", subtitle: "TStack" })).lastFrame(),
+      render(
+        React.createElement(SectionHeader, { title: "Project setup", subtitle: "TStack" })
+      ).lastFrame()
     ).toContain("Project setup");
 
     expect(
       render(
         React.createElement(CompletedSteps, {
           config: { project: { name: "my-app" }, payment: { enabled: false } },
-          currentStep: "storage",
-        }),
-      ).lastFrame(),
+          currentStep: "storage"
+        })
+      ).lastFrame()
     ).toContain("Payment (Polar): Skipped");
 
     expect(
@@ -85,16 +90,18 @@ describe("shared CLI primitives", () => {
               name: "Pro Monthly",
               type: "subscription",
               recurringInterval: "month",
-              prices: [{ amountType: "fixed", amount: 1999, currency: "usd" }],
-            },
+              prices: [{ amountType: "fixed", amount: 1999, currency: "usd" }]
+            }
           ],
-          syncStatus: new Map<string, SyncStatus>([["pro-monthly", "not-synced"]]),
-        }),
-      ).lastFrame(),
+          syncStatus: new Map<string, SyncStatus>([["pro-monthly", "not-synced"]])
+        })
+      ).lastFrame()
     ).toContain("Pro Monthly (pro-monthly) - $19.99/month");
 
     expect(
-      render(React.createElement(OperationMenu, { hasProducts: true, onSelect: () => {} })).lastFrame(),
+      render(
+        React.createElement(OperationMenu, { hasProducts: true, onSelect: () => {} })
+      ).lastFrame()
     ).toContain("Regenerate TypeScript exports");
 
     expect(
@@ -102,9 +109,9 @@ describe("shared CLI primitives", () => {
         React.createElement(ErrorRecovery, {
           error: "Copy failed",
           context: "Check file permissions",
-          onRetry: () => {},
-        }),
-      ).lastFrame(),
+          onRetry: () => {}
+        })
+      ).lastFrame()
     ).toContain("Check file permissions");
   });
 });

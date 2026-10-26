@@ -3,13 +3,7 @@ import SelectInput from "ink-select-input";
 import React from "react";
 
 export type Operation =
-  | "add"
-  | "remove"
-  | "sync"
-  | "regenerate"
-  | "unarchive"
-  | "cleanup"
-  | "sync_from_sandbox";
+  "add" | "remove" | "sync" | "regenerate" | "unarchive" | "cleanup" | "sync_from_sandbox";
 
 interface OperationOption {
   label: string;
@@ -27,7 +21,7 @@ export function OperationMenu({
   onSelect,
   hasProducts,
   hasArchivedProducts = false,
-  showSyncFromSandbox = false,
+  showSyncFromSandbox = false
 }: OperationMenuProps) {
   const options: OperationOption[] = [];
 
@@ -40,7 +34,7 @@ export function OperationMenu({
   if (hasProducts) {
     options.push(
       { label: "Remove products", value: "remove" },
-      { label: "Sync products to Polar", value: "sync" },
+      { label: "Sync products to Polar", value: "sync" }
     );
 
     if (hasArchivedProducts) {
@@ -49,7 +43,7 @@ export function OperationMenu({
 
     options.push(
       { label: "Clean up Polar products", value: "cleanup" },
-      { label: "Regenerate TypeScript exports", value: "regenerate" },
+      { label: "Regenerate TypeScript exports", value: "regenerate" }
     );
   }
 

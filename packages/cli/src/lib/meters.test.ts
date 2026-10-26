@@ -7,7 +7,7 @@ import {
   generateMetersTypeScript,
   readMeters,
   validateMeter,
-  writeMetersGenerated,
+  writeMetersGenerated
 } from "./meters.js";
 
 function makeTempDir(prefix: string): string {
@@ -29,10 +29,10 @@ describe("readMeters", () => {
               slug: "llm-tokens",
               name: "LLM Tokens",
               polarMeterId: "meter-123",
-              eventNames: ["use-credit"],
-            },
-          ],
-        }),
+              eventNames: ["use-credit"]
+            }
+          ]
+        })
       );
 
       const meters = readMeters(filePath);
@@ -49,7 +49,7 @@ describe("validateMeter", () => {
     slug: "llm-tokens",
     name: "LLM Tokens",
     polarMeterId: null,
-    eventNames: ["use-credit"],
+    eventNames: ["use-credit"]
   };
 
   it("returns no errors for a valid meter", () => {
@@ -59,13 +59,21 @@ describe("validateMeter", () => {
   it("returns errors for missing required fields", () => {
     expect(validateMeter({ ...validMeter, slug: undefined })).toContain("slug is required");
     expect(validateMeter({ ...validMeter, name: "" })).toContain("name is required");
-    expect(validateMeter({ ...validMeter, eventNames: [] })).toContain("eventNames must have at least one entry");
+    expect(validateMeter({ ...validMeter, eventNames: [] })).toContain(
+      "eventNames must have at least one entry"
+    );
   });
 
   it("returns errors for invalid field shapes", () => {
-    expect(validateMeter({ ...validMeter, slug: "LLM Tokens" })).toContain("slug must be kebab-case");
-    expect(validateMeter({ ...validMeter, polarMeterId: 123 })).toContain("polarMeterId must be a string or null");
-    expect(validateMeter({ ...validMeter, eventNames: ["use-credit", 12] })).toContain("eventNames must contain only strings");
+    expect(validateMeter({ ...validMeter, slug: "LLM Tokens" })).toContain(
+      "slug must be kebab-case"
+    );
+    expect(validateMeter({ ...validMeter, polarMeterId: 123 })).toContain(
+      "polarMeterId must be a string or null"
+    );
+    expect(validateMeter({ ...validMeter, eventNames: ["use-credit", 12] })).toContain(
+      "eventNames must contain only strings"
+    );
   });
 
   it("returns errors for fields outside the meter schema", () => {
@@ -79,8 +87,8 @@ describe("generateMetersTypeScript", () => {
       slug: "llm-tokens",
       name: "LLM Tokens",
       polarMeterId: "meter-123",
-      eventNames: ["use-credit"],
-    },
+      eventNames: ["use-credit"]
+    }
   ];
 
   const productionMeters = [
@@ -88,8 +96,8 @@ describe("generateMetersTypeScript", () => {
       slug: "llm-tokens",
       name: "LLM Tokens",
       polarMeterId: null,
-      eventNames: ["use-credit"],
-    },
+      eventNames: ["use-credit"]
+    }
   ];
 
   it("preserves the runtime meter exports", () => {
@@ -128,17 +136,17 @@ describe("writeMetersGenerated", () => {
             slug: "llm-tokens",
             name: "LLM Tokens",
             polarMeterId: "meter-123",
-            eventNames: ["use-credit"],
-          },
+            eventNames: ["use-credit"]
+          }
         ],
         productionMeters: [
           {
             slug: "llm-tokens",
             name: "LLM Tokens",
             polarMeterId: null,
-            eventNames: ["use-credit"],
-          },
-        ],
+            eventNames: ["use-credit"]
+          }
+        ]
       });
 
       const filePath = join(generatedDir, "meters.generated.ts");

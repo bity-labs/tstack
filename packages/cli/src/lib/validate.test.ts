@@ -34,25 +34,23 @@ describe("validateProjectSlug", () => {
 
   it("rejects a slug with spaces", () => {
     expect(validateProjectSlug("my app")).toBe(
-      "Slug must be lowercase alphanumeric with hyphens only.",
+      "Slug must be lowercase alphanumeric with hyphens only."
     );
   });
 
   it("rejects a slug with special characters", () => {
     expect(validateProjectSlug("my@app")).toBe(
-      "Slug must be lowercase alphanumeric with hyphens only.",
+      "Slug must be lowercase alphanumeric with hyphens only."
     );
   });
 
   it("rejects a slug starting with a number", () => {
-    expect(validateProjectSlug("1app")).toBe(
-      "Slug must start with a letter.",
-    );
+    expect(validateProjectSlug("1app")).toBe("Slug must start with a letter.");
   });
 
   it("rejects a slug with uppercase letters", () => {
     expect(validateProjectSlug("myApp")).toBe(
-      "Slug must be lowercase alphanumeric with hyphens only.",
+      "Slug must be lowercase alphanumeric with hyphens only."
     );
   });
 });

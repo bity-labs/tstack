@@ -14,7 +14,7 @@ const requiredComponentExports = [
   "CompletedSteps",
   "ProductList",
   "OperationMenu",
-  "ErrorRecovery",
+  "ErrorRecovery"
 ] as const;
 
 describe("shared CLI component exports", () => {

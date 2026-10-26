@@ -57,9 +57,9 @@ export function useAddProduct(options: UseAddProductOptions) {
           features,
           badge: null,
           highlighted: newHighlighted,
-          cta: newCta,
+          cta: newCta
         },
-        polarProductId: null,
+        polarProductId: null
       };
     }
 
@@ -76,9 +76,9 @@ export function useAddProduct(options: UseAddProductOptions) {
           features,
           badge: null,
           highlighted: newHighlighted,
-          cta: newCta,
+          cta: newCta
         },
-        polarProductId: null,
+        polarProductId: null
       };
     }
 
@@ -94,100 +94,123 @@ export function useAddProduct(options: UseAddProductOptions) {
         features,
         badge: null,
         highlighted: newHighlighted,
-        cta: newCta,
+        cta: newCta
       },
-      polarProductId: null,
+      polarProductId: null
     };
-  }, [newType, newName, newSlug, newPrice, newInterval, newDisplayTitle, newFeatures, newCta, newHighlighted]);
+  }, [
+    newType,
+    newName,
+    newSlug,
+    newPrice,
+    newInterval,
+    newDisplayTitle,
+    newFeatures,
+    newCta,
+    newHighlighted
+  ]);
 
-  const handleAddType = useCallback((type: string) => {
-    setNewType(type);
-    setStep("add_name");
-  }, [setStep]);
+  const handleAddType = useCallback(
+    (type: string) => {
+      setNewType(type);
+      setStep("add_name");
+    },
+    [setStep]
+  );
 
-  const handleAddName = useCallback((name: string) => {
-    setNewName(name);
-    setNewSlug((prev) => prev || slugify(name));
-    setStep("add_slug");
-  }, [setStep]);
+  const handleAddName = useCallback(
+    (name: string) => {
+      setNewName(name);
+      setNewSlug((prev) => prev || slugify(name));
+      setStep("add_slug");
+    },
+    [setStep]
+  );
 
-  const handleAddSlug = useCallback((slug: string) => {
-    setNewSlug(slug);
-    setStep(newType === "free" ? "add_display_title" : "add_price");
-  }, [setStep, newType]);
+  const handleAddSlug = useCallback(
+    (slug: string) => {
+      setNewSlug(slug);
+      setStep(newType === "free" ? "add_display_title" : "add_price");
+    },
+    [setStep, newType]
+  );
 
-  const handleAddPrice = useCallback((price: string) => {
-    const parsed = parseFloat(price || "0");
-    if (Number.isNaN(parsed) || parsed < 0) {
-      setPriceError("Price must be a valid non-negative number.");
-      return;
-    }
-    setPriceError("");
-    setNewPrice(price);
-    setStep(newType === "subscription" ? "add_interval" : "add_display_title");
-  }, [setStep, newType]);
+  const handleAddPrice = useCallback(
+    (price: string) => {
+      const parsed = parseFloat(price || "0");
+      if (Number.isNaN(parsed) || parsed < 0) {
+        setPriceError("Price must be a valid non-negative number.");
+        return;
+      }
+      setPriceError("");
+      setNewPrice(price);
+      setStep(newType === "subscription" ? "add_interval" : "add_display_title");
+    },
+    [setStep, newType]
+  );
 
-  const handleAddInterval = useCallback((interval: string) => {
-    setNewInterval(interval);
-    setStep("add_display_title");
-  }, [setStep]);
+  const handleAddInterval = useCallback(
+    (interval: string) => {
+      setNewInterval(interval);
+      setStep("add_display_title");
+    },
+    [setStep]
+  );
 
-  const handleAddDisplayTitle = useCallback((title: string) => {
-    setNewDisplayTitle(title);
-    setStep("add_features");
-  }, [setStep]);
+  const handleAddDisplayTitle = useCallback(
+    (title: string) => {
+      setNewDisplayTitle(title);
+      setStep("add_features");
+    },
+    [setStep]
+  );
 
-  const handleAddFeatures = useCallback((features: string) => {
-    setNewFeatures(features);
-    setStep("add_cta");
-  }, [setStep]);
+  const handleAddFeatures = useCallback(
+    (features: string) => {
+      setNewFeatures(features);
+      setStep("add_cta");
+    },
+    [setStep]
+  );
 
-  const handleAddCta = useCallback((cta: string) => {
-    setNewCta(cta);
-    setStep("add_highlighted");
-  }, [setStep]);
+  const handleAddCta = useCallback(
+    (cta: string) => {
+      setNewCta(cta);
+      setStep("add_highlighted");
+    },
+    [setStep]
+  );
 
-  const handleAddHighlighted = useCallback((highlighted: boolean) => {
-    setNewHighlighted(highlighted);
-    setStep("add_confirm");
-  }, [setStep]);
+  const handleAddHighlighted = useCallback(
+    (highlighted: boolean) => {
+      setNewHighlighted(highlighted);
+      setStep("add_confirm");
+    },
+    [setStep]
+  );
 
-  const handleConfirmAdd = useCallback((confirmed: boolean) => {
-    if (!confirmed) {
-      resetForm();
-      setStep("menu");
-      return;
-    }
-
-    const product = buildProduct();
-    const updated = [...products, product];
-    setProducts(updated);
-
-    try {
-      writeProducts(productsFilePath, updated);
-
-      if (product.type === "subscription" && product.recurringInterval === "month") {
-        const yearly = generateYearlyProduct(product);
-        setYearlyDraft(yearly);
-        setStep("add_yearly");
+  const handleConfirmAdd = useCallback(
+    (confirmed: boolean) => {
+      if (!confirmed) {
+        resetForm();
+        setStep("menu");
         return;
       }
 
-      regenerateFiles(updated);
-      resetForm();
-      setStep("done");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setStep("error");
-    }
-  }, [products, setProducts, productsFilePath, regenerateFiles, resetForm, buildProduct, setStep, setError]);
-
-  const handleYearlyConfirm = useCallback((confirmed: boolean) => {
-    if (confirmed && yearlyDraft) {
-      const updated = [...products, yearlyDraft];
+      const product = buildProduct();
+      const updated = [...products, product];
       setProducts(updated);
+
       try {
         writeProducts(productsFilePath, updated);
+
+        if (product.type === "subscription" && product.recurringInterval === "month") {
+          const yearly = generateYearlyProduct(product);
+          setYearlyDraft(yearly);
+          setStep("add_yearly");
+          return;
+        }
+
         regenerateFiles(updated);
         resetForm();
         setStep("done");
@@ -195,17 +218,55 @@ export function useAddProduct(options: UseAddProductOptions) {
         setError(err instanceof Error ? err.message : String(err));
         setStep("error");
       }
-    } else {
-      try {
-        regenerateFiles(products);
-        resetForm();
-        setStep("done");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
-        setStep("error");
+    },
+    [
+      products,
+      setProducts,
+      productsFilePath,
+      regenerateFiles,
+      resetForm,
+      buildProduct,
+      setStep,
+      setError
+    ]
+  );
+
+  const handleYearlyConfirm = useCallback(
+    (confirmed: boolean) => {
+      if (confirmed && yearlyDraft) {
+        const updated = [...products, yearlyDraft];
+        setProducts(updated);
+        try {
+          writeProducts(productsFilePath, updated);
+          regenerateFiles(updated);
+          resetForm();
+          setStep("done");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err));
+          setStep("error");
+        }
+      } else {
+        try {
+          regenerateFiles(products);
+          resetForm();
+          setStep("done");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : String(err));
+          setStep("error");
+        }
       }
-    }
-  }, [products, yearlyDraft, productsFilePath, regenerateFiles, resetForm, setStep, setError]);
+    },
+    [
+      products,
+      yearlyDraft,
+      productsFilePath,
+      regenerateFiles,
+      resetForm,
+      setStep,
+      setError,
+      setProducts
+    ]
+  );
 
   return {
     newType,
@@ -239,6 +300,6 @@ export function useAddProduct(options: UseAddProductOptions) {
     handleAddCta,
     handleAddHighlighted,
     handleConfirmAdd,
-    handleYearlyConfirm,
+    handleYearlyConfirm
   };
 }

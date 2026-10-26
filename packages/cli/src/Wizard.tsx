@@ -48,13 +48,13 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
     walletConnect: false,
     polar: false,
     digitalOcean: false,
-    analytics: "none",
+    analytics: "none"
   });
   const [envQuestions, setEnvQuestions] = useState<EnvQuestion[]>([]);
   const [currentEnvIndex, setCurrentEnvIndex] = useState(0);
   const [envValues, setEnvValues] = useState<Record<string, string>>({});
   const [initGit, setInitGit] = useState(false);
-  const [installDeps, setInstallDeps] = useState(false);
+  const [, setInstallDeps] = useState(false);
   const [error, setError] = useState("");
 
   const handleProjectDirSubmit = (value: string) => {
@@ -98,7 +98,7 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
       twitter: selected.includes("twitter"),
       walletConnect: selected.includes("walletConnect"),
       polar: selected.includes("polar"),
-      digitalOcean: selected.includes("digitalOcean"),
+      digitalOcean: selected.includes("digitalOcean")
     }));
     setStep("analytics");
   };
@@ -118,7 +118,10 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
       questions.push({ key: "TWITTER_CLIENT_SECRET", label: "Twitter Client Secret", mask: "*" });
     }
     if (nextProviders.walletConnect) {
-      questions.push({ key: "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID", label: "WalletConnect Project ID" });
+      questions.push({
+        key: "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID",
+        label: "WalletConnect Project ID"
+      });
     }
     if (nextProviders.polar) {
       questions.push({ key: "POLAR_ACCESS_TOKEN", label: "Polar Access Token", mask: "*" });
@@ -127,9 +130,20 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
     }
     if (nextProviders.digitalOcean) {
       questions.push({ key: "DIGITALOCEAN_SPACES_BUCKET", label: "DigitalOcean Spaces Bucket" });
-      questions.push({ key: "DIGITALOCEAN_SPACES_ACCESS_KEY_ID", label: "DigitalOcean Spaces Access Key ID" });
-      questions.push({ key: "DIGITALOCEAN_SPACES_SECRET_ACCESS_KEY", label: "DigitalOcean Spaces Secret Access Key", mask: "*" });
-      questions.push({ key: "DIGITALOCEAN_SPACES_CDN", label: "DigitalOcean Spaces CDN URL (optional)", placeholder: "https://cdn.example.com" });
+      questions.push({
+        key: "DIGITALOCEAN_SPACES_ACCESS_KEY_ID",
+        label: "DigitalOcean Spaces Access Key ID"
+      });
+      questions.push({
+        key: "DIGITALOCEAN_SPACES_SECRET_ACCESS_KEY",
+        label: "DigitalOcean Spaces Secret Access Key",
+        mask: "*"
+      });
+      questions.push({
+        key: "DIGITALOCEAN_SPACES_CDN",
+        label: "DigitalOcean Spaces CDN URL (optional)",
+        placeholder: "https://cdn.example.com"
+      });
     }
     if (nextProviders.analytics === "umami") {
       questions.push({ key: "NEXT_PUBLIC_UMAMI_WEBSITE_ID", label: "Umami Website ID" });
@@ -140,9 +154,21 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
 
     // Core email configuration
     questions.push({ key: "RESEND_API_KEY", label: "Resend API Key", mask: "*" });
-    questions.push({ key: "EMAIL_FROM_ADDRESS", label: "Email From Address", placeholder: `no-reply@${slug}.com` });
-    questions.push({ key: "SUPPORT_EMAIL", label: "Support Email", placeholder: `support@${slug}.com` });
-    questions.push({ key: "EMAIL_BRAND_LOGO_URL", label: "Email Brand Logo URL (optional)", placeholder: `https://${slug}.com/logo.png` });
+    questions.push({
+      key: "EMAIL_FROM_ADDRESS",
+      label: "Email From Address",
+      placeholder: `no-reply@${slug}.com`
+    });
+    questions.push({
+      key: "SUPPORT_EMAIL",
+      label: "Support Email",
+      placeholder: `support@${slug}.com`
+    });
+    questions.push({
+      key: "EMAIL_BRAND_LOGO_URL",
+      label: "Email Brand Logo URL (optional)",
+      placeholder: `https://${slug}.com/logo.png`
+    });
 
     setEnvQuestions(questions);
     setCurrentEnvIndex(0);
@@ -184,11 +210,11 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
         displayName: displayName || slug,
         providers: {
           ...providers,
-          analytics: providers.analytics,
+          analytics: providers.analytics
         },
         envOverrides: envValues,
         initGit,
-        installDeps: confirmed,
+        installDeps: confirmed
       });
       setStep("done");
       onComplete?.();
@@ -211,7 +237,9 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
             placeholder="my-app"
             error={error}
           />
-          <Text dimColor>Lowercase letters, numbers, and hyphens only. Created as a sibling to the tstack repo.</Text>
+          <Text dimColor>
+            Lowercase letters, numbers, and hyphens only. Created as a sibling to the tstack repo.
+          </Text>
         </Box>
       )}
       {step === "slug" && (
@@ -244,7 +272,7 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
             { label: "Twitter OAuth", value: "twitter" },
             { label: "WalletConnect", value: "walletConnect" },
             { label: "Polar (billing)", value: "polar" },
-            { label: "DigitalOcean Spaces (file uploads)", value: "digitalOcean" },
+            { label: "DigitalOcean Spaces (file uploads)", value: "digitalOcean" }
           ]}
           onSubmit={handleProvidersSubmit}
         />
@@ -255,7 +283,7 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
           options={[
             { label: "None", value: "none" },
             { label: "Umami", value: "umami" },
-            { label: "PostHog", value: "posthog" },
+            { label: "PostHog", value: "posthog" }
           ]}
           onSelect={handleAnalyticsSelect}
         />
@@ -264,7 +292,9 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
         <TextInput
           label={`${envQuestions[currentEnvIndex].label} (${currentEnvIndex + 1}/${envQuestions.length})`}
           value={envValues[envQuestions[currentEnvIndex].key] || ""}
-          onChange={(v) => setEnvValues((prev) => ({ ...prev, [envQuestions[currentEnvIndex].key]: v }))}
+          onChange={(v) =>
+            setEnvValues((prev) => ({ ...prev, [envQuestions[currentEnvIndex].key]: v }))
+          }
           onSubmit={handleEnvValueSubmit}
           placeholder={envQuestions[currentEnvIndex].placeholder || ""}
           mask={envQuestions[currentEnvIndex].mask}
@@ -279,10 +309,16 @@ export function Wizard({ projectDir: initialProjectDir, sourceDir, onComplete }:
       {step === "installConfirm" && (
         <Box flexDirection="column">
           <Text>Install dependencies with pnpm?</Text>
-          <Confirm label="Install dependencies" onConfirm={handleInstallConfirm} defaultValue={true} />
+          <Confirm
+            label="Install dependencies"
+            onConfirm={handleInstallConfirm}
+            defaultValue={true}
+          />
         </Box>
       )}
-      {step === "running" && <StatusMessage status="info">Setting up your TStack app...</StatusMessage>}
+      {step === "running" && (
+        <StatusMessage status="info">Setting up your TStack app...</StatusMessage>
+      )}
       {step === "done" && (
         <StatusMessage status="success">TStack app created at {projectDir}</StatusMessage>
       )}

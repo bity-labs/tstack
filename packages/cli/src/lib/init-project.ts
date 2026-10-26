@@ -47,7 +47,7 @@ function isTextFile(filePath: string): boolean {
     ".svg",
     ".env",
     ".example",
-    ".sql",
+    ".sql"
   ]);
   const ext = filePath.slice(filePath.lastIndexOf("."));
   return textExtensions.has(ext);
@@ -78,7 +78,7 @@ const boilerplateDocPaths = [
   "docs/feature-architecture.md",
   "docs/server-patterns.md",
   "docs/quick-reference.md",
-  "docs/stack",
+  "docs/stack"
 ];
 
 function resolveTemplatesDir(sourceDir: string): string {
@@ -112,12 +112,12 @@ function updateGeneratedHeader(dir: string): void {
 }
 
 export function initProject(options: InitProjectOptions): void {
-  const { sourceDir, targetDir, slug, displayName, providers, envOverrides, initGit, installDeps } = options;
+  const { sourceDir, targetDir, slug, displayName, providers, envOverrides, initGit, installDeps } =
+    options;
   const templatesDir = options.templatesDir ?? resolveTemplatesDir(sourceDir);
 
   exportBoilerplate({ sourceDir, targetDir, excludedPaths: boilerplateDocPaths });
   overlayTemplate(join(templatesDir, "default"), targetDir);
-  overlayTemplate(join(templatesDir, "tstack-next"), targetDir);
 
   const replacements = buildReplacements({ slug, displayName });
   replaceInDirectory(targetDir, replacements);
@@ -156,7 +156,7 @@ export function initProject(options: InitProjectOptions): void {
       BETTER_AUTH_SECRET: generateSecret(),
       BETTER_AUTH_URL: `http://localhost:3000`,
       DATABASE_URL: `postgresql://${slug}:${slug}-dev-password@localhost:5432/${slug}`,
-      NEXT_PUBLIC_ANALYTICS_PROVIDER: providers.analytics,
+      NEXT_PUBLIC_ANALYTICS_PROVIDER: providers.analytics
     };
 
     if (providers.github) {
