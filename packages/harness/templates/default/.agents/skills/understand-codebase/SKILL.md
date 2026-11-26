@@ -9,16 +9,11 @@ Map an unfamiliar area of code so the user can reason about it safely before cha
 
 This skill explains the current shape of the code. It does not refactor, diagnose, review, or propose architecture work unless the user explicitly asks for that next step.
 
-## Read These First
+## Use and Context
 
-1. `docs/context.md` — domain language and project model
-2. Relevant `docs/adr/` files — decisions that explain why the code is shaped this way
-3. `docs/coding-standards.md` — project conventions
-4. Relevant files under `docs/engineering/` only if the question touches a specific risk area:
-   - `architecture-boundaries.md` for layers, adapters, or dependency direction
-   - `domain-modeling.md` for business terms, states, or rules
-   - `data-modeling.md` for schemas, persistence, or ownership
-   - `legacy-code.md` for risky or poorly understood code
+Humans or agents may invoke this read-only mapping method; it does not authorize fixing, reviewing or publishing follow-up work. See [invocation rules](../../invocation.md).
+
+Read `docs/context.md` when the question involves domain terms and relevant ADRs when they explain the scoped code. Read `docs/coding-standards.md` only when a project convention is needed to interpret it. Use the domain, data, security or legacy guide in `docs/engineering/` when that risk is part of the question. Invoke `designing-modules` only if understanding a responsibility or dependency boundary needs analysis; do not turn orientation into an unsolicited architecture assessment.
 
 If a doc is missing, say so and continue from code evidence.
 
@@ -41,7 +36,7 @@ If the request is broad, pick the smallest useful entry point and say what you a
 
 ### 2. Load Project Language
 
-Read the project context and relevant ADRs before naming concepts.
+For domain concepts, read the relevant project context; for established design choices, read the related ADRs. A purely technical lookup does not require loading unrelated product language.
 
 Look for:
 
@@ -106,30 +101,39 @@ Output:
 # Codebase Understanding Map
 
 ## Question / Scope
+
 <what was investigated>
 
 ## Short Answer
+
 <the useful high-level explanation in a few sentences>
 
 ## Key Files and Modules
+
 - `<path>` — <why it matters>
 
 ## Flow
+
 <call flow, data flow, state transitions, or lifecycle>
 
 ## Domain Language
+
 - <project term> — <where it appears in code and what it means>
 
 ## Boundaries and Seams
+
 <APIs, adapters, persistence boundaries, external systems, test seams>
 
 ## Tests / Validation Clues
+
 <tests, fixtures, commands, or missing coverage relevant to understanding behavior>
 
 ## Unknowns and Caveats
+
 <what is not yet proven, missing docs, ambiguous names, or assumptions>
 
 ## Where To Look Next
+
 <small set of next files/questions depending on what the user wants to do>
 ```
 

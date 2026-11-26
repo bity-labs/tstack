@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DO_NOT_TRACK: '1'
+      ASTRO_TELEMETRY_DISABLED: '1'
+      EXPO_NO_TELEMETRY: '1'
+      STORYBOOK_DISABLE_TELEMETRY: 'true'
+      EXPO_PUBLIC_API_URL: https://api.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+      - run: pnpm install --frozen-lockfile
+      - name: Generate and check contract drift
+        run: |
+          pnpm generate
+          git diff --exit-code -- apps/api/generated packages/sdk/src/generated
+          test -z "$(git ls-files --others --exclude-standard apps/api/generated packages/sdk/src/generated)"
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm infra:check
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm storybook:build
+
+  deploy:
+    needs: check
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging') &&
+      vars.ALCHEMY_DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      stage: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    secrets: inherit

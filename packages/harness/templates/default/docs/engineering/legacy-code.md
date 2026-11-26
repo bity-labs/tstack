@@ -19,12 +19,7 @@ Treat risky or untested code as code that must first be understood and protected
 
 ## Safe Change Strategy
 
-1. Identify the behavior that must change.
-2. Find the smallest public or stable seam that exposes it.
-3. Add characterization coverage for current behavior.
-4. Make the minimal change.
-5. Add or update tests for the intended behavior.
-6. Refactor only after the suite is green.
+Identify the current contract and the intended difference before selecting a method. Invoke `refactor-safely` for structural changes and `implement-with-tdd` for requested behavior changes. For characterization, read [test quality](../../.agents/skills/implement-with-tdd/reference/tests.md) directly and establish a passing baseline. If missing seams make protection difficult, invoke `designing-modules` for that boundary question. Reading this risk guide does not authorize a rewrite.
 
 ## Checklist
 

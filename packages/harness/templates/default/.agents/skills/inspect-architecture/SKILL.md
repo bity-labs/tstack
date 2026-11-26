@@ -7,15 +7,11 @@ description: Inspect a codebase or area for architectural friction and create ar
 
 Inspect architecture before changing it. Find broad architecture opportunities, explain the evidence and tradeoffs, and create GitHub issues that can later be broken into agent-grabbable tasks.
 
-## Read These First
+## Use and Context
 
-1. `docs/context.md` — domain language and project model
-2. Relevant `docs/adr/` files — architectural decisions already made
-3. `docs/engineering/architecture-boundaries.md` — boundaries and ownership
-4. `docs/engineering/deep-modules.md` — module depth and interface leverage
-5. `docs/engineering/interface-design.md` — seams and testable interfaces
-6. `docs/engineering/refactoring.md` — safe change principles
-7. `docs/engineering/testing.md` — testability and coverage expectations
+Keep inspection read-only until the publication step; do not implement opportunities. See [invocation rules](../../invocation.md).
+
+Read `docs/context.md` for the inspected business area and relevant ADRs before judging its boundaries. Read `docs/coding-standards.md` when recommendations depend on stack constraints. Invoke `designing-modules` to assess responsibilities and interfaces. Load the matching guide in `docs/engineering/` when findings involve domain ambiguity, persisted data, security or legacy risk; do not preload every method or risk guide.
 
 ## Workflow
 
@@ -51,18 +47,7 @@ Do not invent new architecture language if the project already has names for the
 
 Inspect the scoped area and nearby callers/callees.
 
-Look for architectural friction:
-
-- understanding one concept requires jumping across many files
-- modules are shallow: interface complexity is close to implementation complexity
-- callers know too much about internal ordering, config, data shape, or error modes
-- behavior is duplicated across callers instead of concentrated behind an interface
-- seams exist only for tests, not because the product has real variation
-- changes require editing many unrelated files
-- tests are hard to write through public behavior
-- mocks hide integration risk
-- domain concepts in code do not match `docs/context.md`
-- code contradicts or works around an ADR without documenting why
+Collect concrete examples of change friction, caller coordination and test pain for the design assessment. Check whether domain concepts match `docs/context.md` and whether code contradicts an ADR without documenting why. Do not infer a design problem solely from file count or naming taste.
 
 Use git history when useful:
 
@@ -75,42 +60,7 @@ Repeated churn in the same files is evidence, not proof. Use it to guide inspect
 
 ### 4. Apply Architecture Tests
 
-Use these tests to separate real opportunities from cosmetic cleanup.
-
-#### Deletion Test
-
-If the module were deleted, what happens?
-
-- If complexity disappears, it may be unnecessary pass-through code.
-- If complexity reappears across many callers, the module may be earning its keep.
-
-#### Locality Test
-
-When behavior changes, is the change localized?
-
-- Good: one concept changes mostly in one place.
-- Bad: one concept requires coordinated edits across unrelated files.
-
-#### Interface Burden Test
-
-What must a caller know to use this module correctly?
-
-Include not only function signatures, but also:
-
-- invariants
-- ordering constraints
-- config
-- error modes
-- required side effects
-- hidden data shape expectations
-
-High caller burden is a sign the interface may be too shallow.
-
-#### Test Surface Test
-
-Can important behavior be tested through a stable public interface?
-
-If tests require private details, excessive mocks, or database spelunking, the architecture may not expose the right seam.
+Apply `designing-modules` to the collected examples, using its deletion, locality, caller-burden and test-surface questions. Read [test quality](../implement-with-tdd/reference/tests.md) if a testability finding needs coverage analysis. Report possible refactoring as an opportunity rather than implementing it.
 
 ### 5. Produce Findings
 
@@ -159,14 +109,17 @@ Output:
 # Architecture Inspection Report
 
 ## Scope
+
 <what was inspected and why>
 
 ## Summary
+
 <short diagnosis of the architecture pressure>
 
 ## Findings
 
 ### 1. <finding name>
+
 - Symptom:
 - Evidence:
 - Risk:
@@ -178,6 +131,7 @@ Output:
 ## Architecture Opportunities
 
 ### 1. <opportunity title>
+
 - Problem:
 - Evidence:
 - Risk:
@@ -186,9 +140,11 @@ Output:
 - Priority: Now / Next / Later
 
 ## What Not To Change Yet
+
 <areas that should be left alone and why>
 
 ## Documentation Notes
+
 <domain terms, ADR questions, or docs mismatches discovered>
 ```
 
@@ -238,27 +194,35 @@ Issue body template:
 
 ```md
 ## Architecture Opportunity
+
 <one coherent architecture topic>
 
 ## Problem
+
 <what friction exists>
 
 ## Evidence
+
 <files, examples, churn, test pain, or docs mismatch>
 
 ## Risk
+
 <why this matters>
 
 ## Desired Direction
+
 <the intended architectural direction>
 
 ## Blocking Questions
+
 <only include when the opportunity cannot be decomposed into tasks yet>
 
 ## Decomposition Notes
+
 <initial thoughts for future implementation tasks, if useful>
 
 ## Out of Scope
+
 <what should not be included in this opportunity>
 ```
 

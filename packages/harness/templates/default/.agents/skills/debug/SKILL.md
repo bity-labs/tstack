@@ -7,13 +7,13 @@ description: Disciplined debugging loop for hard bugs and performance regression
 
 Find the root cause of a bug or performance regression with evidence, fix it, and add regression coverage.
 
-## Read These First
+## Use and Context
 
-1. `docs/engineering/debugging.md` — principles and rules
-2. `docs/engineering/tdd.md` — for regression test writing
-3. `docs/coding-standards.md` — repo conventions
-4. `docs/context.md` — domain language
-5. Relevant `docs/adr/` files for the area being touched
+Use this workflow to investigate and fix a bug within the authorized task. See [invocation rules](../../invocation.md).
+
+Read `docs/coding-standards.md` for stack constraints and commands before changing code, `docs/context.md` when domain meaning is involved, and relevant ADRs if the suspected cause touches an established decision. Inspect the actual code path, data, logs and recent changes; a plausible explanation is not a confirmed cause.
+
+Load the matching risk guide in `docs/engineering/` when evidence involves security, persisted data or risky untested code. The [risk index](../../../docs/engineering/index.md) routes by risk; it is not an unconditional reading list.
 
 ## Workflow
 
@@ -56,6 +56,8 @@ Run the loop. Confirm:
 - [ ] The failure is reproducible across multiple runs (or at a high enough rate for non-deterministic bugs).
 - [ ] You have captured the exact symptom so later phases can verify the fix.
 
+Minimize the input and setup while preserving that symptom. Keep the original case as a control; minimizing must not turn the test into a different failure.
+
 Do not proceed until the bug is reproduced.
 
 ### 3. Hypothesise
@@ -85,19 +87,9 @@ For performance regressions, establish a baseline measurement first, then bisect
 
 ### 5. Fix + Regression Test
 
-Write the regression test **before the fix** — but only if there is a **correct seam** for it.
+Fix the cause supported by the probes, not the first plausible hypothesis. Invoke `implement-with-tdd` for regression coverage and the fix: provide the minimized reproduction, original control and confirmed cause. Its red-green-refactor method owns the test/fix loop; preserve its HITL plan approval. A test must reach the real failing pattern at the call site, not a shallower substitute.
 
-A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow, a regression test there gives false confidence.
-
-If no correct seam exists, note it. The codebase architecture is preventing the bug from being locked down. Flag this for later.
-
-If a correct seam exists:
-
-1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail.
-3. Apply the fix.
-4. Watch it pass.
-5. Re-run the Phase 1 feedback loop against the original scenario.
+If no stable seam reaches that pattern, document the limitation rather than adding misleading coverage. Invoke `designing-modules` only if resolving that seam is part of the requested scope; otherwise flag it for later. Re-run the Phase 1 loop against the original scenario and affected adjacent behavior after the fix.
 
 ### 6. Cleanup + Post-Mortem
 

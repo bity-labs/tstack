@@ -7,7 +7,7 @@ This repository uses TStack: a small harness for disciplined agentic software de
 1. Read this file first.
 2. Read `docs/coding-standards.md` before changing code.
 3. Read `docs/context.md` when the task touches product behavior, domain language, or business rules.
-4. Read `docs/engineering/index.md` and load only the engineering rule files relevant to the task.
+4. Use the skill matching the task; its method and conditional references live together under `.agents/skills/`. Follow `.agents/invocation.md` for human/agent invocation and composition. Consult `docs/engineering/index.md` only to select a relevant risk guide.
 5. Check `docs/adr/` before changing architecture, boundaries, data ownership, or long-term constraints.
 
 ## Source of Truth
@@ -15,9 +15,9 @@ This repository uses TStack: a small harness for disciplined agentic software de
 - GitHub Issues hold specs, tasks, and acceptance criteria.
 - `docs/context.md` holds durable product and domain language.
 - `docs/coding-standards.md` holds project-level implementation expectations.
-- `docs/engineering/` holds reusable engineering doctrine.
+- `docs/engineering/` holds conditional risk guides and navigation to method owners.
 - `docs/adr/` holds important architectural decisions and rationale.
-- `.agents/skills/` holds reusable workflows that use the docs.
+- `.agents/skills/` owns reusable methods, workflows and their local references; an invocation does not grant additional permissions.
 
 ## Working Rules
 

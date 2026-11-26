@@ -1,0 +1,42 @@
+{
+  "name": "@tstack/docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port 4322 --ignore-lock",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0 --port 4322 --ignore-lock",
+    "typecheck": "astro check",
+    "lint": "astro build && nimbus-docs lint",
+    "lint:docs": "nimbus-docs lint",
+    "lint:docs:fix": "nimbus-docs lint --fix",
+    "prepreview:cf": "astro build",
+    "preview:cf": "wrangler dev",
+    "predeploy": "astro check && astro build",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@cloudflare/nimbus-docs": "^0.20.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@iconify-json/ph": "^1.2.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "astro": "7.4.13",
+    "clsx": "^2.1.1",
+    "satori": "^0.63.2",
+    "sharp": "^0.35.5",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tstack/typescript-config": "workspace:*",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/language-server": "2.17.3",
+    "@emnapi/runtime": "1.11.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "pagefind": "^1.5.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.9.3",
+    "wrangler": "^4.95.0"
+  }
+}

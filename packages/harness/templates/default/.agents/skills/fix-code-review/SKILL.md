@@ -7,13 +7,11 @@ description: Address GitHub PR review feedback with minimal, verified changes. U
 
 Address PR review feedback with minimal, verified changes, then push the fixes and move the PR back to review.
 
-## Read These First
+## Use and Context
 
-1. `docs/engineering/code-review.md` — review principles and severity model
-2. `docs/coding-standards.md` — repo conventions
-3. `docs/context.md` — domain language and project model
-4. Relevant `docs/adr/` files for the area being touched
-5. `docs/engineering/testing.md` and `docs/engineering/refactoring.md` when the feedback requires tests or code cleanup
+Keep fixes within the selected feedback scope and existing delivery gates. See [invocation rules](../../invocation.md).
+
+Read `docs/coding-standards.md` before editing for stack constraints and commands. Read `docs/context.md` when feedback affects business terms, and relevant ADRs when it affects a decision. Read the [review criteria](../code-review/SKILL.md#review-criteria) and [severity guidance](../code-review/SKILL.md#5-write-findings) if feedback needs assessment. Load the security, data or legacy guide in `docs/engineering/` when the selected fix has that risk.
 
 ## Workflow
 
@@ -171,6 +169,8 @@ Rules:
 - Preserve project vocabulary and conventions.
 - Add or update tests when the feedback changes behavior or guards a risk.
 
+Use `implement-with-tdd` for behavioral fixes and `refactor-safely` for selected behavior-preserving cleanup. For coverage-only changes, read [test quality](../implement-with-tdd/reference/tests.md) directly. Invoke `designing-modules` only for an unresolved interface/boundary choice. Keep each change within the approved feedback scope.
+
 ### 8. Validate
 
 Run the relevant validation commands for the changed area, such as:
@@ -242,12 +242,15 @@ Post a PR comment summarizing what changed.
 Scope: Required only / Required + safe suggestions / All actionable feedback / Custom
 
 Fixed:
+
 - ✅ `<file:line>` — <what changed>
 
 Not fixed:
+
 - ⚠️ `<file:line>` — <unclear / optional / not-applicable reason>
 
 Validation:
+
 - ✅ `<command>` passed
 - ❌ `<command>` failed: <reason, if any>
 

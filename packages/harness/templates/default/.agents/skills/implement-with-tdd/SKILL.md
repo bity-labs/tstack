@@ -1,21 +1,19 @@
 ---
 name: implement-with-tdd
-description: Implement clear behavior using test-driven development. Use when the user wants to build something test-first, add behavior through red-green-refactor, or implement a well-specified change with tests.
+description: Implements clear behavior through red-green-refactor. Use for test-first behavior changes and regression fixes; not for planning, reviewing tests or behavior-preserving refactoring alone.
 ---
 
 # Implement With TDD
 
 Implement clear behavior one verified slice at a time.
 
-## Read These First
+## Use and Composition
 
-1. `docs/engineering/tdd.md` — the loop and rules
-2. `docs/engineering/testing.md` — test philosophy
-3. `docs/engineering/mocking.md` — when and how to mock
-4. `docs/engineering/interface-design.md` — designing testable seams
-5. `docs/coding-standards.md` — repo-specific conventions
-6. `docs/context.md` — glossary and domain language
-7. Relevant `docs/adr/` files for the area being touched
+Use this workflow to implement requested behavior. For test design, characterization or review without a behavior change, read [test quality](reference/tests.md) directly instead. See [invocation rules](../../invocation.md).
+
+- Read `docs/coding-standards.md` before changing code for its stack constraints and validation commands. Read `docs/context.md` for product behavior or terminology, and relevant ADRs when a decision or boundary is affected.
+- When designing, changing, or assessing tests, read [test quality](reference/tests.md). When controlling external dependencies, time, randomness, or other nondeterminism, also read [mocking](reference/mocking.md).
+- If a public interface or test seam needs a design decision, invoke `designing-modules`. Do not introduce a wrapper or injectable layer solely to satisfy a test.
 
 ## Workflow
 
@@ -35,7 +33,7 @@ If running unattended (AFK), proceed with the plan directly.
 
 One RED → GREEN cycle to prove the path:
 
-1. Write one test for the simplest behavior.
+1. Write one test for the smallest useful behavior through a public entrypoint, spanning the necessary layers rather than testing isolated layers in advance.
 2. Confirm it fails for the expected reason.
 3. Write the minimal code to pass.
 4. Confirm green.
@@ -53,8 +51,8 @@ Rules:
 - One test at a time.
 - Only enough code for the current test.
 - Do not anticipate future tests.
-- Stay on public interfaces. Do not test implementation details.
 - Follow `docs/coding-standards.md` for test naming, structure, and tooling.
+- If a slice is hard to reason about, reduce its behavior/input scope instead of writing a large suite ahead of the implementation.
 
 ### 4. Refactor
 
@@ -65,6 +63,8 @@ When the current set of tests passes:
 3. Stop when the code is clear enough for the current purpose.
 
 Never refactor while RED.
+
+For a separately scoped structural change, invoke `refactor-safely` instead of inventing a new behavior to make a test fail. This does not expand the approved implementation scope.
 
 ## Checklist Per Cycle
 

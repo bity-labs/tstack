@@ -1,0 +1,45 @@
+{
+  "name": "@tstack/boilerplate",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev dev:openapi --filter=!@tstack/mobile",
+    "dev:mobile": "pnpm --filter @tstack/mobile dev",
+    "generate": "turbo run generate",
+    "storybook": "turbo run storybook --filter=@tstack/web",
+    "storybook:build": "turbo run storybook:build",
+    "storybook:mobile": "pnpm --filter @tstack/mobile storybook",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "turbo run lint",
+    "test": "turbo run test --concurrency=1",
+    "typecheck": "turbo run typecheck",
+    "infra:typecheck": "tsc -p infra/tsconfig.json",
+    "infra:test": "vitest run infra",
+    "infra:check": "pnpm infra:typecheck && pnpm infra:test",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm infra:check && pnpm test && pnpm build && pnpm storybook:build"
+  },
+  "devDependencies": {
+    "@alchemy.run/better-auth": "2.0.0-beta.87",
+    "@alchemy.run/cloudflare": "2.0.0-beta.87",
+    "@alchemy.run/frontend-frameworks": "2.0.0-beta.87",
+    "@alchemy.run/sql": "2.0.0-beta.87",
+    "@effect/platform-bun": "4.1.5",
+    "@effect/platform-node": "4.1.5",
+    "@types/bun": "1.4.5",
+    "alchemy": "2.0.0-beta.87",
+    "effect": "4.1.5",
+    "eslint": "10.15.0",
+    "kysely": "0.29.4",
+    "prettier": "3.10.1",
+    "prettier-plugin-astro": "1.1.0",
+    "turbo": "2.11.13",
+    "typescript": "5.9.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.1"
+  }
+}

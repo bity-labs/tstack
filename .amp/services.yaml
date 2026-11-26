@@ -1,0 +1,44 @@
+services:
+  api:
+    command: pnpm --dir packages/boilerplate --filter @tstack/api dev
+    port: 4000
+    health: /health
+    review: false
+    portal:
+      title: Effect API
+      url: /openapi.json
+  web:
+    command: pnpm generate && pnpm --dir packages/boilerplate --filter @tstack/web dev
+    port: 3000
+    health: /
+    portal:
+      title: Web application
+      url: /
+  website:
+    command: pnpm --filter @tstack/website dev
+    port: 4321
+    health: /
+    portal:
+      title: Website
+      url: /
+  docs:
+    command: pnpm --filter @tstack/docs dev
+    port: 4322
+    health: /
+    portal:
+      title: Documentation
+      url: /
+  saas-website:
+    command: pnpm --dir packages/boilerplate --filter @tstack/website dev
+    port: 4323
+    health: /
+    portal:
+      title: SaaS website
+      url: /
+  saas-docs:
+    command: pnpm --dir packages/boilerplate --filter @tstack/docs dev
+    port: 4324
+    health: /
+    portal:
+      title: SaaS documentation
+      url: /

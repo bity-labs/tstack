@@ -9,14 +9,11 @@ Turn a messy GitHub issue into a clear decision: needs more information, ready f
 
 This skill is for externally sourced issues: bug reports, feature requests, and unclear tasks opened before the work was fully specified. Issues created by `write-prd`, `break-into-issues`, or `break-architecture-into-issues` are already structured and usually do not need this flow.
 
-## Read These First
+## Use and Context
 
-1. `docs/context.md` — domain language and project model
-2. Relevant `docs/adr/` files — decisions that should not be re-litigated casually
-3. `docs/coding-standards.md` — project conventions
-4. Relevant code and tests for the issue area
-5. `docs/engineering/debugging.md` — for bug reports that need reproduction
-6. `docs/engineering/testing.md` — when deciding whether acceptance criteria are verifiable
+Determine readiness without fixing the issue. See [invocation rules](../../invocation.md).
+
+Read only the context terms, ADRs, code and tests needed to decide the issue's readiness. Read `docs/coding-standards.md` if commands or stack constraints affect that decision, and [test quality](../implement-with-tdd/reference/tests.md) when acceptance criteria need a validation strategy. Consult the security, data, domain or legacy risk guide in `docs/engineering/` when it changes readiness.
 
 If a doc is missing, say so and continue from issue/code evidence.
 
@@ -199,14 +196,17 @@ Post before moving to `ready-for-agent`.
 <what should happen after this issue is done>
 
 **Relevant context:**
+
 - <domain term, interface, behavior, or constraint>
 - <avoid brittle line-number instructions>
 
 **Acceptance criteria:**
+
 - [ ] <specific, testable criterion>
 - [ ] <specific, testable criterion>
 
 **Out of scope:**
+
 - <nearby work that should not be included>
 
 **Validation notes:**
@@ -227,6 +227,7 @@ Post before moving to `ready-for-human`.
 <decision, risk, access, or judgment required>
 
 **What is known:**
+
 - <resolved fact>
 - <resolved fact>
 
@@ -240,10 +241,12 @@ Post before moving to `ready-for-human`.
 ## Triage Notes
 
 **What we know so far:**
+
 - <resolved fact>
 - <resolved fact>
 
 **What we still need:**
+
 - <specific question>
 - <specific question>
 ```

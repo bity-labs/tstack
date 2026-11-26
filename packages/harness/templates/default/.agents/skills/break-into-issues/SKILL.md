@@ -37,6 +37,8 @@ Read relevant project context:
 
 Use the project's domain language in issue titles and descriptions.
 
+Prepare slices and observable acceptance criteria within the authorized task. Read `docs/coding-standards.md` when stack constraints affect a slice, and [test quality](../implement-with-tdd/reference/tests.md) if its validation is unclear. Invoke `designing-modules` if an unresolved interface choice blocks decomposition. Do not start implementation during planning.
+
 ### 2. Draft Vertical Slices
 
 Break the plan into tracer-bullet issues.

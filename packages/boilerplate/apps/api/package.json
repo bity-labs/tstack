@@ -1,0 +1,49 @@
+{
+  "name": "@tstack/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./contract": "./src/contract.ts",
+    "./testing": "./src/server.ts"
+  },
+  "scripts": {
+    "dev": "bun --env-file=.env --watch src/main.ts",
+    "dev:openapi": "tsx watch src/export-openapi.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "bun --env-file=.env dist/main.js",
+    "db:migrate": "bun --env-file=.env src/migrate.ts",
+    "db:backup": "bun src/snapshot.ts backup",
+    "db:restore": "bun src/snapshot.ts restore",
+    "openapi": "tsx src/export-openapi.ts",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/better-auth": "2.0.0-beta.87",
+    "@alchemy.run/sql": "2.0.0-beta.87",
+    "@better-auth/expo": "1.7.27",
+    "@effect/platform-bun": "4.1.5",
+    "@effect/platform-node": "4.1.5",
+    "@effect/sql-sqlite-bun": "4.1.5",
+    "alchemy": "2.0.0-beta.87",
+    "better-auth": "1.7.27",
+    "effect": "4.1.5",
+    "kysely": "0.29.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261026.1",
+    "@effect/sql-d1": "4.1.5",
+    "@effect/vitest": "4.1.5",
+    "@tstack/eslint-config": "workspace:*",
+    "@tstack/typescript-config": "workspace:*",
+    "@types/bun": "1.4.5",
+    "@types/node": "^24.0.0",
+    "eslint": "10.15.0",
+    "miniflare": "5.20261119.0-beta",
+    "tsx": "4.22.4",
+    "typescript": "5.9.3",
+    "vitest": "5.1.1"
+  }
+}

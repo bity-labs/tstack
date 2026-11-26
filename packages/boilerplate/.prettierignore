@@ -1,0 +1,19 @@
+pnpm-lock.yaml
+# Preserve the installed generic harness payload without reformatting it.
+.agents/
+docs/engineering/
+docs/adr/0000-template.md
+**/generated/**
+**/routeTree.gen.ts
+**/*.gen.ts
+**/storybook.requires.ts
+**/dist/**
+**/.astro/**
+**/.nimbus/**
+**/.expo/**
+**/.output/**
+**/storybook-static/**
+**/coverage/**
+.amp/
+.alchemy/
+.local/

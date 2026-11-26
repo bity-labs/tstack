@@ -5,15 +5,22 @@ description: Review a GitHub pull request against the project's engineering doct
 
 # Code Review
 
-Review a GitHub pull request for correctness, maintainability, tests, domain fit, and operational risk. Always publish the review as a PR comment.
+Review a GitHub pull request for correctness, maintainability, tests, domain fit, and operational risk. The requested PR workflow publishes the review as a PR comment, subject to the host's approval rules.
 
-## Read These First
+## Use and Context
 
-1. `docs/engineering/code-review.md` — review principles and checklist
-2. `docs/coding-standards.md` — repo conventions
-3. `docs/context.md` — domain language and project model
-4. Relevant `docs/adr/` files for the area being touched
-5. Other scoped engineering docs when risk requires it, such as security, data modeling, debugging, boundaries, legacy code, or testing
+Review the change without implementing fixes. See [invocation rules](../../invocation.md).
+
+Read `docs/coding-standards.md` for the project's concrete rules before judging the diff, `docs/context.md` for business concepts, and relevant ADRs for architectural decisions. Load security, data, domain or legacy guides in `docs/engineering/` when that risk appears, not every guide before every diff.
+
+## Review Criteria
+
+- Match the stated issue/PRD and acceptance criteria; identify unrelated scope.
+- Check observable behavior, edge cases, failure paths, data integrity and operational risk, not only code appearance.
+- Read [test quality](../implement-with-tdd/reference/tests.md) when assessing coverage or test design.
+- Invoke `designing-modules` when a finding depends on interface burden, responsibility or dependency direction. Do not block on a different aesthetic preference.
+- Tie each finding to a concrete location, impact and actionable change. Use the severity model in step 5 and distinguish required fixes from suggestions.
+- State missing evidence and uninspected areas. Reproduce suspected failures where practical to verify a finding; do not implement fixes during review.
 
 ## Workflow
 
@@ -34,18 +41,9 @@ Use GitHub CLI when available:
 gh pr view <PR_URL> --json title,body,author,baseRefName,headRefName,files,commits,reviews
 ```
 
-### 2. Load Doctrine Before the Diff
+### 2. Establish the Review Basis
 
-Read the review doctrine before judging the change.
-
-Use the TStack lowercase docs paths:
-
-- `docs/engineering/code-review.md`
-- `docs/coding-standards.md`
-- `docs/context.md`
-- `docs/adr/`
-
-Do not review from generic taste. Review against the project's stated rules, vocabulary, and decisions.
+Apply the project constraints and review criteria above. If a required project document is missing, state that limitation and label generic criteria as such; do not invent project rules.
 
 ### 3. Understand Intent
 
@@ -60,18 +58,7 @@ Check whether the PR includes unrelated work. Unrelated scope is review risk.
 
 ### 4. Inspect the Change
 
-Review the diff and surrounding code as needed.
-
-Focus on:
-
-- observable behavior and edge cases
-- failure paths and data integrity
-- test quality and missing coverage
-- interface shape and module boundaries
-- domain language consistency
-- architectural decisions and ADR alignment
-- operational, security, or migration risk
-- unnecessary complexity or speculative abstraction
+Review the diff and surrounding callers against the criteria above. Establish that the risky path is present before reporting a hypothetical failure as an actual defect.
 
 For large PRs, prioritize the highest-risk files first and mention any area you could not inspect confidently.
 
@@ -94,21 +81,27 @@ Use this format:
 
 ```md
 ## Summary
+
 <short assessment of what the PR does and whether it is close to mergeable>
 
 ## Blockers
+
 - 🚫 <issue, impact, and required fix>
 
 ## Important Improvements
+
 - ⚠️ <issue, impact, and recommended fix>
 
 ## Suggestions
+
 - 💡 <non-blocking improvement>
 
 ## Tests / Coverage
+
 <what is covered, what is missing, and whether coverage is acceptable>
 
 ## What Works Well
+
 <call out strong choices briefly>
 ```
 
@@ -163,8 +156,8 @@ Tell the user:
 
 ## Guardrails
 
-- Always read doctrine before reviewing the diff.
-- Always publish the review as a PR comment.
+- Apply the project rules and review criteria before judging the diff.
+- Publish the review as a PR comment when carrying out this workflow; reading its criteria alone does not publish a review.
 - Do not invent project rules that are not in the docs.
 - Do not block on style preference unless it violates documented conventions or creates real risk.
 - If doctrine is missing, say what is missing and proceed with clearly labeled generic review criteria.

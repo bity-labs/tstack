@@ -1,0 +1,43 @@
+name: Deploy Cloudflare
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: Deployment stage
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Reject pull requests and branch/stage mismatches even from another caller.
+    if: >-
+      github.event_name == 'push' &&
+      ((github.ref == 'refs/heads/main' && inputs.stage == 'production') ||
+      (github.ref == 'refs/heads/staging' && inputs.stage == 'staging'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: cloudflare-${{ inputs.stage }}
+    concurrency:
+      group: alchemy-${{ github.repository }}-${{ inputs.stage }}
+      cancel-in-progress: false
+    env:
+      DEPLOY_STAGE: ${{ inputs.stage }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm infra:check
+      # This apply can bootstrap state and migrate the selected D1 database.
+      - run: pnpm exec alchemy deploy --stage "$DEPLOY_STAGE" --yes --no-input

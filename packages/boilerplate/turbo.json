@@ -1,0 +1,59 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalPassThroughEnv": [
+    "PORT",
+    "DATABASE_PATH",
+    "WEB_ORIGIN",
+    "API_URL",
+    "BETTER_AUTH_URL",
+    "BETTER_AUTH_SECRET"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@tstack/sdk#generate": {
+      "dependsOn": ["@tstack/api#openapi"],
+      "outputs": ["src/generated/**"]
+    },
+    "@tstack/api#openapi": {
+      "outputs": ["generated/openapi.json"]
+    },
+    "@tstack/mobile#build": {
+      "dependsOn": ["^build"],
+      "env": ["EXPO_PUBLIC_API_URL"],
+      "outputs": ["dist/**"]
+    },
+    "@tstack/sdk#build": {
+      "dependsOn": ["generate"],
+      "outputs": ["dist/**"]
+    },
+    "@tstack/sdk#dev": {
+      "dependsOn": ["generate"],
+      "cache": false,
+      "persistent": true
+    },
+    "@tstack/api#dev:openapi": {
+      "dependsOn": ["openapi"],
+      "cache": false,
+      "persistent": true
+    },
+    "storybook": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
+    "storybook:build": {
+      "dependsOn": ["^build"],
+      "outputs": ["storybook-static/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "test": { "dependsOn": ["^build"] },
+    "typecheck": { "dependsOn": ["^build"] }
+  }
+}

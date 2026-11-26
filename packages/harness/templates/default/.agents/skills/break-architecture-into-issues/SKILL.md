@@ -33,12 +33,11 @@ Read relevant project context only as needed:
 
 - `docs/context.md`
 - relevant `docs/adr/`
-- `docs/engineering/refactoring.md`
-- `docs/engineering/testing.md`
-- `docs/engineering/interface-design.md`
 - relevant code for the area being decomposed
 
 Use the project's domain language in issue titles and descriptions.
+
+Read `docs/coding-standards.md` if a task depends on stack constraints or validation commands, and [test quality](../implement-with-tdd/reference/tests.md) if its validation is unclear. Invoke `designing-modules` only for a boundary choice unresolved by the parent opportunity. Use [small-step refactoring guidance](../refactor-safely/SKILL.md#4-plan-tiny-steps) to sequence risky structural work. Load the matching `docs/engineering/` risk guide if data, security or legacy constraints affect decomposition. Prepare the tasks without starting implementation.
 
 ### 2. Check Blocking Questions
 
@@ -119,20 +118,25 @@ Issue body template:
 
 ```md
 ## Parent Architecture Opportunity
+
 #<PARENT_ISSUE_NUMBER>
 
 ## Refactor Task
+
 <what structural step this task performs>
 
 ## Acceptance Criteria
+
 - [ ] Existing behavior is preserved unless explicitly stated otherwise
 - [ ] <task-specific criterion>
 - [ ] <task-specific criterion>
 
 ## Validation
+
 - <test/typecheck/lint/build command or expected check>
 
 ## Blocked By
+
 - #<issue>
 
 Or:
@@ -140,6 +144,7 @@ Or:
 None — can start immediately.
 
 ## Out of Scope
+
 - <what this task must not change>
 ```
 

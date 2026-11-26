@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DO_NOT_TRACK: '1'
+  ASTRO_TELEMETRY_DISABLED: '1'
+  EXPO_NO_TELEMETRY: '1'
+  STORYBOOK_DISABLE_TELEMETRY: 'true'
+
+jobs:
+  sites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --check .
+      - run: pnpm exec turbo run lint typecheck build
+
+  boilerplate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPO_PUBLIC_API_URL: https://api.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: packages/boilerplate/pnpm-lock.yaml
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: packages/boilerplate/.bun-version
+      - name: Export the standalone project outside the checkout
+        run: |
+          mkdir -p "$RUNNER_TEMP/tstack-boilerplate"
+          git archive HEAD:packages/boilerplate | tar -x -C "$RUNNER_TEMP/tstack-boilerplate"
+      - run: pnpm install --frozen-lockfile
+        working-directory: ${{ runner.temp }}/tstack-boilerplate
+      - name: Generate and check contract drift
+        working-directory: ${{ runner.temp }}/tstack-boilerplate
+        run: |
+          pnpm generate
+          diff -r "$GITHUB_WORKSPACE/packages/boilerplate/apps/api/generated" apps/api/generated
+          diff -r "$GITHUB_WORKSPACE/packages/boilerplate/packages/sdk/src/generated" packages/sdk/src/generated
+      - run: pnpm check
+        working-directory: ${{ runner.temp }}/tstack-boilerplate

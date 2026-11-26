@@ -2,31 +2,29 @@
 node_modules/
 .pnpm-store/
 
-# Build outputs
-dist/
-build/
-.next/
-out/
-coverage/
+# Build outputs and task cache
 .turbo/
+dist/
+coverage/
+.output/
+.tanstack/
+.astro/
+.expo/
+storybook-static/
+*.tsbuildinfo
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 
-# Logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment files
+# Local environment and logs
 .env
 .env.*
 !.env.example
+*.log
 
-# Local agent/worktree state
-.looper/
-.worktrees/
+# Local agent state
+.amp/*
+!.amp/services.yaml
 
-# OS/editor files
+# OS files
 .DS_Store
-.idea/
-.vscode/

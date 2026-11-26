@@ -6,15 +6,9 @@ title: Coding Standards
 
 Make small, intentional, validated changes that preserve project language, project conventions, and long-term maintainability.
 
-## Default Workflow
+## Navigation
 
-1. Read `AGENTS.md`.
-2. Read `docs/context.md` when the task touches product or domain behavior.
-3. Load only the relevant engineering rules from `docs/engineering/index.md`.
-4. Understand the requested outcome before editing.
-5. Make the smallest focused change that solves the task.
-6. Validate the change with relevant tests, checks, or a clear explanation of what could not be run.
-7. Report what changed, how it was validated, and any remaining risk.
+Follow `AGENTS.md` for project context and ADR loading, and `.agents/invocation.md` for composing skills. Methods belong to their skill owners; use `docs/engineering/index.md` to find a risk guide only when that risk is present. Fill in the concrete naming, tooling and validation conventions of the installed project here rather than copying a second implementation workflow.
 
 ## Rules
 

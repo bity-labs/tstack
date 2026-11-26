@@ -5,6 +5,8 @@ description: Interrogate an early idea until it becomes clear enough to specify,
 
 # Ideate
 
+Humans initiate this conversation; agents may recommend it rather than starting an unsolicited interview. No doctrine preload is required. See [invocation rules](../../invocation.md).
+
 Interrogate the idea until we reach a shared understanding of what it is, why it matters, and what shape it should take.
 
 Walk down the idea tree one branch at a time. Resolve dependencies between decisions before moving on.

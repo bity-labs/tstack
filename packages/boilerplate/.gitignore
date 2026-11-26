@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs and task cache
+.turbo/
+.alchemy/
+dist/
+coverage/
+.output/
+.tanstack/
+.astro/
+.expo/
+storybook-static/
+*.tsbuildinfo
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local environment and logs
+.local/
+.env
+.env.*
+!.env.example
+*.log
+
+# Local agent state
+.amp/*
+!.amp/services.yaml
+
+# OS files
+.DS_Store

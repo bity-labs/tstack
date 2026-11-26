@@ -1,0 +1,10 @@
+{
+  "extends": ["@tstack/typescript-config/base.json", "astro/tsconfigs/strict"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}

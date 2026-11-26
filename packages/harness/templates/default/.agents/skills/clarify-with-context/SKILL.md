@@ -5,6 +5,8 @@ description: Clarify an idea, feature, or plan using the project's context, doma
 
 # Clarify With Context
 
+Humans initiate this clarification workflow; another method does not implicitly authorize an interview or context rewrite. See [invocation rules](../../invocation.md).
+
 Clarify the idea, feature, or plan until we share the same understanding of what it means in this project.
 
 Use the project context while questioning:
@@ -25,6 +27,8 @@ Walk down the decision tree one branch at a time. Resolve dependencies between d
 Use the project's existing domain language.
 
 When the user uses a fuzzy, overloaded, or conflicting term, stop and clarify it.
+
+Read `docs/engineering/domain-modeling.md` when resolving a business concept, invariant or bounded-context ambiguity, not merely to look up an already defined term.
 
 If `docs/context.md` defines a term differently from the user's usage, call out the conflict directly.
 

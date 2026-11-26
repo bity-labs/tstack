@@ -7,15 +7,11 @@ description: Apply a scoped refactor while preserving behavior. Use when the use
 
 Refactor one scoped area without changing observable behavior unless the user explicitly asks for a behavior change.
 
-## Read These First
+## Use and Context
 
-1. `docs/engineering/refactoring.md` — safe refactoring rules
-2. `docs/engineering/testing.md` — characterization and behavior coverage
-3. `docs/engineering/interface-design.md` — seams and public interfaces
-4. `docs/engineering/deep-modules.md` — module depth and interface leverage
-5. `docs/engineering/architecture-boundaries.md` — ownership and boundaries
-6. `docs/coding-standards.md` — repo conventions and validation commands
-7. `docs/context.md` and relevant `docs/adr/` files when domain or architecture decisions are involved
+Use this workflow for a requested structural change, not to expand feature work into cleanup. See [invocation rules](../../invocation.md).
+
+Read `docs/coding-standards.md` for stack constraints and commands before editing; read `docs/context.md` and relevant ADRs when domain meaning or architectural decisions are involved. Invoke `designing-modules` when the refactor requires choosing a responsibility, interface or dependency boundary, not for a mechanical rename. Load the legacy, data or security guide in `docs/engineering/` only when that risk is present.
 
 ## Workflow
 
@@ -53,18 +49,11 @@ Do not start moving code until you know what behavior must be preserved.
 
 ### 3. Characterize Before Changing
 
-If existing tests do not protect the behavior affected by the refactor, add characterization coverage first.
-
-Good characterization tests:
-
-- exercise observable behavior through stable interfaces
-- document current behavior, including edge cases
-- avoid private implementation details
-- cover the risky path the refactor will touch
+If existing tests do not protect the affected behavior, add characterization coverage of the current contract using [test quality](../implement-with-tdd/reference/tests.md). Do not change behavior or manufacture a failing test. If the existing suite already protects that contract, use it unchanged.
 
 Run the characterization tests and confirm they pass before changing production code.
 
-If no correct test seam exists, make the smallest safe structural change needed to create one, and call out the risk.
+If no correct test seam exists, use `designing-modules` to identify the smallest safe structural change needed to create one, and call out the risk.
 
 ### 4. Plan Tiny Steps
 
@@ -140,18 +129,23 @@ Final output:
 ## Refactor Summary
 
 What changed:
+
 - <structural change>
 
 Behavior preservation:
+
 - <tests or evidence proving behavior stayed the same>
 
 Validation:
+
 - ✅/❌ <command> — <result>
 
 Scope control:
+
 - <what was intentionally not changed>
 
 Follow-up:
+
 - <remaining risk or next safe improvement, if any>
 ```
 

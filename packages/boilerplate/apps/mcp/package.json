@@ -1,0 +1,27 @@
+{
+  "name": "@tstack/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --import tsx src/main.ts",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tstack/sdk": "workspace:*",
+    "@modelcontextprotocol/server": "2.4.0",
+    "effect": "4.1.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@tstack/eslint-config": "workspace:*",
+    "@tstack/typescript-config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "tsx": "4.22.4",
+    "typescript": "5.9.3",
+    "vitest": "5.1.1"
+  }
+}

@@ -22,8 +22,8 @@ Describe what the project does, who it serves, and the outcome it exists to crea
 
 Record the shared vocabulary of the project.
 
-| Term | Meaning | Notes |
-|---|---|---|
+| Term    | Meaning                           | Notes                                  |
+| ------- | --------------------------------- | -------------------------------------- |
 | Example | Replace with a real project term. | Link ADRs or feature docs when useful. |
 
 ## Important Distinctions
@@ -42,8 +42,8 @@ List durable rules that should remain true across implementations.
 
 List important providers, protocols, APIs, or services the project depends on.
 
-| System | Role | Boundary Notes |
-|---|---|---|
+| System           | Role                          | Boundary Notes                                            |
+| ---------------- | ----------------------------- | --------------------------------------------------------- |
 | Example Provider | Replace with real dependency. | Note ownership, retries, auth, or data exposure concerns. |
 
 ## Decisions and References
@@ -51,10 +51,11 @@ List important providers, protocols, APIs, or services the project depends on.
 Link ADRs, feature docs, or issues that define important context.
 
 - ADRs: `docs/adr/`
-- Engineering rules: `docs/engineering/`
+- Risk guides: `docs/engineering/`
+- Engineering methods and invocation: `.agents/skills/` and `.agents/invocation.md`
 
 ## Maintenance Rules
 
 - Update this file when durable project language changes.
 - Do not store temporary plans here; use GitHub Issues for specs and tasks.
-- Do not duplicate coding doctrine here; use `docs/coding-standards.md` and `docs/engineering/`.
+- Do not duplicate methods here; keep local conventions in `docs/coding-standards.md`, methods in `.agents/skills/`, and risk guides in `docs/engineering/`.

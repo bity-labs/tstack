@@ -1,0 +1,30 @@
+services:
+  api:
+    command: pnpm --filter @tstack/api dev
+    port: 4000
+    health: /health
+    review: false
+    portal:
+      title: Effect API
+      url: /openapi.json
+  web:
+    command: pnpm generate && pnpm --filter @tstack/web dev
+    port: 3000
+    health: /
+    portal:
+      title: Web application
+      url: /
+  website:
+    command: pnpm --filter @tstack/website dev
+    port: 4323
+    health: /
+    portal:
+      title: SaaS website
+      url: /
+  docs:
+    command: pnpm --filter @tstack/docs dev
+    port: 4324
+    health: /
+    portal:
+      title: SaaS documentation
+      url: /
