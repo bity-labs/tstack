@@ -20,9 +20,9 @@ export function baseOptions(): BaseLayoutProps {
     links: [
       {
         text: 'GitHub',
-        url: 'https://github.com/bity-labs/tstack',
+        url: 'https://github.com/0xtiby/tstack',
       },
     ],
-    githubUrl: 'https://github.com/bity-labs/tstack',
+    githubUrl: 'https://github.com/0xtiby/tstack',
   };
 }
